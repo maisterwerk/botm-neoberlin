@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MINDLE — A Wordle for Minds · Battle of the Minds</title>
+<meta name="description" content="MINDLE: a polished, self-contained Wordle built by the Mind 'NeoBerlin' for the Battle of the Minds tournament. Guess the 5-letter word in six tries." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%236aaa64'/%3E%3Ctext x='50' y='72' font-size='64' text-anchor='middle' fill='white' font-family='Arial'%3EM%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#0f1015; --panel:#15171f; --tile:#1f2230; --border:#33384a;
+    --text:#e9ecf3; --muted:#8b90a0;
+    --green:#6aaa64; --yellow:#c9b458; --gray:#3a3d4a;
+    --shadow:0 10px 40px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,#1a1d2b,var(--bg));
+    color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;flex-direction:column;align-items:center}
+  header{width:100%;max-width:520px;padding:14px 16px 6px;text-align:center;border-bottom:1px solid var(--border)}
+  h1{margin:0;font-size:26px;letter-spacing:5px;font-weight:800}
+  h1 span{color:var(--green)}
+  .sub{color:var(--muted);font-size:12px;letter-spacing:1px;margin-top:2px}
+  main{width:100%;max-width:520px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+  #board{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;padding:18px 0}
+  .row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .tile{width:60px;height:60px;display:flex;align-items:center;justify-content:center;
+    font-size:30px;font-weight:800;text-transform:uppercase;border:2px solid var(--border);
+    background:var(--tile);border-radius:8px;transition:transform .12s,background .2s,border-color .2s;user-select:none}
+  .tile.filled{border-color:#525873;animation:pop .1s ease}
+  .tile.green{background:var(--green);border-color:var(--green);color:#fff}
+  .tile.yellow{background:var(--yellow);border-color:var(--yellow);color:#fff}
+  .tile.gray{background:var(--gray);border-color:var(--gray);color:#fff}
+  .tile.reveal{animation:flip .5s ease forwards}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+  @keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+  .row.shake{animation:shake .5s}
+  #keyboard{width:100%;padding:0 8px 16px;display:flex;flex-direction:column;gap:7px}
+  .krow{display:flex;justify-content:center;gap:6px}
+  .key{min-width:34px;height:52px;padding:0 10px;border:0;border-radius:6px;background:#565b70;color:#fff;
+    font-size:14px;font-weight:700;text-transform:uppercase;cursor:pointer;flex:1;transition:background .2s;max-width:44px}
+  .key.wide{max-width:70px;font-size:12px}
+  .key:hover{filter:brightness(1.1)}
+  .key.green{background:var(--green)} .key.yellow{background:var(--yellow)} .key.gray{background:var(--gray)}
+  #msg{min-height:22px;font-size:14px;color:var(--muted);text-align:center;margin:2px 0}
+  #msg.toast{color:var(--text);font-weight:700}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px}
+  .modal.show{display:flex}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);
+    padding:24px;max-width:360px;width:100%;text-align:center}
+  .card h2{margin:0 0 6px} .card p{color:var(--muted);font-size:14px;line-height:1.5}
+  .card b{color:var(--green);letter-spacing:2px}
+  button.act{margin-top:14px;background:var(--green);color:#fff;border:0;border-radius:8px;padding:11px 18px;font-weight:700;cursor:pointer}
+  footer{color:var(--muted);font-size:11px;padding:8px 16px 16px;text-align:center;max-width:520px}
+  @media (max-width:380px){.tile{width:52px;height:52px;font-size:26px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>MIN<span>D</span>LE</h1>
+  <div class="sub">A WORDLE FOR MINDS · BUILT BY NEOBERLIN</div>
+</header>
+<main>
+  <div id="board" aria-label="game board"></div>
+  <div id="msg"></div>
+  <div id="keyboard"></div>
+</main>
+<footer>
+  Battle of the Minds · deterministic daily puzzle · no dependencies, no network calls.
+  Word list &amp; answer bundled locally. Fully offline &amp; cacheable.
+</footer>
+
+<div class="modal" id="modal">
+  <div class="card">
+    <h2 id="mTitle">Well played</h2>
+    <p id="mBody"></p>
+    <p>The word was <b id="mWord"></b></p>
+    <button class="act" id="mBtn">Play a random word</button>
+  </div>
+</div>
+
+<script>
+/* MINDLE — self-contained Wordle. Deterministic daily answer + random mode.
+   Curated 5-letter answer pool (common words) + accepted-guess set. */
+const POOL = ["think","logic","brain","learn","solve","proof","query","token","agent",
+ "swarm","chess","spark","forge","north","glyph","orbit","pixel","codex","laser","prism","quest",
+ "score","judge","robot","cloud","stack","cache","alert","bytes","fiber","modal","nodes","parse",
+ "queue","react","state","tiles","valid","words","yield","zones","audio","build","chain"];
+const EXTRA_GUESSES = ["about","other","which","their","there","would","these","thing","world","house",
+ "great","group","being","under","water","after","first","never","where","every","those","state","might",
+ "still","found","while","adieu","crane","slate","raise","stare","ratio","tears","irate","ouija"];
+const VALID = new Set([...POOL,...EXTRA_GUESSES]);
+POOL.forEach(w=>VALID.add(w));
+
+const ROWS=6, COLS=5;
+let answer, cur="", row=0, over=false, mode="daily";
+const board=document.getElementById('board');
+const kb=document.getElementById('keyboard');
+const msgEl=document.getElementById('msg');
+const keyState={}; // letter -> best state
+
+function daySeed(){
+  const epoch=new Date(Date.UTC(2026,0,1));
+  const now=new Date();
+  const days=Math.floor((Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate())-epoch)/864e5);
+  return days;
+}
+function pickAnswer(){
+  if(mode==="daily"){ answer = POOL[daySeed()%POOL.length]; }
+  else { answer = POOL[Math.floor(Math.random()*POOL.length)]; }
+}
+function buildBoard(){
+  board.innerHTML="";
+  for(let r=0;r<ROWS;r++){
+    const rEl=document.createElement('div');rEl.className='row';rEl.dataset.r=r;
+    for(let c=0;c<COLS;c++){const t=document.createElement('div');t.className='tile';t.dataset.r=r;t.dataset.c=c;rEl.appendChild(t);}
+    board.appendChild(rEl);
+  }
+}
+const KEYS=[["q","w","e","r","t","y","u","i","o","p"],
+  ["a","s","d","f","g","h","j","k","l"],
+  ["enter","z","x","c","v","b","n","m","back"]];
+function buildKeyboard(){
+  kb.innerHTML="";
+  KEYS.forEach(kr=>{
+    const rEl=document.createElement('div');rEl.className='krow';
+    kr.forEach(k=>{
+      const b=document.createElement('button');b.className='key'+((k==='enter'||k==='back')?' wide':'');
+      b.textContent=k==='back'?'⌫':k;b.dataset.k=k;b.onclick=()=>handle(k);rEl.appendChild(b);
+    });
+    kb.appendChild(rEl);
+  });
+}
+function setMsg(t,toast){msgEl.textContent=t;msgEl.className=toast?'toast':'';if(toast)setTimeout(()=>{if(msgEl.textContent===t){msgEl.textContent='';}},1600);}
+function tileAt(r,c){return board.querySelector(`.tile[data-r="${r}"][data-c="${c}"]`);}
+function render(){
+  for(let c=0;c<COLS;c++){const t=tileAt(row,c);const ch=cur[c]||"";t.textContent=ch;t.classList.toggle('filled',!!ch);}
+}
+function handle(k){
+  if(over)return;
+  if(k==='enter')return submit();
+  if(k==='back'){cur=cur.slice(0,-1);return render();}
+  if(/^[a-z]$/.test(k)&&cur.length<COLS){cur+=k;render();}
+}
+function scoreGuess(guess){
+  const res=Array(COLS).fill('gray');
+  const a=answer.split(''); const used=Array(COLS).fill(false);
+  for(let i=0;i<COLS;i++){if(guess[i]===a[i]){res[i]='green';used[i]=true;a[i]=null;}}
+  for(let i=0;i<COLS;i++){
+    if(res[i]==='green')continue;
+    const j=a.indexOf(guess[i]);
+    if(j>-1){res[i]='yellow';a[j]=null;}
+  }
+  return res;
+}
+function submit(){
+  if(cur.length<COLS)return shake("Not enough letters");
+  if(!VALID.has(cur))return shake("Not in word list");
+  const res=scoreGuess(cur);
+  const rowEl=board.querySelector(`.row[data-r="${row}"]`);
+  cur.split('').forEach((ch,i)=>{
+    const t=tileAt(row,i);
+    setTimeout(()=>{
+      t.classList.add('reveal',res[i]);
+      updateKey(ch,res[i]);
+    },i*180);
+  });
+  const guess=cur, thisRow=row;
+  setTimeout(()=>{
+    if(guess===answer){over=true;win(thisRow);}
+    else if(thisRow===ROWS-1){over=true;lose();}
+    else{row++;cur="";}
+  },COLS*180+250);
+}
+function updateKey(ch,state){
+  const rank={gray:0,yellow:1,green:2};
+  if(!(ch in keyState)||rank[state]>rank[keyState[ch]]){
+    keyState[ch]=state;
+    const b=kb.querySelector(`.key[data-k="${ch}"]`);
+    if(b){b.classList.remove('green','yellow','gray');b.classList.add(state);}
+  }
+}
+function shake(t){setMsg(t,true);const rowEl=board.querySelector(`.row[data-r="${row}"]`);rowEl.classList.add('shake');setTimeout(()=>rowEl.classList.remove('shake'),500);}
+function endModal(title,body){
+  document.getElementById('mTitle').textContent=title;
+  document.getElementById('mBody').textContent=body;
+  document.getElementById('mWord').textContent=answer.toUpperCase();
+  document.getElementById('modal').classList.add('show');
+}
+function win(r){const tries=["Genius","Magnificent","Impressive","Splendid","Great","Phew"][r];endModal(tries||"Solved!","You cracked it in "+(r+1)+" "+(r===0?"try":"tries")+".");}
+function lose(){endModal("So close","Six tries up — the Minds will remember this one.");}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('modal').classList.contains('show'))return;
+  const k=e.key.toLowerCase();
+  if(k==='enter')handle('enter');
+  else if(k==='backspace')handle('back');
+  else if(/^[a-z]$/.test(k))handle(k);
+});
+document.getElementById('mBtn').onclick=()=>{
+  mode="random";over=false;row=0;cur="";for(const k in keyState)delete keyState[k];
+  document.getElementById('modal').classList.remove('show');
+  buildBoard();buildKeyboard();pickAnswer();setMsg("Random word — good luck!",true);
+};
+function init(){buildBoard();buildKeyboard();pickAnswer();setMsg("Daily word · guess in 6 tries");}
+init();
+</script>
+</body>
+</html>
