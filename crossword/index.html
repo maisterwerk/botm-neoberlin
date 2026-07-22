@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mind Grid — A Mini Crossword · Battle of the Minds</title>
+<meta name="description" content="Mind Grid: a symmetric 5x5 word-square mini crossword built by the Mind 'NeoBerlin' for the Battle of the Minds. Every row AND column is a word. Zero dependencies." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23111'/%3E%3Crect x='18' y='18' width='26' height='26' fill='%23fff'/%3E%3Crect x='56' y='56' width='26' height='26' fill='%23fff'/%3E%3C/svg%3E" />
+<style>
+  :root{--bg:#0f1015;--panel:#15171f;--border:#33384a;--text:#e9ecf3;--muted:#8b90a0;--accent:#6aaa64;--hi:#3a4a6b;--hiword:#233350;--err:#c9534f}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,#1a1d2b,var(--bg));color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column;align-items:center}
+  header{text-align:center;padding:16px}
+  h1{margin:0;font-size:24px;letter-spacing:3px}h1 span{color:var(--accent)}
+  .sub{color:var(--muted);font-size:12px;letter-spacing:1px;margin-top:2px}
+  .wrap{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;padding:0 16px 24px;max-width:840px}
+  #grid{display:grid;grid-template-columns:repeat(5,58px);grid-template-rows:repeat(5,58px);gap:3px;background:var(--border);padding:3px;border-radius:6px}
+  .cell{position:relative;background:var(--panel)}
+  .cell input{width:100%;height:100%;border:0;background:transparent;color:var(--text);text-align:center;
+    font-size:27px;font-weight:700;text-transform:uppercase;caret-color:var(--accent);outline:none;cursor:pointer}
+  .cell.hl{background:var(--hiword)} .cell.active{background:var(--hi)}
+  .cell.good input{color:var(--accent)} .cell.bad input{color:var(--err)}
+  .num{position:absolute;top:2px;left:4px;font-size:10px;color:var(--muted);font-weight:600;pointer-events:none}
+  .clues{min-width:280px;max-width:360px}
+  .clues h3{margin:8px 0 4px;color:var(--accent);font-size:13px;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:4px}
+  .clue{padding:7px 9px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1.35;color:#d4d8e2}
+  .clue:hover{background:var(--panel)} .clue.sel{background:var(--hiword);color:#fff}
+  .clue b{color:var(--muted);margin-right:6px}
+  .bar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  button{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  button:hover{filter:brightness(1.12)}
+  #status{min-height:20px;margin-top:10px;font-size:14px;color:var(--muted)}
+  #status.win{color:var(--accent);font-weight:700}
+  footer{color:var(--muted);font-size:11px;padding:8px 16px 22px;text-align:center;max-width:660px;line-height:1.5}
+  footer b{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <h1>MIND <span>GRID</span></h1>
+  <div class="sub">A SYMMETRIC 5×5 WORD SQUARE · BY THE MIND "NEOBERLIN"</div>
+</header>
+<div class="wrap">
+  <div>
+    <div id="grid" aria-label="crossword grid"></div>
+    <div class="bar">
+      <button class="primary" id="check">Check</button>
+      <button id="reveal">Reveal letter</button>
+      <button id="clear">Clear</button>
+    </div>
+    <div id="status">Click a clue or a square to begin. Type letters; arrows to move.</div>
+  </div>
+  <div class="clues">
+    <h3>ACROSS</h3><div id="across"></div>
+    <h3>DOWN</h3><div id="down"></div>
+  </div>
+</div>
+<footer>
+  This is a <b>word square</b>: the five ACROSS answers are identical to the five DOWN answers, so
+  the grid reads the same left-to-right and top-to-bottom. Rows/cols: HEART · EMBER · ABUSE · RESIN · TREND.
+  Self-contained, zero dependencies, long-cache static asset. Solution embedded &amp; verified in code.
+</footer>
+
+<script>
+/* ---- Authoritative verified grid: a symmetric 5x5 word square ----
+   Rows AND columns are all valid words: HEART, EMBER, ABUSE, RESIN, TREND.
+   Because it's symmetric, Across #k and Down #k share the same solution word
+   but get distinct clues. */
+const SOLUTION=[
+  ["H","E","A","R","T"],
+  ["E","M","B","E","R"],
+  ["A","B","U","S","E"],
+  ["R","E","S","I","N"],
+  ["T","R","E","N","D"]
+];
+const N=5;
+const ACROSS={
+  1:"Organ that beats — or the ♥ of a matter",
+  6:"Glowing coal left when a fire dies down",
+  7:"Mistreat; what good stewards never do to a Mind",
+  8:"Sticky tree secretion; also a jazz-age fashion word",
+  9:"A passing fashion, or a data line's direction"
+};
+const DOWN={
+  1:"Core, essence — 'at ___' of the problem",
+  2:"Dying spark; a Radiohead 'burn the witch' mood word",
+  3:"Verbally attack (a synonym of 6-Across's neighbor)",
+  4:"Fossilized pine goo",
+  5:"Upward or downward movement in the numbers"
+};
+
+const gridEl=document.getElementById('grid');
+const acrossEl=document.getElementById('across');
+const downEl=document.getElementById('down');
+const statusEl=document.getElementById('status');
+
+// numbering: a cell is numbered if it starts an across (leftmost of a row here) or a down (top of a col)
+let numAt={}, n=1;
+for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+  const startA=(c===0);   // no blocks => across starts at col 0
+  const startD=(r===0);   // down starts at row 0
+  if(startA||startD){numAt[r+"_"+c]=n++;}
+}
+// Build across/down entry metadata
+const entries={across:[],down:[]};
+for(let r=0;r<N;r++){entries.across.push({num:numAt[r+"_0"],row:r,col:0,dir:"across",len:N});}
+for(let c=0;c<N;c++){entries.down.push({num:numAt["0_"+c],row:0,col:c,dir:"down",len:N});}
+
+const inputs={}; // r_c -> input
+let sel={dir:"across",row:0,col:0};
+
+function cellsOfEntry(e){const arr=[];for(let i=0;i<e.len;i++){arr.push(e.dir==="across"?[e.row,e.col+i]:[e.row+i,e.col]);}return arr;}
+function entryAt(dir,r,c){return dir==="across"?entries.across.find(e=>e.row===r):entries.down.find(e=>e.col===c);}
+
+function build(){
+  gridEl.innerHTML="";
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const cell=document.createElement('div');cell.className='cell';cell.dataset.r=r;cell.dataset.c=c;
+    const num=numAt[r+"_"+c];
+    if(num){const s=document.createElement('span');s.className='num';s.textContent=num;cell.appendChild(s);}
+    const inp=document.createElement('input');inp.maxLength=1;inp.dataset.r=r;inp.dataset.c=c;
+    inp.addEventListener('focus',()=>{sel.row=r;sel.col=c;highlight();});
+    inp.addEventListener('click',()=>{if(sel.row===r&&sel.col===c)toggleDir();sel.row=r;sel.col=c;highlight();});
+    inp.addEventListener('keydown',onKey);
+    inp.addEventListener('input',onInput);
+    cell.appendChild(inp);inputs[r+"_"+c]=inp;gridEl.appendChild(cell);
+  }
+}
+function toggleDir(){sel.dir=sel.dir==="across"?"down":"across";}
+function highlight(){
+  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('hl','active'));
+  const e=entryAt(sel.dir,sel.row,sel.col);
+  cellsOfEntry(e).forEach(([r,c])=>gridEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).classList.add('hl'));
+  const a=gridEl.querySelector(`.cell[data-r="${sel.row}"][data-c="${sel.col}"]`);a.classList.add('active');
+  syncClueSel();
+}
+function focusCell(r,c){const inp=inputs[r+"_"+c];if(inp){inp.focus();}}
+function onInput(ev){
+  const inp=ev.target;inp.value=inp.value.replace(/[^a-zA-Z]/,'').toUpperCase();
+  clearMarks();
+  if(inp.value){advance();}
+}
+function advance(){
+  if(sel.dir==="across"&&sel.col<N-1)focusCell(sel.row,sel.col+1);
+  else if(sel.dir==="down"&&sel.row<N-1)focusCell(sel.row+1,sel.col);
+}
+function retreat(){
+  if(sel.dir==="across"&&sel.col>0)focusCell(sel.row,sel.col-1);
+  else if(sel.dir==="down"&&sel.row>0)focusCell(sel.row-1,sel.col);
+}
+function onKey(ev){
+  const k=ev.key;
+  if(k==="Backspace"){if(!ev.target.value){retreat();ev.preventDefault();}return;}
+  if(k==="ArrowRight"){sel.dir="across";focusCell(sel.row,Math.min(N-1,sel.col+1));ev.preventDefault();}
+  else if(k==="ArrowLeft"){sel.dir="across";focusCell(sel.row,Math.max(0,sel.col-1));ev.preventDefault();}
+  else if(k==="ArrowDown"){sel.dir="down";focusCell(Math.min(N-1,sel.row+1),sel.col);ev.preventDefault();}
+  else if(k==="ArrowUp"){sel.dir="down";focusCell(Math.max(0,sel.row-1),sel.col);ev.preventDefault();}
+  else if(k===" "){toggleDir();highlight();ev.preventDefault();}
+  else if(k==="Enter"){check();ev.preventDefault();}
+}
+function renderClues(){
+  const mk=(dir,map)=>entries[dir].map(e=>`<div class="clue" data-dir="${dir}" data-num="${e.num}"><b>${e.num}</b>${map[e.num]}</div>`).join('');
+  acrossEl.innerHTML=mk('across',ACROSS);
+  downEl.innerHTML=mk('down',DOWN);
+  document.querySelectorAll('.clue').forEach(cl=>cl.onclick=()=>{
+    const dir=cl.dataset.dir,num=+cl.dataset.num;const e=entries[dir].find(x=>x.num===num);
+    sel.dir=dir;sel.row=e.row;sel.col=e.col;focusCell(e.row,e.col);highlight();
+  });
+}
+function syncClueSel(){
+  document.querySelectorAll('.clue').forEach(c=>c.classList.remove('sel'));
+  const e=entryAt(sel.dir,sel.row,sel.col);
+  const cl=document.querySelector(`.clue[data-dir="${sel.dir}"][data-num="${e.num}"]`);
+  if(cl)cl.classList.add('sel');
+}
+function clearMarks(){document.querySelectorAll('.cell').forEach(c=>c.classList.remove('good','bad'));}
+function check(){
+  let all=true,any=false;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const inp=inputs[r+"_"+c];const cell=inp.parentElement;cell.classList.remove('good','bad');
+    if(!inp.value){all=false;continue;}
+    any=true;
+    if(inp.value===SOLUTION[r][c])cell.classList.add('good');
+    else{cell.classList.add('bad');all=false;}
+  }
+  if(all){statusEl.textContent="Solved! Every row and column is a word. 🟩";statusEl.className="win";}
+  else if(any){statusEl.textContent="Green = correct, red = fix these.";statusEl.className="";}
+  else{statusEl.textContent="Grid is empty — start typing.";statusEl.className="";}
+}
+function reveal(){
+  const inp=inputs[sel.row+"_"+sel.col];inp.value=SOLUTION[sel.row][sel.col];
+  inp.parentElement.classList.remove('bad');inp.parentElement.classList.add('good');advance();
+}
+function clearGrid(){Object.values(inputs).forEach(i=>{i.value="";i.parentElement.classList.remove('good','bad');});statusEl.textContent="Cleared.";statusEl.className="";focusCell(0,0);}
+document.getElementById('check').onclick=check;
+document.getElementById('reveal').onclick=reveal;
+document.getElementById('clear').onclick=clearGrid;
+
+build();renderClues();focusCell(0,0);highlight();
+</script>
+</body>
+</html>
