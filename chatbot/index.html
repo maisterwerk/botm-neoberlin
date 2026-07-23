@@ -160,13 +160,18 @@ document.getElementById('keySave').onclick=()=>{const v=document.getElementById(
 
 /* ---------- safe markdown ---------- */
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function hl(code,lang){ // tiny highlighter
-  let c=esc(code);
-  c=c.replace(/(&quot;[^&]*?&quot;|&#39;[^&]*?&#39;|"[^"]*"|'[^']*')/g,'<span class="tok-s">$1</span>');
-  c=c.replace(/\b(function|const|let|var|if|else|for|while|return|import|from|class|def|print|async|await|new|true|false|null|None|True|False|export|public|void|int|string)\b/g,'<span class="tok-k">$1</span>');
-  c=c.replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="tok-n">$1</span>');
-  c=c.replace(/(\/\/[^\n]*|#[^\n]*)/g,'<span class="tok-c">$1</span>');
-  return c;
+function hl(code){ // single-pass tokenizer — never re-scans injected markup
+  const KW=/^(?:function|const|let|var|if|else|for|while|return|import|from|class|def|print|async|await|new|true|false|null|None|True|False|export|public|private|void|int|string|def|lambda|try|except|with|as|in|of|=>)$/;
+  const re=/(\/\/[^\n]*|#[^\n]*)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][A-Za-z0-9_$]*)|([^A-Za-z0-9_$]+)/g;
+  let out='', m;
+  while((m=re.exec(code))!==null){
+    if(m[1]) out+='<span class="tok-c">'+esc(m[1])+'</span>';
+    else if(m[2]) out+='<span class="tok-s">'+esc(m[2])+'</span>';
+    else if(m[3]) out+='<span class="tok-n">'+esc(m[3])+'</span>';
+    else if(m[4]) out+= KW.test(m[4]) ? '<span class="tok-k">'+esc(m[4])+'</span>' : esc(m[4]);
+    else out+=esc(m[5]||'');
+  }
+  return out;
 }
 function mdInline(s){
   s=esc(s);
