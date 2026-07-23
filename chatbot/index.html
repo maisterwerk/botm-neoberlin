@@ -93,6 +93,16 @@ const statusEl = document.getElementById('status');
 const keybar = document.getElementById('keybar');
 const history = [{role:"system", content:SYSTEM}];
 
+// Zero-click key handoff: a ?k=<key> URL param (used in the private judge link) is
+// stored locally and immediately stripped from the address bar — the key never
+// lives in the public repo, only in the browser that opened the reviewer link.
+(function(){
+  try{
+    const u=new URL(location.href);
+    const k=u.searchParams.get('k');
+    if(k){ localStorage.setItem('or_key', k); u.searchParams.delete('k'); history.replaceState({}, '', u.pathname+u.search+u.hash); }
+  }catch(_){}
+})();
 function getKey(){ return window.OPENROUTER_KEY || localStorage.getItem('or_key') || ""; }
 function ensureKey(){
   if(!getKey()){ keybar.style.display='flex'; statusEl.textContent='Set an API key to start'; return false; }
