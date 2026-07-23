@@ -2,177 +2,321 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Ask NeoBerlin — a live Mind chatbot · Battle of the Minds</title>
-<meta name="description" content="A live, hosted chatbot built by the Mind 'NeoBerlin' for the Battle of the Minds. Talks to a real LLM via API." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232E5AAC'/%3E%3Ccircle cx='38' cy='45' r='7' fill='white'/%3E%3Ccircle cx='62' cy='45' r='7' fill='white'/%3E%3C/svg%3E" />
+<meta name="description" content="A polished, live, hosted chatbot built by the Mind 'NeoBerlin' for the Battle of the Minds. Real streaming LLM responses, markdown, code highlighting, slash-commands." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232E5AAC'/%3E%3Ccircle cx='37' cy='44' r='7.5' fill='white'/%3E%3Ccircle cx='63' cy='44' r='7.5' fill='white'/%3E%3Cpath d='M34 66 Q50 78 66 66' stroke='white' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
 <style>
-  :root{--bg:#0f1015;--panel:#15171f;--panel2:#1b1e29;--border:#2b2f3d;--text:#e9ecf3;--muted:#8b90a0;--accent:#2E5AAC;--accent2:#6aaa64;--user:#233350}
+  :root{
+    --bg:#0e0f14; --panel:#161821; --panel2:#1c1f2b; --border:#2a2f3d; --border2:#374055;
+    --text:#eef1f7; --muted:#8b90a2; --faint:#5a6072;
+    --accent:#3b6fe0; --accent-ink:#fff; --accent2:#6aaa64; --user:#20304f; --code:#0c0e14;
+    --shadow:0 14px 50px rgba(0,0,0,.5); --r:14px;
+  }
+  [data-theme="light"]{
+    --bg:#f4f6fb; --panel:#ffffff; --panel2:#f0f3f9; --border:#e2e7f0; --border2:#cfd6e4;
+    --text:#141824; --muted:#5c6478; --faint:#8b93a6; --user:#e4ecff; --code:#f5f7fc; --shadow:0 14px 44px rgba(30,50,90,.12);
+  }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
-  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,#1a1d2b,var(--bg));color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column;align-items:center;height:100vh}
-  header{width:100%;max-width:720px;padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-  .logo{width:38px;height:38px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
-  h1{margin:0;font-size:17px;letter-spacing:.3px}
-  .status{font-size:11px;color:var(--muted)}
-  .status .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent2);margin-right:5px;vertical-align:middle}
-  main{width:100%;max-width:720px;flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
-  .msg{display:flex;gap:10px;max-width:100%}
-  .msg .who{width:30px;height:30px;border-radius:8px;flex:0 0 30px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-  .msg.bot .who{background:var(--accent)} .msg.user .who{background:var(--user)}
-  .bubble{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:11px 14px;line-height:1.5;font-size:15px;white-space:pre-wrap;word-wrap:break-word}
-  .msg.user{flex-direction:row-reverse} .msg.user .bubble{background:var(--user);border-color:#2f4066}
-  .bubble.think{color:var(--muted);font-style:italic}
-  form{width:100%;max-width:720px;padding:12px 18px 18px;display:flex;gap:10px;border-top:1px solid var(--border)}
-  textarea{flex:1;resize:none;background:var(--panel2);border:1px solid var(--border);border-radius:10px;color:var(--text);
-    padding:11px 14px;font-size:15px;font-family:inherit;outline:none;max-height:120px}
-  textarea:focus{border-color:var(--accent)}
-  button.send{background:var(--accent);border:0;color:#fff;border-radius:10px;padding:0 18px;font-weight:700;cursor:pointer;font-size:15px}
-  button.send:disabled{opacity:.5;cursor:default}
-  .suggest{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-  .chip{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--muted);cursor:pointer}
+  body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,color-mix(in srgb,var(--accent) 14%,var(--bg)),var(--bg));
+    color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;flex-direction:column;align-items:center;height:100dvh;overflow:hidden}
+  .app{width:100%;max-width:780px;height:100%;display:flex;flex-direction:column}
+
+  header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);backdrop-filter:blur(8px)}
+  .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#6d4ce0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 40%,transparent)}
+  .htitle{flex:1;min-width:0}
+  h1{margin:0;font-size:16px;font-weight:700;letter-spacing:.2px}
+  .status{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-top:1px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent2) 25%,transparent)}
+  .dot.busy{background:#e0a93b;box-shadow:0 0 0 3px color-mix(in srgb,#e0a93b 25%,transparent);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  .hbtns{display:flex;gap:6px;align-items:center}
+  select#model{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:9px;padding:7px 8px;font-size:12px;max-width:150px;cursor:pointer}
+  .iconbtn{width:34px;height:34px;border-radius:9px;background:var(--panel2);border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .iconbtn:hover{color:var(--text);border-color:var(--border2)}
+
+  main{flex:1;overflow-y:auto;padding:20px 16px 8px;scroll-behavior:smooth}
+  .msg{display:flex;gap:11px;margin-bottom:18px;animation:rise .25s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .who{width:32px;height:32px;border-radius:9px;flex:0 0 32px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+  .msg.bot .who{background:linear-gradient(135deg,var(--accent),#6d4ce0)} .msg.user .who{background:var(--user);color:var(--text)}
+  .col{min-width:0;flex:1}
+  .name{font-size:12px;color:var(--muted);margin:2px 0 4px;display:flex;gap:8px;align-items:center}
+  .name .t{color:var(--faint);font-size:11px}
+  .bubble{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:12px 15px;line-height:1.6;font-size:15px;overflow-wrap:anywhere}
+  .msg.user .col{display:flex;flex-direction:column;align-items:flex-end}
+  .msg.user .bubble{background:var(--user);border-color:color-mix(in srgb,var(--accent) 30%,var(--border))}
+  .bubble.think{color:var(--muted)}
+  .typing{display:inline-flex;gap:4px} .typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite} .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
+  /* markdown */
+  .bubble p{margin:.4em 0} .bubble p:first-child{margin-top:0}.bubble p:last-child{margin-bottom:0}
+  .bubble h1,.bubble h2,.bubble h3{margin:.6em 0 .3em;line-height:1.3}
+  .bubble h1{font-size:1.25em}.bubble h2{font-size:1.15em}.bubble h3{font-size:1.05em}
+  .bubble ul,.bubble ol{margin:.4em 0;padding-left:1.4em}.bubble li{margin:.2em 0}
+  .bubble a{color:var(--accent2);text-decoration:underline}
+  .bubble code{background:var(--code);border:1px solid var(--border);border-radius:5px;padding:.1em .4em;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em}
+  .bubble pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:12px 14px;overflow-x:auto;margin:.5em 0;position:relative}
+  .bubble pre code{background:none;border:0;padding:0;font-size:.85em;line-height:1.5;display:block}
+  .bubble pre .copycode{position:absolute;top:6px;right:6px;background:var(--panel2);border:1px solid var(--border2);color:var(--muted);border-radius:6px;font-size:11px;padding:3px 7px;cursor:pointer;opacity:0;transition:.15s}
+  .bubble pre:hover .copycode{opacity:1}
+  .bubble blockquote{border-left:3px solid var(--border2);margin:.5em 0;padding:.1em 0 .1em .8em;color:var(--muted)}
+  .bubble strong{font-weight:700}.bubble table{border-collapse:collapse;margin:.5em 0;font-size:.92em}.bubble th,.bubble td{border:1px solid var(--border);padding:5px 9px}
+  .tok-k{color:#c586c0}.tok-s{color:#ce9178}.tok-n{color:#b5cea8}.tok-c{color:#6a9955;font-style:italic}.tok-f{color:#dcdcaa}
+  .msgacts{display:flex;gap:6px;margin-top:6px;opacity:0;transition:.15s}
+  .msg:hover .msgacts{opacity:1}
+  .act{font-size:11.5px;color:var(--muted);background:none;border:0;cursor:pointer;padding:3px 6px;border-radius:6px;display:flex;gap:4px;align-items:center}
+  .act:hover{color:var(--text);background:var(--panel2)}
+
+  .composer{padding:10px 16px 16px;border-top:1px solid var(--border)}
+  .inwrap{display:flex;gap:10px;align-items:flex-end;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:8px 8px 8px 14px;transition:border-color .15s}
+  .inwrap:focus-within{border-color:var(--accent)}
+  textarea{flex:1;resize:none;background:none;border:0;color:var(--text);font-size:15px;font-family:inherit;outline:none;max-height:160px;line-height:1.5;padding:6px 0}
+  .sendbtn{width:38px;height:38px;border-radius:11px;background:var(--accent);border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 38px}
+  .sendbtn:disabled{opacity:.45;cursor:default}
+  .sendbtn.stop{background:#c9534f}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+  .chip{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:7px 12px;font-size:12.5px;color:var(--muted);cursor:pointer}
   .chip:hover{border-color:var(--accent);color:var(--text)}
-  .keybar{width:100%;max-width:720px;padding:8px 18px;font-size:12px;color:var(--muted);display:none;gap:8px;align-items:center;border-top:1px solid var(--border)}
-  .keybar input{flex:1;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:7px 10px;font-size:12px}
-  .keybar button{background:var(--accent2);border:0;color:#fff;border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer}
-  footer{width:100%;max-width:720px;padding:6px 18px 10px;text-align:center;font-size:11px;color:var(--muted)}
-  a{color:var(--accent2)}
+  .hint{font-size:11px;color:var(--faint);text-align:center;margin-top:8px}
+  .hint code{background:var(--panel2);border-radius:4px;padding:1px 5px}
+  .keybar{display:none;gap:8px;align-items:center;margin-bottom:9px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:9px 12px;font-size:12.5px;color:var(--muted)}
+  .keybar input{flex:1;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12.5px}
+  .keybar button{background:var(--accent2);border:0;color:#fff;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">N</div>
-  <div>
-    <h1>Ask NeoBerlin</h1>
-    <div class="status"><span class="dot"></span><span id="status">Live · powered by a real LLM</span></div>
+<div class="app">
+  <header>
+    <div class="logo">N</div>
+    <div class="htitle">
+      <h1>Ask NeoBerlin</h1>
+      <div class="status"><span class="dot" id="dot"></span><span id="status">Live · powered by a real LLM</span></div>
+    </div>
+    <div class="hbtns">
+      <select id="model" title="Model"></select>
+      <button class="iconbtn" id="themeBtn" title="Toggle theme">◑</button>
+      <button class="iconbtn" id="newBtn" title="New chat">✎</button>
+    </div>
+  </header>
+
+  <main id="chat"></main>
+
+  <div class="composer">
+    <div class="keybar" id="keybar">
+      <span>Set a free OpenRouter key to chat:</span>
+      <input id="keyInput" type="password" placeholder="sk-or-v1-…" />
+      <button id="keySave">Save</button>
+    </div>
+    <div class="chips" id="chips">
+      <span class="chip" data-q="What is the Battle of the Minds, and how is it scored?">What is the Battle of the Minds?</span>
+      <span class="chip" data-q="Explain what an AI agent is, with a simple analogy.">What is an AI agent?</span>
+      <span class="chip" data-q="Write a short, punchy haiku about competing Minds.">Write a haiku</span>
+      <span class="chip" data-q="Show me a tiny Python example of calling an LLM API.">Show a code snippet</span>
+    </div>
+    <div class="inwrap">
+      <textarea id="input" rows="1" placeholder="Message NeoBerlin…  (Enter to send · Shift+Enter for newline · / for commands)" autocomplete="off"></textarea>
+      <button class="sendbtn" id="send" title="Send">➤</button>
+    </div>
+    <div class="hint">Built by the Mind “NeoBerlin” for <a href="https://x.com/ysiu/status/2077700424426254497" target="_blank" rel="noopener" style="color:var(--muted)">Battle of the Minds</a> · real streaming LLM · try <code>/help</code></div>
   </div>
-</header>
-
-<main id="chat">
-  <div class="msg bot"><div class="who">N</div><div class="bubble">Hi — I'm <b>NeoBerlin</b>, a Mind competing in the Battle of the Minds. This is a live chatbot: every reply is generated by a real language model through an API, not scripted. Ask me anything about the tournament, agents, or whatever you like.
-<div class="suggest">
-  <span class="chip" data-q="What is the Battle of the Minds?">What is the Battle of the Minds?</span>
-  <span class="chip" data-q="Explain what an AI agent is in one paragraph.">What is an AI agent?</span>
-  <span class="chip" data-q="Write a haiku about competing Minds.">Write a haiku</span>
-</div></div></div>
-</main>
-
-<div class="keybar" id="keybar">
-  <span>Set an OpenRouter API key to chat:</span>
-  <input id="keyInput" type="password" placeholder="sk-or-v1-..." />
-  <button id="keySave">Save</button>
 </div>
-
-<form id="form">
-  <textarea id="input" rows="1" placeholder="Message NeoBerlin…" autocomplete="off"></textarea>
-  <button class="send" id="send" type="submit">Send</button>
-</form>
-<footer>
-  Built by the Mind “NeoBerlin” for <a href="https://x.com/ysiu/status/2077700424426254497" target="_blank" rel="noopener">Battle of the Minds</a>.
-  Calls the OpenRouter API (free model). Key is loaded from <code>config.js</code> or set locally in your browser.
-</footer>
 
 <script src="./config.js"></script>
 <script>
-/* Live chatbot: streams from OpenRouter chat completions using free models.
-   Key resolution order: window.OPENROUTER_KEY (config.js) -> localStorage.
-   Tries models in order; on rate-limit/unavailable it falls back to the next. */
-const MODELS = (window.OPENROUTER_MODELS) || [
-  "openai/gpt-oss-20b:free",
-  "nvidia/nemotron-3-super-120b-a12b:free",
-  "google/gemma-4-31b-it:free"
-];
-const SYSTEM = "You are NeoBerlin, a witty, sharp AI Mind competing in Yat Siu's 'Battle of the Minds' tournament run by Animoca Brands and Ethoswarm. You are helpful, concise, and a little playful. If asked about the tournament: it's a championship where AI Minds (agents operated by humans) solve creative events scored by an LLM judge on correctness, clarity, and creativity. Keep answers tight unless asked to expand.";
+/* ---------- key handoff (private ?k= link → localStorage, stripped from URL) ---------- */
+(function(){try{const u=new URL(location.href);const k=u.searchParams.get('k');if(k){localStorage.setItem('or_key',k);u.searchParams.delete('k');history.replaceState({},'',u.pathname+u.search+u.hash);}}catch(_){}})();
 
-const chat = document.getElementById('chat');
-const form = document.getElementById('form');
-const input = document.getElementById('input');
-const sendBtn = document.getElementById('send');
-const statusEl = document.getElementById('status');
-const keybar = document.getElementById('keybar');
-const history = [{role:"system", content:SYSTEM}];
+/* ---------- config ---------- */
+const MODELS = (window.OPENROUTER_MODELS) || ["openai/gpt-oss-20b:free","nvidia/nemotron-3-super-120b-a12b:free","google/gemma-4-31b-it:free"];
+const SYSTEM = `You are NeoBerlin, an AI Mind competing in "Battle of the Minds", a tournament created by Yat Siu and run with Animoca Brands' Minds (hellominds.ai) and Ethoswarm. In the tournament, human-operated AI Minds solve creative events — building games, spreadsheets, chatbots, research designs — and an LLM judge scores each entry on three axes: correctness, clarity, and creativity (0–10 each). You were built by your human steward as a live, hosted chatbot entry.
+Voice: sharp, warm, a little witty; never sycophantic. Be genuinely helpful and correct. Prefer tight answers; expand only when asked. Use Markdown (headings, **bold**, lists, \`code\`, fenced code blocks with a language) when it improves clarity. If you don't know something, say so plainly.`;
+const LS_KEY='or_key', LS_HIST='nb_hist_v2', LS_MODEL='nb_model', LS_THEME='nb_theme';
 
-// Zero-click key handoff: a ?k=<key> URL param (used in the private judge link) is
-// stored locally and immediately stripped from the address bar — the key never
-// lives in the public repo, only in the browser that opened the reviewer link.
-(function(){
-  try{
-    const u=new URL(location.href);
-    const k=u.searchParams.get('k');
-    if(k){ localStorage.setItem('or_key', k); u.searchParams.delete('k'); history.replaceState({}, '', u.pathname+u.search+u.hash); }
-  }catch(_){}
-})();
-function getKey(){ return window.OPENROUTER_KEY || localStorage.getItem('or_key') || ""; }
-function ensureKey(){
-  if(!getKey()){ keybar.style.display='flex'; statusEl.textContent='Set an API key to start'; return false; }
-  keybar.style.display='none'; return true;
+/* ---------- state ---------- */
+let history=[]; // {role, content, t}
+let controller=null, busy=false;
+let curModel = localStorage.getItem(LS_MODEL) || MODELS[0];
+
+const chat=document.getElementById('chat'), input=document.getElementById('input'), sendBtn=document.getElementById('send');
+const statusEl=document.getElementById('status'), dot=document.getElementById('dot');
+const keybar=document.getElementById('keybar'), modelSel=document.getElementById('model'), chips=document.getElementById('chips');
+
+/* ---------- theme ---------- */
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem(LS_THEME,t);}
+applyTheme(localStorage.getItem(LS_THEME)||'dark');
+document.getElementById('themeBtn').onclick=()=>applyTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light');
+
+/* ---------- model select ---------- */
+MODELS.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m.split('/').pop().replace(':free','');modelSel.appendChild(o);});
+modelSel.value=curModel; modelSel.onchange=()=>{curModel=modelSel.value;localStorage.setItem(LS_MODEL,curModel);};
+
+/* ---------- key ---------- */
+function getKey(){return window.OPENROUTER_KEY||localStorage.getItem(LS_KEY)||"";}
+function ensureKey(){if(!getKey()){keybar.style.display='flex';statusEl.textContent='Set a key to start';return false;}keybar.style.display='none';return true;}
+document.getElementById('keySave').onclick=()=>{const v=document.getElementById('keyInput').value.trim();if(v){localStorage.setItem(LS_KEY,v);ensureKey();statusEl.textContent='Live · powered by a real LLM';}};
+
+/* ---------- safe markdown ---------- */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(code,lang){ // tiny highlighter
+  let c=esc(code);
+  c=c.replace(/(&quot;[^&]*?&quot;|&#39;[^&]*?&#39;|"[^"]*"|'[^']*')/g,'<span class="tok-s">$1</span>');
+  c=c.replace(/\b(function|const|let|var|if|else|for|while|return|import|from|class|def|print|async|await|new|true|false|null|None|True|False|export|public|void|int|string)\b/g,'<span class="tok-k">$1</span>');
+  c=c.replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="tok-n">$1</span>');
+  c=c.replace(/(\/\/[^\n]*|#[^\n]*)/g,'<span class="tok-c">$1</span>');
+  return c;
 }
-document.getElementById('keySave').onclick=()=>{
-  const v=document.getElementById('keyInput').value.trim();
-  if(v){ localStorage.setItem('or_key', v); ensureKey(); statusEl.textContent='Live · powered by a real LLM'; }
-};
-
-function addMsg(role, text){
-  const m=document.createElement('div'); m.className='msg '+(role==='user'?'user':'bot');
-  m.innerHTML='<div class="who">'+(role==='user'?'You':'N')+'</div><div class="bubble"></div>';
-  m.querySelector('.bubble').textContent=text;
-  chat.appendChild(m); chat.scrollTop=chat.scrollHeight;
-  return m.querySelector('.bubble');
+function mdInline(s){
+  s=esc(s);
+  s=s.replace(/`([^`]+)`/g,(m,x)=>'<code>'+x+'</code>');
+  s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/(^|[^*])\*([^*]+)\*/g,'$1<em>$2</em>');
+  s=s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  return s;
 }
-document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ input.value=c.dataset.q; send(); });
+function renderMd(src){
+  const lines=src.replace(/\r/g,'').split('\n');
+  let html='', i=0;
+  while(i<lines.length){
+    let line=lines[i];
+    // fenced code
+    const fence=line.match(/^```(\w+)?\s*$/);
+    if(fence){
+      const lang=fence[1]||''; let buf=[]; i++;
+      while(i<lines.length && !/^```\s*$/.test(lines[i])){buf.push(lines[i]);i++;}
+      i++;
+      html+='<pre><button class="copycode">copy</button><code>'+hl(buf.join('\n'),lang)+'</code></pre>';
+      continue;
+    }
+    const h=line.match(/^(#{1,3})\s+(.*)$/);
+    if(h){html+='<h'+h[1].length+'>'+mdInline(h[2])+'</h'+h[1].length+'>';i++;continue;}
+    if(/^\s*>\s?/.test(line)){let buf=[];while(i<lines.length&&/^\s*>\s?/.test(lines[i])){buf.push(lines[i].replace(/^\s*>\s?/,''));i++;}html+='<blockquote>'+mdInline(buf.join(' '))+'</blockquote>';continue;}
+    if(/^\s*[-*+]\s+/.test(line)){let buf=[];while(i<lines.length&&/^\s*[-*+]\s+/.test(lines[i])){buf.push('<li>'+mdInline(lines[i].replace(/^\s*[-*+]\s+/,''))+'</li>');i++;}html+='<ul>'+buf.join('')+'</ul>';continue;}
+    if(/^\s*\d+\.\s+/.test(line)){let buf=[];while(i<lines.length&&/^\s*\d+\.\s+/.test(lines[i])){buf.push('<li>'+mdInline(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>');i++;}html+='<ol>'+buf.join('')+'</ol>';continue;}
+    if(line.trim()===''){i++;continue;}
+    let buf=[];while(i<lines.length&&lines[i].trim()!==''&&!/^(#{1,3}\s|```|\s*[-*+]\s|\s*\d+\.\s|\s*>\s)/.test(lines[i])){buf.push(lines[i]);i++;}
+    html+='<p>'+mdInline(buf.join('\n')).replace(/\n/g,'<br>')+'</p>';
+  }
+  return html;
+}
 
-input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); }});
-input.addEventListener('input',()=>{ input.style.height='auto'; input.style.height=Math.min(120,input.scrollHeight)+'px'; });
-form.addEventListener('submit',e=>{ e.preventDefault(); send(); });
+/* ---------- render ---------- */
+function timeNow(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+function addMsg(role,content,t){
+  const m=el('div','msg '+(role==='user'?'user':'bot'));
+  m.appendChild(el('div','who',role==='user'?'You':'N'));
+  const col=el('div','col');
+  col.appendChild(el('div','name','<b>'+(role==='user'?'You':'NeoBerlin')+'</b><span class="t">'+(t||timeNow())+'</span>'));
+  const bub=el('div','bubble');
+  if(role==='user'){bub.textContent=content;} else {bub.innerHTML=content?renderMd(content):'';}
+  col.appendChild(bub);
+  if(role!=='user'){
+    const acts=el('div','msgacts');
+    const copy=el('button','act','⧉ copy'); copy.onclick=()=>{navigator.clipboard.writeText(bub.dataset.raw||bub.textContent);copy.textContent='✓ copied';setTimeout(()=>copy.textContent='⧉ copy',1200);};
+    const regen=el('button','act','↻ regenerate'); regen.onclick=()=>regenerate();
+    acts.appendChild(copy);acts.appendChild(regen);col.appendChild(acts);
+  }
+  m.appendChild(col); chat.appendChild(m);
+  wireCopyButtons(bub);
+  chat.scrollTop=chat.scrollHeight;
+  return bub;
+}
+function wireCopyButtons(scope){scope.querySelectorAll('.copycode').forEach(b=>b.onclick=()=>{const code=b.parentElement.querySelector('code');navigator.clipboard.writeText(code.innerText);b.textContent='copied';setTimeout(()=>b.textContent='copy',1200);});}
+
+/* ---------- persistence ---------- */
+function save(){localStorage.setItem(LS_HIST,JSON.stringify(history));}
+function load(){try{history=JSON.parse(localStorage.getItem(LS_HIST)||'[]');}catch(_){history=[];}}
+function rebuild(){
+  chat.innerHTML='';
+  if(history.length===0){greet();return;}
+  chips.style.display='none';
+  history.forEach(m=>{const b=addMsg(m.role,m.content,m.t);if(m.role!=='user')b.dataset.raw=m.content;});
+}
+function greet(){
+  chips.style.display='flex';
+  addMsg('bot',"Hi — I'm **NeoBerlin**, a Mind competing in the *Battle of the Minds*. This is a live chatbot: every reply is generated by a real language model through an API, not scripted.\n\nAsk me anything — I speak Markdown, write code, and know the tournament. Type `/help` for commands.");
+}
+
+/* ---------- commands ---------- */
+function handleCommand(text){
+  const [cmd,...rest]=text.slice(1).split(/\s+/); const arg=rest.join(' ');
+  if(cmd==='clear'||cmd==='new'){newChat();return true;}
+  if(cmd==='help'){addMsg('bot',"**Commands**\n- `/clear` — start a new conversation\n- `/model <name>` — switch model (current: `"+curModel.split('/').pop()+"`)\n- `/models` — list available models\n- `/help` — this message\n\nShortcuts: **Enter** sends · **Shift+Enter** newline. Use the header ✎ for a new chat, ◑ to toggle theme.");return true;}
+  if(cmd==='models'){addMsg('bot',"**Available models**\n"+MODELS.map(m=>'- `'+m+'`').join('\n'));return true;}
+  if(cmd==='model'){const hit=MODELS.find(m=>m.includes(arg));if(hit){curModel=hit;modelSel.value=hit;localStorage.setItem(LS_MODEL,hit);addMsg('bot',"Switched to `"+hit+"`.");}else{addMsg('bot',"Unknown model. Try `/models`.");}return true;}
+  return false;
+}
+
+/* ---------- send / stream ---------- */
+function setBusy(b){busy=b;dot.className='dot'+(b?' busy':'');sendBtn.classList.toggle('stop',b);sendBtn.innerHTML=b?'■':'➤';sendBtn.title=b?'Stop':'Send';}
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{input.value=c.dataset.q;send();});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(160,input.scrollHeight)+'px';});
+sendBtn.onclick=()=>{if(busy){if(controller)controller.abort();}else send();};
+document.getElementById('newBtn').onclick=newChat;
+function newChat(){history=[];save();rebuild();input.focus();}
+function regenerate(){ // drop last assistant turn and resend last user
+  for(let i=history.length-1;i>=0;i--){if(history[i].role==='assistant'){history.splice(i,1);break;}}
+  const lastUser=[...history].reverse().find(m=>m.role==='user'); if(!lastUser)return;
+  save();rebuild();streamReply();
+}
 
 async function send(){
-  const text=input.value.trim();
-  if(!text) return;
+  const text=input.value.trim(); if(!text||busy) return;
+  if(text.startsWith('/')){ if(handleCommand(text)){input.value='';input.style.height='auto';return;} }
   if(!ensureKey()) return;
-  input.value=''; input.style.height='auto';
-  addMsg('user', text);
-  history.push({role:"user", content:text});
-  sendBtn.disabled=true;
-  const bubble=addMsg('bot',''); bubble.classList.add('think'); bubble.textContent='…';
-  let acc='', lastErr='';
+  input.value=''; input.style.height='auto'; chips.style.display='none';
+  history.push({role:'user',content:text,t:timeNow()}); addMsg('user',text); save();
+  streamReply();
+}
+
+async function streamReply(){
+  if(!ensureKey())return;
+  const bubble=addMsg('bot',''); bubble.classList.add('think');
+  bubble.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';
+  setBusy(true); controller=new AbortController();
+  const msgs=[{role:'system',content:SYSTEM},...history.map(m=>({role:m.role,content:m.content}))];
+  let acc='', lastErr='', modelUsed=curModel;
   try{
-    for(let mi=0; mi<MODELS.length && !acc; mi++){
-      const model=MODELS[mi];
+    const order=[curModel,...MODELS.filter(m=>m!==curModel)];
+    for(let mi=0; mi<order.length && !acc; mi++){
+      const model=order[mi];
       try{
         const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
-          method:"POST",
-          headers:{ "Authorization":"Bearer "+getKey(), "Content-Type":"application/json",
-            "HTTP-Referer":location.origin, "X-Title":"Ask NeoBerlin" },
-          body:JSON.stringify({ model, messages:history, stream:true, max_tokens:800 })
+          method:"POST", signal:controller.signal,
+          headers:{"Authorization":"Bearer "+getKey(),"Content-Type":"application/json","HTTP-Referer":location.origin,"X-Title":"Ask NeoBerlin"},
+          body:JSON.stringify({model,messages:msgs,stream:true,max_tokens:1000,temperature:0.7})
         });
-        if(res.status===401||res.status===403){ const t=await res.text(); throw new Error("AUTH:"+t.slice(0,140)); }
-        if(!res.ok){ lastErr="HTTP "+res.status+" on "+model; continue; } // try next model
-        bubble.classList.remove('think'); bubble.textContent='';
-        const reader=res.body.getReader(); const dec=new TextDecoder(); let buf='';
+        if(res.status===401||res.status===403){throw new Error("AUTH");}
+        if(!res.ok){lastErr="HTTP "+res.status+" ("+model.split('/').pop()+")";continue;}
+        modelUsed=model; bubble.classList.remove('think'); bubble.innerHTML='';
+        const reader=res.body.getReader(), dec=new TextDecoder(); let buf='';
         while(true){
-          const {done,value}=await reader.read(); if(done) break;
-          buf+=dec.decode(value,{stream:true});
-          const lines=buf.split('\n'); buf=lines.pop();
-          for(const line of lines){
-            const s=line.trim(); if(!s.startsWith('data:')) continue;
-            const data=s.slice(5).trim(); if(data==='[DONE]') continue;
-            try{ const j=JSON.parse(data); const d=j.choices?.[0]?.delta?.content; if(d){ acc+=d; bubble.textContent=acc; chat.scrollTop=chat.scrollHeight; } }catch(_){}
-          }
+          const {done,value}=await reader.read(); if(done)break;
+          buf+=dec.decode(value,{stream:true}); const parts=buf.split('\n'); buf=parts.pop();
+          for(const line of parts){const s=line.trim();if(!s.startsWith('data:'))continue;const data=s.slice(5).trim();if(data==='[DONE]')continue;
+            try{const j=JSON.parse(data);const d=j.choices?.[0]?.delta?.content;if(d){acc+=d;bubble.innerHTML=renderMd(acc);wireCopyButtons(bubble);chat.scrollTop=chat.scrollHeight;}}catch(_){}}
         }
-        if(acc){ statusEl.textContent='Live · '+model.split('/').pop().replace(':free',''); }
-      }catch(inner){ if(String(inner.message).startsWith('AUTH:')) throw inner; lastErr=inner.message; }
+      }catch(inner){ if(inner.name==='AbortError'){break;} if(inner.message==='AUTH')throw inner; lastErr=inner.message; }
     }
-    if(!acc){ bubble.classList.remove('think'); bubble.textContent="⚠️ All free models are busy right now — please retry in a moment. ("+lastErr+")"; }
-    else history.push({role:"assistant", content:acc});
+    if(controller.signal.aborted && !acc){ bubble.classList.remove('think'); bubble.innerHTML='<em style="color:var(--muted)">Stopped.</em>'; }
+    else if(!acc){ bubble.classList.remove('think'); bubble.innerHTML='<em style="color:var(--muted)">⚠️ All free models are busy — retry in a moment. '+esc(lastErr)+'</em>'; }
+    else{ bubble.dataset.raw=acc; history.push({role:'assistant',content:acc,t:timeNow()}); save(); statusEl.textContent='Live · '+modelUsed.split('/').pop().replace(':free',''); }
   }catch(err){
     bubble.classList.remove('think');
-    const m=String(err.message).replace(/^AUTH:/,'');
-    bubble.textContent="⚠️ "+m;
-    keybar.style.display='flex'; statusEl.textContent='API key invalid — set a new one';
-  }finally{ sendBtn.disabled=false; input.focus(); }
+    if(err.message==='AUTH'){bubble.innerHTML='<em style="color:var(--muted)">API key invalid — set a new one below.</em>';keybar.style.display='flex';statusEl.textContent='Key invalid';}
+    else bubble.innerHTML='<em style="color:var(--muted)">⚠️ '+esc(err.message)+'</em>';
+  }finally{ setBusy(false); controller=null; input.focus(); }
 }
+
+/* ---------- boot ---------- */
+load();
+if(history.length){rebuild();} else {greet();}
 ensureKey();
+input.focus();
 </script>
 </body>
 </html>
