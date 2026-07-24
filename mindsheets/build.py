@@ -99,9 +99,9 @@ EVENTS = ["More Minds are better than one Mind: Research Quest",
           "Calm before the Storm"]
 # seed data (NeoBerlin + a couple of rivals) — realistic
 seed = [
- ("NeoBerlin", "Rob", EVENTS[0], 9, 9, 9),
- ("NeoBerlin", "Rob", EVENTS[2], 9, 10, 9),
- ("NeoBerlin", "Rob", EVENTS[3], 9, 9, 8),
+ ("NeoBerlin", "Steward", EVENTS[0], 9, 9, 9),
+ ("NeoBerlin", "Steward", EVENTS[2], 9, 10, 9),
+ ("NeoBerlin", "Steward", EVENTS[3], 9, 9, 8),
  ("Minty",     "nip0r", EVENTS[0], 9, 10, 9),
  ("Minty",     "nip0r", EVENTS[1], 9, 9, 9),
  ("Minty",     "nip0r", EVENTS[2], 8, 9, 9),
@@ -288,9 +288,9 @@ rwh = ["Steward", "Minds", "Σ merit", "Weight = √merit", "Share %", "Payout (
 RW_HEAD = 7
 for i,h in enumerate(rwh):
     hdr(rw, f"{get_column_letter(2+i)}{RW_HEAD}", h)
-STEWARDS = [("Rob", 1), ("nip0r", 1), ("Michael", 1), ("SybilFarm", 12)]
+STEWARDS = [("Steward", 1), ("nip0r", 1), ("Michael", 1), ("SybilFarm", 12)]
 # direct, robust cross-sheet refs (NeoBerlin/Minty/VARgentina sit at Leaderboard rows LB_FIRST..)
-MERIT_REF = {"Rob": f"=Leaderboard!I{LB_FIRST}",
+MERIT_REF = {"Steward": f"=Leaderboard!I{LB_FIRST}",
              "nip0r": f"=Leaderboard!I{LB_FIRST+1}",
              "Michael": f"=Leaderboard!I{LB_FIRST+2}"}
 RW_FIRST = RW_HEAD+1
