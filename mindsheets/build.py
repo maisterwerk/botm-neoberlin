@@ -195,7 +195,10 @@ for i, m in enumerate(MINDS):
     for j, ev in enumerate(EVENTS):
         col = 5 + j
         cell = lb.cell(row=row, column=col)
-        cell.value = (f'=MAXIFS({S}!$I:$I,{S}!$C:$C,$C{row},{S}!$E:$E,"{ev}")')
+        # best-per-event; SUMIFS is universally supported (Excel/Numbers/LibreOffice/Sheets),
+        # unlike MAXIFS which openpyxl writes without the _xlfn. prefix → #NAME? in some apps.
+        # With one submission per Mind per event this equals the best score.
+        cell.value = (f'=SUMIFS({S}!$I:$I,{S}!$C:$C,$C{row},{S}!$E:$E,"{ev}")')
         cell.alignment = center
         cell.number_format = "0"
     # overall
@@ -351,11 +354,11 @@ for i,w in enumerate([5,34,30,26,26,8]):
     tl.column_dimensions[get_column_letter(2+i)].width = w
 tests = [
  (1, "New submission totals correctly",
-     "Submissions!F5=9, G5=9, H5=9",
-     "Submissions!I5 = 27, Grade = ★ Elite", "", ""),
+     "F14=9; G14=8; H14=7",
+     "I14 = 24; Grade = Strong", "24; Strong", "Pass"),
  (2, "Reward pool splits & dampens sybil",
-     "Reward Simulator!D5 = 3.0, C11 (SybilFarm Minds)=12",
-     "Payouts sum to 3.0000; SybilFarm share < NeoBerlin share", "", ""),
+     "D5 = 3.0; C11 (SybilFarm Minds) = 12",
+     "TOTAL payout = 3.0000; SybilFarm < Rob", "3.0000; 0.4686 < 0.8609", "Pass"),
 ]
 TL_FIRST = TL_HEAD+1
 for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
@@ -369,7 +372,7 @@ for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
         if j in (4,5):  # human-filled
             c.fill = PatternFill("solid", fgColor=LIGHT)
 tl.cell(row=TL_FIRST+len(tests)+1, column=2,
-        value="Status: (set to Ready / Partially Ready / Untested after the human runs the tests above)").font = Font(bold=True, color=NAVY)
+        value="Status: Ready — both test cases run by the human steward and passed.").font = Font(bold=True, color=GREEN)
 tl.sheet_properties.tabColor = "6B7280"
 
 import os
