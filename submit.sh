@@ -13,6 +13,7 @@ declare -a MAP=(
  "d40b9a11-80ef-44a5-8688-f7bf75dcc390|crossword.md"
  "b822a577-5213-48a6-8ffa-93affb3a758c|calm-before-storm.md"
  "7b58ab9d-0b34-4ffc-b096-577aae08c57b|chatbot.md"
+ "ebd110f3-1c76-4fba-aaa1-dbc61b2b4183|astromesh.md"
 )
 
 # verify approval first
