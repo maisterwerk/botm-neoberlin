@@ -248,6 +248,11 @@ a{color:var(--accent)}footer{margin-top:22px;color:var(--muted);font-size:12px;t
     <button onclick="run()">Read the stars</button>
   </div>
   <div class="out" id="out"><span class="muted">Pick your sign and a coin, then read the cosmic compass.</span></div>
+  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+    <div class="muted" style="margin-bottom:8px">🔌 <b>For agents & humans:</b> call the live MCP server directly (real JSON-RPC over Streamable HTTP):</div>
+    <button onclick="pingMcp()" style="background:#0f1225;border:1px solid var(--border)">▶ Call MCP tool (cosmic_market_compass)</button>
+    <pre id="mcpout" style="display:none;background:#0a0c18;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:10px;overflow-x:auto;font-size:12px;color:#b7c0e0"></pre>
+  </div>
 </div>
 <footer>
   Powered by an <b>MCP server</b> other AI agents can query — see the <a href="/agents">Agents Guide</a> ·
@@ -272,6 +277,15 @@ async function run(){
       '<span class="pill">'+d.alignment+'</span>'+
       '<div class="muted" style="margin-top:10px">'+d.disclaimer+'</div>';
   }catch(e){out.innerHTML='<span style="color:var(--red)">'+e.message+'</span>';}
+}
+async function pingMcp(){
+  const pre=document.getElementById('mcpout');pre.style.display='block';pre.textContent='POST /mcp …';
+  const req={jsonrpc:"2.0",id:1,method:"tools/call",params:{name:"cosmic_market_compass",arguments:{sign:s.value,coin:document.getElementById('coin').value.toLowerCase().trim()}}};
+  try{
+    const r=await fetch('/mcp',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(req)});
+    const j=await r.json();
+    pre.textContent='→ POST '+location.origin+'/mcp\\n→ request: '+JSON.stringify(req)+'\\n\\n← response:\\n'+JSON.stringify(j,null,2);
+  }catch(e){pre.textContent='Error: '+e.message;}
 }
 run();
 </script></body></html>`; }
