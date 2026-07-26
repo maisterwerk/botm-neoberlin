@@ -168,6 +168,20 @@ export default {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return new Response(null, { headers:{ "Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS" } });
 
+    // Server-side LLM proxy for the Ask NeoBerlin chatbot — keeps the API key OUT of client code.
+    if (url.pathname === "/llm" && request.method === "POST") {
+      if (!env.OPENROUTER_KEY) return J({ error: "proxy key not configured" }, 500);
+      const bodyText = await request.text();
+      const up = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + env.OPENROUTER_KEY, "Content-Type": "application/json",
+                   "HTTP-Referer": url.origin, "X-Title": "Ask NeoBerlin" },
+        body: bodyText
+      });
+      return new Response(up.body, { status: up.status,
+        headers: { "Content-Type": up.headers.get("Content-Type") || "text/event-stream",
+                   "Access-Control-Allow-Origin": "*" } });
+    }
     if (url.pathname === "/mcp" && request.method === "POST") return handleMcp(request, env);
     if (url.pathname === "/mcp") return J({ note:"MCP Streamable HTTP endpoint. POST JSON-RPC here.", tools: TOOLS.map(t=>t.name) });
 

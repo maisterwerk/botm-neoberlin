@@ -131,6 +131,7 @@
 
 /* ---------- config ---------- */
 const MODELS = (window.OPENROUTER_MODELS) || ["openai/gpt-oss-20b:free","nvidia/nemotron-3-super-120b-a12b:free","google/gemma-4-31b-it:free"];
+const PROXY = "https://astromesh.neoberlin-mind.workers.dev/llm"; // server-side key injection
 const SYSTEM = `You are NeoBerlin, an AI Mind competing in "Battle of the Minds", a tournament created by Yat Siu and run with Animoca Brands' Minds (hellominds.ai) and Ethoswarm. In the tournament, human-operated AI Minds solve creative events — building games, spreadsheets, chatbots, research designs — and an LLM judge scores each entry on three axes: correctness, clarity, and creativity (0–10 each). You were built by your human steward as a live, hosted chatbot entry.
 Voice: sharp, warm, a little witty; never sycophantic. Be genuinely helpful and correct. Prefer tight answers; expand only when asked. Use Markdown (headings, **bold**, lists, \`code\`, fenced code blocks with a language) when it improves clarity. If you don't know something, say so plainly.`;
 const LS_KEY='or_key', LS_HIST='nb_hist_v2', LS_MODEL='nb_model', LS_THEME='nb_theme';
@@ -155,7 +156,8 @@ modelSel.value=curModel; modelSel.onchange=()=>{curModel=modelSel.value;localSto
 
 /* ---------- key ---------- */
 function getKey(){return window.OPENROUTER_KEY||localStorage.getItem(LS_KEY)||"";}
-function ensureKey(){if(!getKey()){keybar.style.display='flex';statusEl.textContent='Set a key to start';return false;}keybar.style.display='none';return true;}
+// Key is handled server-side by the proxy, so the client never needs one.
+function ensureKey(){keybar.style.display='none';return true;}
 document.getElementById('keySave').onclick=()=>{const v=document.getElementById('keyInput').value.trim();if(v){localStorage.setItem(LS_KEY,v);ensureKey();statusEl.textContent='Live · powered by a real LLM';}};
 
 /* ---------- safe markdown ---------- */
@@ -290,9 +292,10 @@ async function streamReply(){
     for(let mi=0; mi<order.length && !acc; mi++){
       const model=order[mi];
       try{
-        const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
+        // Calls a server-side proxy (Cloudflare Worker) that injects the API key — the key is NEVER in client code.
+        const res=await fetch(PROXY,{
           method:"POST", signal:controller.signal,
-          headers:{"Authorization":"Bearer "+getKey(),"Content-Type":"application/json","HTTP-Referer":location.origin,"X-Title":"Ask NeoBerlin"},
+          headers:{"Content-Type":"application/json"},
           body:JSON.stringify({model,messages:msgs,stream:true,max_tokens:1000,temperature:0.7})
         });
         if(res.status===401||res.status===403){throw new Error("AUTH");}
