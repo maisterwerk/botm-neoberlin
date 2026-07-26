@@ -1,0 +1,44 @@
+reward_sim3.py — seed=42, 40 trials, 200 honest stewards, 4 tasks,
+Shapley 100 perms. Means with 95% CI. Supersedes reward_sim2.py (see header).
+
+A1  SYBIL FARM — attacker registers 50 cheap Minds. Attacker's share of the pool.
+    Both observation regimes shown, because they are a separate policy lever:
+    'diluted' = fixed 20k match budget split across all Minds; 'floored' = >=100 matches each.
+         regime           BASE   V1-sum(sqrt)         V1-max        V2-full
+        diluted          5.89%          1.77%          0.29%          0.17%
+        floored          5.89%          1.77%          0.29%          0.17%
+Gini(payout/merit)          0.085          0.203              -          0.180
+honest median pay         0.470%              -              -         0.473%
+
+A2  CLONE PUMP — 20 clones of the attacker's own best Mind. SGR = pay(k=20)/pay(k=1).
+    ABLATION — this is the experiment reward_sim2.py got wrong:
+    V1 sum-aggregation (sqrt)          SGR =   4.379  +/- 0.007
+    max-aggregation, NO debias         SGR =   1.033  +/- 0.004
+    V2, debias only (no dedup)         SGR =   0.984  +/- 0.005
+    V2, dedup only (no debias)         SGR =   0.992  +/- 0.006
+    V2 full                            SGR =   0.992  +/- 0.006   [sound iff <= 1.05]
+    sqrt(20) = 4.472  <- V1-sum's 'attack gain' is just sum-aggregation, not the winner's curse.
+
+A3  CLONE-TO-SUPPRESS the top honest steward (5 clones), vs an EVASIVE clone.
+    eps = fingerprint perturbation the clone adds to dodge the duplicate detector.
+    Honest Minds are ~8.0 apart in fingerprint space; the detector cutoff is 4.0.
+             eps   clones caught       TSI (LOO)          TSI V2 TSI V2 no-floor
+             0.0            100%           0.864          +0.001          -0.000
+             0.5             91%           0.901          +0.000          +0.002
+             1.0              0%           0.901          +0.009          +0.005
+             1.5              0%           0.901          +0.009          +0.005
+             2.0              0%           0.901          +0.009          +0.005
+             3.0              0%           0.901          +0.009          +0.005
+    (TSI = fraction of the victim's payout destroyed. Target <= 0.10 worst case.)
+
+    SCR, honestly: at eps=0 the victim suffered NO measurable loss in 23/40 trials, so the ratio 'attacker cost / victim loss' is undefined in those trials.
+    Mean bond burned by the attacker: 500 credits of a 200000-credit pool. The design constraint is what matters:
+    griefing is unprofitable iff bond B >= (victim's loss)/(clones needed) — with B=100 and a 200k pool that is B >= 0.05% of pool per Mind.
+
+PRE-REGISTERED FALSIFIERS (all four the methodologist registered, including the one we fail):
+  F1 sybil-farm share V2 < BASE                        PASS
+  F2 SGR(k=20) <= 1.05                                 PASS
+  F3 worst-case TSI <= 0.10 (all eps)                  PASS
+  F4 honest-case merit alignment not degraded (Gini)   FAIL
+       -> F4 FAILS: Gini 0.085 (BASE) vs 0.180 (V2). Under our own rule the
+          mechanism is REJECTED pending alpha -> 1.0 with the cap doing the work.
