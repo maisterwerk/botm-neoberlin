@@ -1,0 +1,47 @@
+reward_sim4.py — seed=42, 25 trials, 200 honest stewards, 4 tasks,
+Shapley 80 perms, James-Stein shrinkage ON. Supersedes reward_sim3.py.
+
+D  DOES THE PER-MIND MATCH FLOOR DO ANYTHING? (reward_sim3 had no power to test this)
+   diluted regime = 2000 matches split across 250 Minds = 8 each; floored = 100 each
+                          attacker share       honest median
+             diluted               0.03%              0.116%
+             floored               0.09%              0.113%
+   -> the floor changes the attacker's take by -0.05 percentage points.
+
+S  CLONE-TO-SUPPRESS with EVASIVE clones (eps=1.0, i.e. the duplicate detector is BEATEN).
+   TSI = fraction of the victim's payout destroyed. Target <= 0.10.
+   LOO                        TSI = +0.868  +/- 0.084
+   shapley_only               TSI = +0.005  +/- 0.001   floor binds for 0% of stewards
+   shapley+floor              TSI = +0.005  +/- 0.000   floor binds for 55% of stewards
+   shapley+floor, no cap      TSI = +0.339  +/- 0.113   floor binds for 55% of stewards
+   (In reward_sim3 the floor bound for 100% of stewards, which made this test vacuous.)
+
+F  THE F4 FRONTIER — can we fix the criterion we failed? (BASE Gini = 0.091)
+            alpha            floor   attacker share  Gini(pay/merit)      floor binds
+             1.00               on            0.15%            0.411              55%
+             1.25               on            0.09%            0.506              55%
+             1.50               on            0.06%            0.593              55%
+             1.00              off            0.09%            0.655               0%
+             1.50              off            0.04%            0.733               0%
+   -> configurations that satisfy F4 (Gini <= BASE): NONE — F4 is not reachable by tuning alpha or the floor.
+
+A  DUPLICATE DETECTOR ARMS RACE — attacker perturbs (eps), defender raises the cutoff.
+              eps           cutoff    clones caught   honest wronglycaught if attacker
+                                                           clustered registered FIRST
+              0.0              4.0             100%             0.04              80%
+              0.0              6.0              92%            66.36              80%
+              0.0              8.0              98%           179.16              80%
+              0.5              4.0              90%             0.00              21%
+              0.5              6.0              94%            64.32              80%
+              0.5              8.0              94%           179.52              80%
+              1.0              4.0               0%             0.00               0%
+              1.0              6.0              32%            64.32               2%
+              1.0              8.0              56%           179.52              38%
+              1.5              4.0               0%             0.00               0%
+              1.5              6.0               0%            64.32               0%
+              1.5              8.0               3%           179.52               1%
+              2.0              4.0               0%             0.00               0%
+              2.0              6.0               0%            64.32               0%
+              2.0              8.0               0%           179.52               0%
+   'honest wrongly clustered' is the false-positive cost of a higher cutoff:
+   it is the number the defender pays to keep catching evasive clones.
