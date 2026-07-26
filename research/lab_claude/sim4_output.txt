@@ -8,13 +8,27 @@ D  DOES THE PER-MIND MATCH FLOOR DO ANYTHING? (reward_sim3 had no power to test 
              floored               0.09%              0.113%
    -> the floor changes the attacker's take by -0.05 percentage points.
 
-S  CLONE-TO-SUPPRESS with EVASIVE clones (eps=1.0, i.e. the duplicate detector is BEATEN).
-   TSI = fraction of the victim's payout destroyed. Target <= 0.10.
-   LOO                        TSI = +0.868  +/- 0.084
-   shapley_only               TSI = +0.005  +/- 0.001   floor binds for 0% of stewards
-   shapley+floor              TSI = +0.005  +/- 0.000   floor binds for 55% of stewards
-   shapley+floor, no cap      TSI = +0.339  +/- 0.113   floor binds for 55% of stewards
-   (In reward_sim3 the floor bound for 100% of stewards, which made this test vacuous.)
+S0  CLONE-TO-SUPPRESS, victim = TOP steward (sits AT the payout cap)
+    Evasive clones (eps=1.0, duplicate detector already beaten). Arms paired on identical
+    seeds, cap matched across arms. TSI = fraction of the victim's payout destroyed (<=0.10).
+    LOO, no cap              TSI = +0.923 +/- 0.046
+    LOO, 5x cap              TSI = +0.570 +/- 0.195
+    shapley_only, 5x cap     TSI = +0.022 +/- 0.033   floor binds 0%   victim pinned at cap in 24/25 trials
+    shapley+floor, 5x cap    TSI = +0.024 +/- 0.036   floor binds 54%   victim pinned at cap in 24/25 trials
+    shapley+floor, no cap    TSI = +0.407 +/- 0.084   floor binds 54%
+
+S9  CLONE-TO-SUPPRESS, victim = 10th-best steward (BELOW the cap — the honest test)
+    Evasive clones (eps=1.0, duplicate detector already beaten). Arms paired on identical
+    seeds, cap matched across arms. TSI = fraction of the victim's payout destroyed (<=0.10).
+    LOO, no cap              TSI = +1.000 +/- 0.000
+    LOO, 5x cap              TSI = +1.000 +/- 0.000
+    shapley_only, 5x cap     TSI = -1.841 +/- 1.377   floor binds 0%   victim pinned at cap in 7/25 trials
+    shapley+floor, 5x cap    TSI = -1.866 +/- 1.395   floor binds 54%   victim pinned at cap in 7/25 trials
+    shapley+floor, no cap    TSI = -2.130 +/- 1.564   floor binds 54%
+
+    (In reward_sim3 the floor bound for 100% of stewards, which made this test vacuous;
+     and the headline compared UNCAPPED LOO against CAPPED Shapley, crediting Shapley
+     with the cap's effect. Both are corrected above.)
 
 F  THE F4 FRONTIER — can we fix the criterion we failed? (BASE Gini = 0.091)
             alpha            floor   attacker share  Gini(pay/merit)      floor binds

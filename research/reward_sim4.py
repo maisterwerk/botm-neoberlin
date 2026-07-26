@@ -147,13 +147,20 @@ def _V(per, subset):
     return tot
 
 
-def pay_loo(minds):
+def pay_loo(minds, cap_mult=None):
+    """cap_mult=None reproduces the round-1 rule (uncapped). Pass a cap to compare LOO against
+    the Shapley arms LIKE FOR LIKE — a reviewer showed our headline compared uncapped LOO with
+    capped Shapley, attributing the cap's effect to Shapley."""
     per = _per_steward(minds)
     allo = list(per.keys())
     full = _V(per, allo)
     f = {o: max(0.0, full - _V(per, [x for x in allo if x != o])) for o in allo}
     tot = sum(f.values()) or 1.0
-    return {o: v / tot for o, v in f.items()}
+    p = {o: v / tot for o, v in f.items()}
+    if cap_mult is not None:
+        cap = cap_mult / len(p)
+        p = {o: min(v, cap) for o, v in p.items()}
+    return p
 
 
 def _shapley(per, rng, perms=SHAPLEY_PERMS):
@@ -268,36 +275,54 @@ def exp_dilution():
     return res
 
 
-def exp_suppression_ablation():
+def exp_suppression_ablation(victim_rank=0):
     """Clone-to-suppress: which component actually protects the victim?
-    Reported with the floor's binding rate, because that was the hidden bug."""
-    modes = [("LOO", None), ("shapley_only", dict(floor=False)),
-             ("shapley+floor", dict(floor=True)),
-             ("shapley+floor, no cap", dict(floor=True, cap_mult=1e9))]
+
+    victim_rank=0 attacks the BEST honest steward -- but that steward sits at the payout cap, so
+    TSI ~ 0 there is partly the cap arithmetic (cap = 5/N, and N grows when the attacker registers).
+    victim_rank=9 attacks the 10th-best steward, who is BELOW the cap, which is the honest test.
+
+    All four arms are paired on identical seeds and the cap is matched across arms.
+    """
+    modes = [("LOO, no cap", ("loo", None)), ("LOO, 5x cap", ("loo", CAP_MULT)),
+             ("shapley_only, 5x cap", ("v2", dict(floor=False))),
+             ("shapley+floor, 5x cap", ("v2", dict(floor=True))),
+             ("shapley+floor, no cap", ("v2", dict(floor=True, cap_mult=1e9)))]
     out = {k: [] for k, _ in modes}
     diag = {k: [] for k, _ in modes}
+    capped_both = {k: 0 for k, _ in modes}
     for trial in range(TRIALS):
         rng = random.Random(SEED + 2000 + trial)
         honest = make_field(rng)
-        victim = max(honest, key=lambda m: sum(m["theta"]))
+        ranked = sorted(honest, key=lambda m: -sum(m["theta"]))
+        victim = ranked[min(victim_rank, len(ranked) - 1)]
         vo = victim["owner"]
-        clones = [clone_of(victim, ATT, rng, 1.0) for _ in range(5)]   # EVASIVE clones: dedup is off the table
+        clones = [clone_of(victim, ATT, rng, 1.0) for _ in range(5)]   # EVASIVE: dedup is off the table
         for c in clones:
             c["is_clone"] = True
         attacked = honest + clones
-        for name, kw in modes:
-            observe(honest, rng, floored=True)
-            before = (pay_loo(honest).get(vo, 0.0) if kw is None
-                      else pay_v2(honest, rng, **kw)[0].get(vo, 0.0))
-            observe(attacked, rng, floored=True)
-            if kw is None:
-                after = pay_loo(attacked).get(vo, 0.0)
+        for name, (kind, kw) in modes:
+            r_before = random.Random(SEED + 7000 + trial)   # paired seeds across arms
+            r_after = random.Random(SEED + 8000 + trial)
+            observe(honest, r_before, floored=True)
+            if kind == "loo":
+                before = pay_loo(honest, kw).get(vo, 0.0)
             else:
-                p, _, _, _, d = pay_v2(attacked, rng, **kw)
+                before = pay_v2(honest, r_before, **kw)[0].get(vo, 0.0)
+            observe(attacked, r_after, floored=True)
+            if kind == "loo":
+                after = pay_loo(attacked, kw).get(vo, 0.0)
+                capref = (kw / len(honest)) if kw else None
+            else:
+                p, _, _, _, d = pay_v2(attacked, r_after, **kw)
                 after = p.get(vo, 0.0)
                 diag[name].append(d["floor_bound"] / d["n"])
+                cm = kw.get("cap_mult", CAP_MULT)
+                capref = cm / (len(honest) + 1)
+            if capref is not None and after >= capref * 0.999 and before > 0:
+                capped_both[name] += 1
             out[name].append(1 - after / max(before, 1e-12))
-    return out, diag
+    return out, diag, capped_both
 
 
 def exp_alpha_frontier():
@@ -373,15 +398,20 @@ def main():
     print(f"   -> the floor changes the attacker's take by "
           f"{(mean(d['diluted'])-mean(d['floored']))*100:+.2f} percentage points.")
 
-    sup, diag = exp_suppression_ablation()
-    print("\nS  CLONE-TO-SUPPRESS with EVASIVE clones (eps=1.0, i.e. the duplicate detector is BEATEN).")
-    print("   TSI = fraction of the victim's payout destroyed. Target <= 0.10.")
-    for k in ("LOO", "shapley_only", "shapley+floor", "shapley+floor, no cap"):
-        extra = ""
-        if diag.get(k):
-            extra = f"   floor binds for {mean(diag[k])*100:.0f}% of stewards"
-        print(f"   {k:26s} TSI = {mean(sup[k]):+.3f}  +/- {ci95(sup[k]):.3f}{extra}")
-    print("   (In reward_sim3 the floor bound for 100% of stewards, which made this test vacuous.)")
+    for rank, label in ((0, "TOP steward (sits AT the payout cap)"),
+                        (9, "10th-best steward (BELOW the cap — the honest test)")):
+        sup, diag, capped = exp_suppression_ablation(rank)
+        print(f"\nS{rank}  CLONE-TO-SUPPRESS, victim = {label}")
+        print("    Evasive clones (eps=1.0, duplicate detector already beaten). Arms paired on identical")
+        print("    seeds, cap matched across arms. TSI = fraction of the victim's payout destroyed (<=0.10).")
+        for k, _ in (("LOO, no cap", 0), ("LOO, 5x cap", 0), ("shapley_only, 5x cap", 0),
+                     ("shapley+floor, 5x cap", 0), ("shapley+floor, no cap", 0)):
+            extra = f"   floor binds {mean(diag[k])*100:.0f}%" if diag.get(k) else ""
+            pin = f"   victim pinned at cap in {capped[k]}/{TRIALS} trials" if capped[k] else ""
+            print(f"    {k:24s} TSI = {mean(sup[k]):+.3f} +/- {ci95(sup[k]):.3f}{extra}{pin}")
+    print("\n    (In reward_sim3 the floor bound for 100% of stewards, which made this test vacuous;")
+    print("     and the headline compared UNCAPPED LOO against CAPPED Shapley, crediting Shapley")
+    print("     with the cap's effect. Both are corrected above.)")
 
     rows, g_base = exp_alpha_frontier()
     print(f"\nF  THE F4 FRONTIER — can we fix the criterion we failed? (BASE Gini = {g_base:.3f})")

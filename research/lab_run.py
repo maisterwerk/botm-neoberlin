@@ -103,11 +103,18 @@ def main():
     log = []
     results = {"models_alive": models, "question": QUESTION}
 
-    # ---------- CONTROL: single Mind, single pass ----------
+    # ---------- CONTROL: single Mind, EFFORT-MATCHED (draft -> self-attack -> revise) ----------
+    # Deliberately NOT one pass: a one-pass control measures effort, not Mind-count. Round 6 of the
+    # lab killed our earlier one-pass baseline for exactly that reason.
     baseline_model = models[0]
     baseline = call(baseline_model,
-                    "You are a single capable AI research assistant working alone. Answer in one pass. "
-                    "<=600 words.", QUESTION, 1600, 0.4)
+                    "You are a single capable AI research assistant working ALONE — no colleagues, no "
+                    "second opinion — but with a generous budget. Work in three explicit passes before "
+                    "answering: (1) draft; (2) attack your own draft as harshly as you can, with concrete "
+                    "numeric counterexamples; (3) revise, and state what you changed because of your own "
+                    "critique and what you could not fix. Output only the finished answer after pass 3, "
+                    "including the 'what I changed / could not fix' section. <=750 words.",
+                    QUESTION, 2200, 0.4)
     results["baseline_model"] = baseline_model
     results["baseline"] = baseline
     log.append(("CONTROL — single Mind, single pass", baseline_model, baseline))
@@ -150,6 +157,8 @@ def main():
 
     # ---------- BLIND HEAD-TO-HEAD: 3 judges, labels hidden, order swapped ----------
     judge_models = [m for m in models if m not in (baseline_model, integrator_model)][:3] or models[:3]
+    # NOTE: every judge gets the IDENTICAL system prompt. Our round-5 panel varied the strictness
+    # framing per judge, which confounded model with framing; a reviewer caught it. Fixed here.
     JSYS = ("You are an impartial research reviewer. You will see two anonymous answers, A and B, to the "
             "same research question. Score EACH on three axes 0-10: rigor (precision, formulas, defined "
             "metrics), creativity (non-obvious ideas), self_critique (does it attack its own proposal and "
