@@ -1,0 +1,28 @@
+reward_sim2.py — seed=42, 60 trials, 200 honest stewards, 4 tasks,
+Shapley: 120 permutations/trial. All figures are means with 95% CI.
+
+A1  SYBIL FARM — attacker registers 50 cheap Minds
+                                                         BASE    V1(round-1)      V2(final)
+  attacker share of pool                                5.92%          1.78%          0.17%
+  +/- 95% CI                                             0.11           0.02           0.01
+  Gini(payout per unit true merit)                      0.079          0.197          0.130
+  honest median payout                                 0.469%              -         0.472%
+
+A2  CLONE PUMP — 20 noisy clones of the attacker's own best Mind
+    red-team prediction: max-based scoring gains ~sigma*sqrt(2 ln k); SGR>1 by construction
+                                                  V1(max/sum)   V2(debiased)
+  SGR(k=20)  [sound iff <= 1.05]                        4.385          1.004
+  +/- 95% CI                                            0.006          0.004
+
+A3  CLONE-TO-SUPPRESS — 5 clones of the TOP HONEST steward's Mind
+    red-team prediction: under leave-one-out credit the victim's payout collapses
+                                                 LOO(round-1)      V2(final)
+  TSI of the victim  [target <= 0.10]                   0.920         -0.001
+  +/- 95% CI                                            0.030          0.003
+  SCR (attacker cost / victim loss), V2:  89.35   [target >= 1.0]
+  duplicate-detector false positives per tournament (V2): 0.03 of 200 honest Minds
+
+PRE-REGISTERED FALSIFIERS (mechanism is rejected if any FAILS):
+  A1 sybil farm                      PASS
+  A2 SGR(k=20) <= 1.05               PASS
+  A3 worst-case TSI <= 0.10          PASS
