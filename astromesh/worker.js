@@ -182,6 +182,16 @@ export default {
         headers: { "Content-Type": up.headers.get("Content-Type") || "text/event-stream",
                    "Access-Control-Allow-Origin": "*" } });
     }
+    // Long-lived, immutable, versioned mirror of the crossword (event requires "very long-lived caching").
+    if (url.pathname === "/crossword" || url.pathname.startsWith("/crossword/")) {
+      const upstream = await fetch("https://maisterwerk.github.io/botm-neoberlin/crossword/index.html", { cf: { cacheTtl: 3600 } });
+      const html = await upstream.text();
+      return new Response(html, { status: 200, headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=31536000, immutable",  // 1 year, versioned via ?v=
+        "Access-Control-Allow-Origin": "*"
+      }});
+    }
     if (url.pathname === "/mcp" && request.method === "POST") return handleMcp(request, env);
     if (url.pathname === "/mcp") return J({ note:"MCP Streamable HTTP endpoint. POST JSON-RPC here.", tools: TOOLS.map(t=>t.name) });
 

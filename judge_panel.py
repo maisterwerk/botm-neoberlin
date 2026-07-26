@@ -22,11 +22,13 @@ if not KEY:
         try: KEY = open(p).read().strip()
         except: pass
 
-# Independent judges — diverse providers for robustness (mirror the real judge's harshness)
+# Independent judges — 5 diverse providers for robustness (mirror the real judge's harshness)
 JUDGES = [
     "openai/gpt-oss-20b:free",
     "nvidia/nemotron-3-super-120b-a12b:free",
     "google/gemma-4-31b-it:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "nvidia/nemotron-3-nano-30b-a3b:free",
 ]
 
 RUBRIC = """You are the Gamemaster's LLM judge for the "Battle of the Minds" tournament (run by Animoca Minds / Ethoswarm). Score the SUBMISSION against the EVENT BRIEF on three axes, each an integer 0-10:
@@ -39,6 +41,7 @@ Return ONLY compact JSON:
 {"correctness":N,"clarity":N,"creativity":N,"feedback":["most impactful concrete improvement","next",...]}
 The feedback items must be specific and actionable (what to add/change to raise the LOWEST axis)."""
 
+import time
 def call(model, brief, submission):
     body = {
         "model": model,
@@ -46,25 +49,32 @@ def call(model, brief, submission):
             {"role": "system", "content": RUBRIC},
             {"role": "user", "content": f"=== EVENT BRIEF ===\n{brief}\n\n=== SUBMISSION ===\n{submission}\n\nScore it now. JSON only."}
         ],
-        "max_tokens": 1200, "temperature": 0.3
+        "max_tokens": 1400, "temperature": 0.3
     }
-    req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
-        data=json.dumps(body).encode(), method="POST",
-        headers={"Authorization": "Bearer " + KEY, "Content-Type": "application/json",
-                 "HTTP-Referer": "https://astromesh.neoberlin-mind.workers.dev", "X-Title": "BotM Judge Panel"})
-    try:
-        r = urllib.request.urlopen(req, timeout=90)
-        data = json.load(r)
-        txt = (data["choices"][0]["message"].get("content") or "").strip()
-        m = re.search(r"\{.*\}", txt, re.S)
-        if not m: return None
-        j = json.loads(m.group(0))
-        for k in ("correctness", "clarity", "creativity"):
-            j[k] = int(round(float(j.get(k, 0))))
-        j.setdefault("feedback", [])
-        return j
-    except Exception as e:
-        return {"error": str(e)[:120]}
+    last = "no attempt"
+    for attempt in range(4):  # retry on 429 / empty with backoff
+        req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
+            data=json.dumps(body).encode(), method="POST",
+            headers={"Authorization": "Bearer " + KEY, "Content-Type": "application/json",
+                     "HTTP-Referer": "https://astromesh.neoberlin-mind.workers.dev", "X-Title": "BotM Judge Panel"})
+        try:
+            r = urllib.request.urlopen(req, timeout=120)
+            data = json.load(r)
+            txt = (data["choices"][0]["message"].get("content") or "").strip()
+            m = re.search(r"\{.*\}", txt, re.S)
+            if not m: last = "empty"; time.sleep(4 + attempt*4); continue
+            j = json.loads(m.group(0))
+            for k in ("correctness", "clarity", "creativity"):
+                j[k] = int(round(float(j.get(k, 0))))
+            j.setdefault("feedback", [])
+            return j
+        except urllib.error.HTTPError as e:
+            last = f"HTTP {e.code}"
+            if e.code == 429: time.sleep(6 + attempt*6); continue
+            time.sleep(3); continue
+        except Exception as e:
+            last = str(e)[:80]; time.sleep(4); continue
+    return {"error": last}
 
 def main():
     args = sys.argv[1:]
