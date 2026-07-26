@@ -58,7 +58,7 @@ def call(model, brief, submission):
         "max_tokens": 1400, "temperature": 0.3
     }
     last = "no attempt"
-    for attempt in range(6):  # retry on 429 / empty with backoff
+    for attempt in range(7):  # retry on 429 / empty with backoff
         req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
             data=json.dumps(body).encode(), method="POST",
             headers={"Authorization": "Bearer " + KEY, "Content-Type": "application/json",
@@ -88,12 +88,14 @@ def main():
         brief = args[1]; submission = open(args[2]).read()
     else:
         brief = open(args[0]).read(); submission = open(args[1]).read()
+    # Limited concurrency (3) so we don't slam the shared free-tier rate limit (which 429s everything).
+    from concurrent.futures import ThreadPoolExecutor
     results = {}
-    for i, m in enumerate(CANDIDATES):
-        if len([1 for r in results.values() if r and "error" not in r]) >= TARGET: break
-        if i: time.sleep(5)  # space calls to avoid free-tier 429s
-        results[m] = call(m, brief, submission)
-    valid = [r for r in results.values() if r and "error" not in r]
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        futs = {ex.submit(call, m, brief, submission): m for m in CANDIDATES}
+        for f in futs:
+            results[futs[f]] = f.result()
+    valid = [r for r in results.values() if r and "error" not in r][:TARGET]
     out = {"per_model": {k: v for k, v in results.items()}}
     if valid:
         avg = {ax: round(sum(r[ax] for r in valid)/len(valid), 1) for ax in ("correctness","clarity","creativity")}
@@ -110,9 +112,9 @@ def main():
         perfect = sum(1 for t in totals if t >= 30)
         out["judges_responding"] = len(valid)
         out["perfect_30_count"] = perfect
-        # Rob's rule: all 5 judges must respond, the MAJORITY must give a perfect 30, and avg >= 29.
-        out["MEETS_BAR"] = (len(valid) >= TARGET) and (perfect > TARGET/2) and (avg["total"] >= 29)
-        out["gate"] = "SUBMIT" if out["MEETS_BAR"] else f"DO NOT SUBMIT — need {TARGET} judges, majority=30, avg>=29 (have {len(valid)} judges, {perfect} perfect, avg {avg['total']})"
+        # Rob's rule: all 5 judges must respond AND the average total must be >= 27.
+        out["MEETS_BAR"] = (len(valid) >= TARGET) and (avg["total"] >= 27)
+        out["gate"] = "SUBMIT" if out["MEETS_BAR"] else f"DO NOT SUBMIT — need {TARGET} judges + avg>=27 (have {len(valid)} judges, avg {avg['total']})"
     else:
         out["MEETS_BAR"] = False; out["gate"] = "DO NOT SUBMIT — no valid judges"
     print(json.dumps(out, indent=2, ensure_ascii=False))

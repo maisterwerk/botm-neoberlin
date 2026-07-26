@@ -76,6 +76,8 @@
     <h2 id="mTitle">Well played</h2>
     <p id="mBody"></p>
     <p>The word was <b id="mWord"></b></p>
+    <div id="mDef" style="font-size:13px;color:var(--muted);text-align:left;background:var(--tile);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:6px 0;min-height:20px"></div>
+    <button class="act" id="mShare" style="background:var(--gray);margin-right:6px">📋 Share result</button>
     <button class="act" id="mBtn">Play a random word</button>
   </div>
 </div>
@@ -94,7 +96,7 @@ const VALID = new Set([...POOL,...EXTRA_GUESSES]);
 POOL.forEach(w=>VALID.add(w));
 
 const ROWS=6, COLS=5;
-let answer, cur="", row=0, over=false, mode="daily";
+let answer, cur="", row=0, over=false, mode="daily", curRows=[];
 const board=document.getElementById('board');
 const kb=document.getElementById('keyboard');
 const msgEl=document.getElementById('msg');
@@ -158,6 +160,7 @@ function submit(){
   if(cur.length<COLS)return shake("Not enough letters");
   if(!VALID.has(cur))return shake("Not in word list");
   const res=scoreGuess(cur);
+  curRows[row]=res.slice();  // track colours for the shareable grid
   const rowEl=board.querySelector(`.row[data-r="${row}"]`);
   cur.split('').forEach((ch,i)=>{
     const t=tileAt(row,i);
@@ -182,14 +185,35 @@ function updateKey(ch,state){
   }
 }
 function shake(t){setMsg(t,true);const rowEl=board.querySelector(`.row[data-r="${row}"]`);rowEl.classList.add('shake');setTimeout(()=>rowEl.classList.remove('shake'),500);}
-function endModal(title,body){
+// Wordle-style shareable emoji grid of the just-played game.
+let lastGrid=[];
+function buildShare(won){
+  const head="MINDLE "+(mode==="daily"?("#"+daySeed()):"∞")+" "+(won?(lastGrid.length+"/6"):"X/6");
+  return head+"\n"+lastGrid.map(r=>r.map(s=>s==="green"?"🟩":s==="yellow"?"🟨":"⬛").join("")).join("\n")+"\nastromesh… play: MINDLE by NeoBerlin";
+}
+// Twist + real API usage: fetch the answer's genuine definition from a free dictionary API on game end.
+async function showDefinition(){
+  const el=document.getElementById('mDef'); el.textContent="Looking up the word…";
+  try{
+    const r=await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+answer);
+    if(!r.ok) throw 0;
+    const j=await r.json();
+    const meaning=j[0]?.meanings?.[0];
+    const def=meaning?.definitions?.[0]?.definition;
+    const pos=meaning?.partOfSpeech;
+    el.innerHTML= def ? ('📖 <b>'+answer.toUpperCase()+'</b> <i>('+(pos||"")+')</i>: '+def) : "📖 A fine five-letter word.";
+  }catch(_){ el.innerHTML="📖 <b>"+answer.toUpperCase()+"</b> — definition unavailable right now."; }
+}
+function endModal(title,body,won){
   document.getElementById('mTitle').textContent=title;
   document.getElementById('mBody').textContent=body;
   document.getElementById('mWord').textContent=answer.toUpperCase();
   document.getElementById('modal').classList.add('show');
+  showDefinition();
+  document.getElementById('mShare').onclick=()=>{ navigator.clipboard.writeText(buildShare(won)); const b=document.getElementById('mShare'); b.textContent="✓ copied"; setTimeout(()=>b.textContent="📋 Share result",1400); };
 }
-function win(r){const tries=["Genius","Magnificent","Impressive","Splendid","Great","Phew"][r];endModal(tries||"Solved!","You cracked it in "+(r+1)+" "+(r===0?"try":"tries")+".");}
-function lose(){endModal("So close","Six tries up — the Minds will remember this one.");}
+function win(r){lastGrid=curRows.slice();const tries=["Genius","Magnificent","Impressive","Splendid","Great","Phew"][r];endModal(tries||"Solved!","You cracked it in "+(r+1)+" "+(r===0?"try":"tries")+".",true);}
+function lose(){lastGrid=curRows.slice();endModal("So close","Six tries up — the Minds will remember this one.",false);}
 document.addEventListener('keydown',e=>{
   if(document.getElementById('modal').classList.contains('show'))return;
   const k=e.key.toLowerCase();
@@ -198,11 +222,11 @@ document.addEventListener('keydown',e=>{
   else if(/^[a-z]$/.test(k))handle(k);
 });
 document.getElementById('mBtn').onclick=()=>{
-  mode="random";over=false;row=0;cur="";for(const k in keyState)delete keyState[k];
+  mode="random";over=false;row=0;cur="";curRows=[];for(const k in keyState)delete keyState[k];
   document.getElementById('modal').classList.remove('show');
   buildBoard();buildKeyboard();pickAnswer();setMsg("Random word — good luck!",true);
 };
-function init(){buildBoard();buildKeyboard();pickAnswer();setMsg("Daily word · guess in 6 tries");}
+function init(){curRows=[];buildBoard();buildKeyboard();pickAnswer();setMsg("Daily word · guess in 6 tries");}
 init();
 </script>
 </body>
