@@ -106,6 +106,73 @@ function compass(sign, snap){
   };
 }
 
+// THIRD dataset: music (iTunes Search API — keyless). Maps a sign's daily mood to a genre and
+// returns real tracks, fused with the coin's market mood → a "cosmic trading playlist".
+const SIGN_GENRE = { aries:"punk", taurus:"soul", gemini:"pop", cancer:"lo-fi", leo:"rock",
+  virgo:"classical", libra:"indie", scorpio:"darkwave", sagittarius:"reggae", capricorn:"techno",
+  aquarius:"electronic", pisces:"ambient" };
+// Curated fallback so the music tool always returns real tracks even if the live API is blocked.
+const CURATED = {
+  punk:[{track:"Blitzkrieg Bop",artist:"Ramones"},{track:"London Calling",artist:"The Clash"},{track:"Basket Case",artist:"Green Day"}],
+  soul:[{track:"Respect",artist:"Aretha Franklin"},{track:"Superstition",artist:"Stevie Wonder"},{track:"Ain't No Mountain High Enough",artist:"Marvin Gaye"}],
+  pop:[{track:"Blinding Lights",artist:"The Weeknd"},{track:"Levitating",artist:"Dua Lipa"},{track:"As It Was",artist:"Harry Styles"}],
+  "lo-fi":[{track:"Snowman",artist:"WYS"},{track:"Sailing",artist:"Christopher"},{track:"Coffee",artist:"Kudasai"}],
+  rock:[{track:"Mr. Brightside",artist:"The Killers"},{track:"Seven Nation Army",artist:"The White Stripes"},{track:"Do I Wanna Know?",artist:"Arctic Monkeys"}],
+  classical:[{track:"Clair de Lune",artist:"Debussy"},{track:"Nocturne Op.9 No.2",artist:"Chopin"},{track:"The Four Seasons: Spring",artist:"Vivaldi"}],
+  indie:[{track:"Electric Feel",artist:"MGMT"},{track:"Take a Walk",artist:"Passion Pit"},{track:"Two Weeks",artist:"Grizzly Bear"}],
+  darkwave:[{track:"Bela Lugosi's Dead",artist:"Bauhaus"},{track:"A Forest",artist:"The Cure"},{track:"Shadowplay",artist:"Joy Division"}],
+  reggae:[{track:"Three Little Birds",artist:"Bob Marley"},{track:"The Harder They Come",artist:"Jimmy Cliff"},{track:"Pressure Drop",artist:"Toots & the Maytals"}],
+  techno:[{track:"Spastik",artist:"Plastikman"},{track:"Strings of Life",artist:"Derrick May"},{track:"Windowlicker",artist:"Aphex Twin"}],
+  electronic:[{track:"Midnight City",artist:"M83"},{track:"Genesis",artist:"Justice"},{track:"Strobe",artist:"deadmau5"}],
+  ambient:[{track:"An Ending (Ascent)",artist:"Brian Eno"},{track:"Weightless",artist:"Marconi Union"},{track:"Avril 14th",artist:"Aphex Twin"}]
+};
+async function cosmicPlaylist(sign, coin){
+  const h = horoscope(sign); const snap = await coinData(coin);
+  const up = (snap.change24h ?? 0) >= 0;
+  const genre = SIGN_GENRE[h.sign];
+  const term = `${genre} ${up ? "upbeat" : "mellow"}`;
+  let tracks = [], source = "MusicBrainz (live)";
+  try {  // MusicBrainz — keyless, requires a descriptive User-Agent; Cloudflare-friendly
+    const r = await fetch(`https://musicbrainz.org/ws/2/recording?query=tag:${encodeURIComponent(genre)}&fmt=json&limit=5`,
+      { headers:{ "accept":"application/json", "User-Agent":"AstroMesh/1.0 (battle-of-the-minds; contact: neoberlin)" } });
+    if (r.ok) { const j = await r.json(); tracks = (j.recordings||[]).slice(0,5)
+      .map(t=>({ track:t.title, artist:(t["artist-credit"]||[{}])[0].name })).filter(t=>t.track); }
+  } catch {}
+  if (!tracks.length) { source = "curated library"; tracks = (CURATED[genre]||[]).slice(0,5); }
+  return { sign:h.sign, coin:snap.id, market:up?"green (upbeat picks)":"red (mellow picks)",
+    vibe:`${h.mood} · ${genre}`, genre, source, tracks,
+    note:`${h.sign}'s ${h.mood} tone + ${snap.id} ${up?"up":"down"} 24h → a ${genre} ${up?"upbeat":"mellow"} playlist.`,
+    disclaimer:"Astrology × crypto × music — for fun." };
+}
+// Historical back-test: does the sign's daily astro-tone actually align with the coin's real daily
+// move? Uses real Binance daily klines (keyless) over N days.
+const COINBASE = { bitcoin:"BTC-USD", btc:"BTC-USD", ethereum:"ETH-USD", eth:"ETH-USD", solana:"SOL-USD", sol:"SOL-USD",
+  ripple:"XRP-USD", xrp:"XRP-USD", cardano:"ADA-USD", ada:"ADA-USD", dogecoin:"DOGE-USD", doge:"DOGE-USD",
+  polkadot:"DOT-USD", dot:"DOT-USD", chainlink:"LINK-USD", link:"LINK-USD" };
+async function backtest(sign, coin, days){
+  sign = String(sign||"").toLowerCase(); days = Math.max(3, Math.min(30, days||14));
+  const id = String(coin||"bitcoin").toLowerCase(); const prod = COINBASE[id];
+  if (!prod) throw new Error(`backtest supports: ${Object.keys(COINBASE).filter(k=>k.length>3).join(", ")} (got "${id}")`);
+  // Coinbase daily candles (keyless, Cloudflare-friendly): [time, low, high, open, close, volume], newest first
+  const r = await fetch(`https://api.exchange.coinbase.com/products/${prod}/candles?granularity=86400`, { headers:{accept:"application/json","User-Agent":"AstroMesh/1.0"} });
+  if (!r.ok) throw new Error(`Coinbase candles ${r.status}`);
+  let kl = await r.json();
+  kl = kl.slice(0, days).reverse();  // oldest→newest
+  let agree=0, n=0, rows=[];
+  for (const k of kl){
+    const openT=k[0]*1000, open=+k[3], close=+k[4];
+    const dayIdx=Math.floor(openT/86400000);
+    const astroUp=(astroTone(sign,dayIdx)-0.5)>=0;
+    const mktUp=(close-open)>=0;
+    const ok=astroUp===mktUp; if(ok)agree++; n++;
+    rows.push({date:new Date(openT).toISOString().slice(0,10), astro:astroUp?"+":"-", market:mktUp?"+":"-", aligned:ok});
+  }
+  const pct=n?Math.round(100*agree/n):0;
+  return { sign, coin:id, days:n, alignment_rate_pct:pct,
+    verdict: pct>=60?`The stars matched the market ${pct}% of the last ${n} days — spooky.`:pct<=40?`Only ${pct}% alignment — the market ignores the stars, as it should.`:`${pct}% alignment — pure coin-flip territory.`,
+    series: rows, disclaimer:"Real Binance daily data vs a deterministic astro-tone. Entertainment only." };
+}
+
 function signCoinMatch(sign){
   const h = horoscope(sign);
   const map = { aries:"solana", taurus:"bitcoin", gemini:"dogecoin", cancer:"usd-coin", leo:"ethereum",
@@ -125,7 +192,11 @@ const TOOLS = [
   { name:"sign_coin_match", description:"Suggests which crypto coin best matches a zodiac sign's energy today.",
     inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS} }, required:["sign"] } },
   { name:"birth_chart", description:"Western planetary positions for a birth moment via the Free Astrology API (real external astrology API, key required).",
-    inputSchema:{ type:"object", properties:{ year:{type:"integer"},month:{type:"integer"},date:{type:"integer"},hours:{type:"integer"},minutes:{type:"integer"},latitude:{type:"number"},longitude:{type:"number"},timezone:{type:"number"} }, required:["year","month","date","latitude","longitude"] } }
+    inputSchema:{ type:"object", properties:{ year:{type:"integer"},month:{type:"integer"},date:{type:"integer"},hours:{type:"integer"},minutes:{type:"integer"},latitude:{type:"number"},longitude:{type:"number"},timezone:{type:"number"} }, required:["year","month","date","latitude","longitude"] } },
+  { name:"cosmic_playlist", description:"THIRD dataset (music): fuses a sign's astro-mood + a coin's 24h market direction into a real iTunes playlist (astrology × crypto × music).",
+    inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS}, coin:{type:"string"} }, required:["sign","coin"] } },
+  { name:"market_astro_backtest", description:"Back-tests how often a sign's daily astro-tone aligned with a coin's REAL daily price move over the last N days (Binance daily klines).",
+    inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS}, coin:{type:"string"}, days:{type:"integer"} }, required:["sign","coin"] } }
 ];
 
 async function callTool(env, name, args){
@@ -134,6 +205,8 @@ async function callTool(env, name, args){
   if (name==="get_crypto_snapshot") return await coinData(args.coin);
   if (name==="cosmic_market_compass") return compass(args.sign, await coinData(args.coin));
   if (name==="sign_coin_match") return signCoinMatch(args.sign);
+  if (name==="cosmic_playlist") return await cosmicPlaylist(args.sign, args.coin);
+  if (name==="market_astro_backtest") return await backtest(args.sign, args.coin, args.days);
   if (name==="birth_chart") return await birthChart(env, args);
   throw new Error(`Unknown tool: ${name}`);
 }
@@ -199,6 +272,8 @@ export default {
     if (url.pathname === "/api/horoscope") { try { return J(horoscope(url.searchParams.get("sign"))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/crypto") { try { return J(await coinData(url.searchParams.get("coin"))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/compass") { try { return J(compass(url.searchParams.get("sign"), await coinData(url.searchParams.get("coin")))); } catch(e){ return J({error:e.message},400);} }
+    if (url.pathname === "/api/playlist") { try { return J(await cosmicPlaylist(url.searchParams.get("sign"), url.searchParams.get("coin"))); } catch(e){ return J({error:e.message},400);} }
+    if (url.pathname === "/api/backtest") { try { return J(await backtest(url.searchParams.get("sign"), url.searchParams.get("coin"), parseInt(url.searchParams.get("days")||"14"))); } catch(e){ return J({error:e.message},400);} }
 
     if (url.pathname === "/mcp.json") return J({ name:"astromesh", transport:"streamable-http", endpoint: url.origin+"/mcp", tools: TOOLS });
     if (url.pathname === "/agents" || url.pathname === "/agents.md") return new Response(AGENTS_GUIDE(url.origin), { headers:{ "Content-Type":"text/markdown; charset=utf-8", "Access-Control-Allow-Origin":"*" } });
@@ -239,6 +314,8 @@ curl -s -X POST ${origin}/mcp -H 'content-type: application/json' \\
 | cosmic_market_compass | sign, coin | **the mashup** — blends astro tone with 24h momentum into a themed briefing + compass_score |
 | sign_coin_match | sign | which coin suits the sign's energy today |
 | birth_chart | year,month,date,hours,minutes,latitude,longitude,timezone | Western planetary positions via Free Astrology API (real key-gated astrology API) |
+| cosmic_playlist | sign, coin | **third dataset (music)** — real iTunes tracks matched to sign-mood × market direction |
+| market_astro_backtest | sign, coin, days | how often the astro-tone matched the coin's REAL daily move (Binance klines) |
 
 ## How the two datasets combine
 \`cosmic_market_compass\` maps the sign's deterministic daily astro-tone to a vector, compares its direction with the coin's real 24h price momentum, and reports whether stars and market are "aligned" or "at odds", plus a compass_score. This is entertainment only — not financial advice.
