@@ -8,3 +8,6 @@ Probing free-model pool...
   probe nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free -> '__ERROR__ HTTP 429'
   probe cohere/north-mini-code:free                   -> '__ERROR__ HTTP 429'
   probe google/gemma-4-31b-it:free                    -> '__ERROR__ HTTP 429'
+  probe poolside/laguna-s-2.1:free                    -> '__ERROR__ HTTP 429'
+  probe poolside/laguna-m.1:free                      -> '__ERROR__ HTTP 429'
+only 0 models alive: []
