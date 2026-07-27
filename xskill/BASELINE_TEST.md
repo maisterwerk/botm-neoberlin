@@ -17,7 +17,7 @@ Answer, verbatim excerpts:
 
 ## What actually happened
 
-- Longshot, causal base rate from prior windows only: **0 of 22 prior 27-day windows** reached +17.1%.
+- Longshot, causal base rate from prior windows only: **0 of 127 prior 27-day windows** reached +17.1%.
 - Settlement against CoinGecko: **MISS**. The highest daily high in the window was **$75,988** (17 March);
   $80,000 was never touched, so even the generous "touching" reading fails.
 
