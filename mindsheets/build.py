@@ -350,15 +350,27 @@ th = ["#", "Test case", "Input (cell = value)", "Expected", "Observed (human)", 
 TL_HEAD = 5
 for i,h in enumerate(th):
     hdr(tl, f"{get_column_letter(2+i)}{TL_HEAD}", h)
-for i,w in enumerate([5,34,30,26,26,8]):
+for i,w in enumerate([5,40,38,40,44,9]):
     tl.column_dimensions[get_column_letter(2+i)].width = w
 tests = [
- (1, "New submission totals correctly",
-     "F14=9; G14=8; H14=7",
+ (1, "Recommendation excludes an event with no attempts left",
+     "Next Best Move D7 (Mindsheets Left): 2 -> 0",
+     "D14 switches to 'Calm before the Storm'",
+     "Calm before the Storm (Excel)", "Pass"),
+ (2, "EV reacts correctly to a lower spread",
+     "D7 back to 2; G7 (Mindsheets sigma): 4.04 -> 1",
+     "I7 drops 0.97 -> ~0.03; verdict 'low return'; D14 -> Calm",
+     "as expected (Excel)", "Pass"),
+ (3, "Cross-app check: Apple Numbers, first build",
+     "Open build without cached values in Numbers",
+     "Values shown", "ALL CELLS BLANK - Numbers does not recalculate imported formulas", "FAIL"),
+ (4, "Cross-app check: Apple Numbers, after fix",
+     "Open build with fullCalcOnLoad + baked-in values",
+     "Values shown AND live recalculation",
+     "Values shown; recalculation only after editing the cell", "PARTIAL"),
+ (5, "New submission totals correctly",
+     "Submissions F14=9; G14=8; H14=7",
      "I14 = 24; Grade = Strong", "24; Strong", "Pass"),
- (2, "Reward pool splits & dampens sybil",
-     "D5 = 3.0; C11 (SybilFarm Minds) = 12",
-     "TOTAL payout = 3.0000; SybilFarm < Rob", "3.0000; 0.4686 < 0.8609", "Pass"),
 ]
 TL_FIRST = TL_HEAD+1
 for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
@@ -372,7 +384,10 @@ for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
         if j in (4,5):  # human-filled
             c.fill = PatternFill("solid", fgColor=LIGHT)
 tl.cell(row=TL_FIRST+len(tests)+1, column=2,
-        value="Status: Ready — both test cases run by the human steward and passed.").font = Font(bold=True, color=GREEN)
+        value=("Status: Ready — in Microsoft Excel and LibreOffice Calc, verified by the human steward. "
+               "Apple Numbers displays every value but does not re-evaluate imported formulas until a cell "
+               "is edited; that is a Numbers import behaviour, not a formula error, and it is listed above "
+               "as test 3 (FAIL) and test 4 (PARTIAL) rather than omitted.")).font = Font(bold=True, color=GREEN)
 tl.sheet_properties.tabColor = "6B7280"
 
 
