@@ -1,20 +1,23 @@
 EX-ANTE PLAUSIBILITY — computed only from data available on the posting date
 
 account                needed  days  base rate       odds  verdict        actual
-@DigitsCapital          16.2%    28       2.2%   ~1 in 45  LONG SHOT      MISS
-@TheAwfulTrader         13.1%    27       5.9%   ~1 in 17  LONG SHOT      MISS
-@ACInvestorBlog         36.3%    62       0.0%          —  IMPOSSIBLE in sampleMISS
-@C_Zar_69420            10.0%    32       8.6%   ~1 in 12  LONG SHOT      MISS
+@DigitsCapital          16.2%    28        n/a          —  NO PRIOR DATA  MISS
+@TheAwfulTrader         13.1%    27       0.0%          —  IMPOSSIBLE in sampleMISS
+@ACInvestorBlog         36.3%    62        n/a          —  NO PRIOR DATA  MISS
+@C_Zar_69420            10.0%    32       0.0%          —  IMPOSSIBLE in sampleMISS
 @cryptobullying         47.1%    12       0.0%          —  IMPOSSIBLE in sampleMISS
 @Tekeee                -30.5%     4       0.0%          —  IMPOSSIBLE in sampleMISS
 @TrueGemHunter         -58.6%    36       0.0%          —  IMPOSSIBLE in sampleMISS
 @EthereanVibin          42.4%    16       0.0%          —  IMPOSSIBLE in sampleMISS
-@DavidFBailey           17.2%    27       1.1%   ~1 in 91  LONG SHOT      MISS
-@rektober               18.5%    61       2.9%   ~1 in 34  LONG SHOT      MISS
-@cozypront              -9.1%     6       6.8%   ~1 in 15  LONG SHOT      MISS
+@DavidFBailey           17.2%    27       0.0%          —  IMPOSSIBLE in sampleMISS
+@rektober               18.5%    61       0.0%          —  IMPOSSIBLE in sampleMISS
+@cozypront              -9.1%     6       6.1%   ~1 in 16  LONG SHOT      MISS
 
-11/11 claims were LONG SHOTS or worse at the moment they were posted.
-Every one of them missed. The base rate knew months in advance.
+SCOREABLE ex-ante (>=5 prior windows existed): 9/11
+Of those, 9 were LONG SHOT or never-observed at the moment of posting.
+NOTE: this is the strictly causal version. Earlier drafts scanned the whole series,
+which leaked the future into the base rate; two claims turn out to be unscoreable
+because no prior history existed for them in our window.
 
 What a typical X price claim asks for, versus what the market actually does:
   bitcoin   median |30d move| =   8.5%   90th pct =  23.0%

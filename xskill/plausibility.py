@@ -19,16 +19,19 @@ from datetime import datetime
 prices = json.load(open("prices.json"))
 
 
-def series(asset):
+def series(asset, before=None):
+    """Price history. before=YYYY-MM-DD restricts to windows that CLOSED strictly before that
+    date — i.e. only what a user could actually have known when the post was made.
+    Without this cutoff the base rate silently uses the future, including the claim's own window."""
     s = prices[asset]
-    days = sorted(s)
+    days = sorted(d for d in s if before is None or d < before)
     return days, [s[d] for d in days]
 
 
-def base_rate(asset, required_pct, horizon_days):
-    """Fraction of historical windows of this length that moved at least this far,
-    in the same direction as the requirement."""
-    days, vals = series(asset)
+def base_rate(asset, required_pct, horizon_days, before=None):
+    """Fraction of PRIOR windows of this length that moved at least this far, same direction.
+    `before` makes the estimate strictly causal."""
+    days, vals = series(asset, before)
     n = len(vals)
     h = max(1, int(horizon_days))
     if h >= n:
@@ -50,13 +53,15 @@ def base_rate(asset, required_pct, horizon_days):
 def assess(asset, spot, target, posted, deadline):
     req = (target / spot - 1) * 100
     horizon = (datetime.fromisoformat(deadline) - datetime.fromisoformat(posted)).days
-    rate, windows = base_rate(asset, req, horizon)
+    rate, windows = base_rate(asset, req, horizon, before=posted)
     return {
         "asset": asset, "required_move_pct": round(req, 1), "horizon_days": horizon,
         "historical_base_rate": None if rate is None else round(rate, 4),
+        "causal": True,
         "windows_examined": windows,
         "odds": None if not rate else f"~1 in {round(1/rate)}",
-        "verdict": ("IMPOSSIBLE in sample" if rate == 0 else
+        "verdict": ("NO PRIOR DATA" if rate is None or windows < 5 else
+                    "IMPOSSIBLE in sample" if rate == 0 else
                     "LONG SHOT" if rate and rate < 0.15 else
                     "PLAUSIBLE" if rate and rate < 0.5 else "LIKELY" if rate else "n/a"),
     }
@@ -71,12 +76,17 @@ if __name__ == "__main__":
         a = assess(r["asset"], r["spot_at_post"], r["target"], r["posted"], r["deadline"])
         br = "n/a" if a["historical_base_rate"] is None else f"{a['historical_base_rate']*100:.1f}%"
         odds = a["odds"] or "—"
-        if a["historical_base_rate"] is not None and a["historical_base_rate"] < 0.15:
+        if a["windows_examined"] >= 5 and a["historical_base_rate"] is not None and a["historical_base_rate"] < 0.15:
             longshots += 1
         print(f"@{r['account']:<19}{a['required_move_pct']:>8.1f}%{a['horizon_days']:>6}"
               f"{br:>11}{odds:>11}  {a['verdict']:<15}{'HIT' if r['hit'] else 'MISS'}")
-    print(f"\n{longshots}/{len(ledger)} claims were LONG SHOTS or worse at the moment they were posted.")
-    print("Every one of them missed. The base rate knew months in advance.")
+    scoreable = sum(1 for r in ledger
+                    if assess(r["asset"], r["spot_at_post"], r["target"], r["posted"], r["deadline"])["windows_examined"] >= 5)
+    print(f"\nSCOREABLE ex-ante (>=5 prior windows existed): {scoreable}/{len(ledger)}")
+    print(f"Of those, {longshots} were LONG SHOT or never-observed at the moment of posting.")
+    print("NOTE: this is the strictly causal version. Earlier drafts scanned the whole series,")
+    print("which leaked the future into the base rate; two claims turn out to be unscoreable")
+    print("because no prior history existed for them in our window.")
 
     print("\nWhat a typical X price claim asks for, versus what the market actually does:")
     for asset in ("bitcoin", "ethereum", "solana"):

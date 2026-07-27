@@ -182,25 +182,20 @@ def harvest(windows, queries, min_faves=25, per_query_pages=1):
 
 
 if __name__ == "__main__":
+    # The configuration actually used for the run reported in the submission.
     QUERIES = [
-        '"by the end of" bitcoin',
-        '"by the end of" ethereum',
-        'bitcoin price target',
-        'ethereum "will hit"',
-        'bitcoin "will hit"',
-        'solana "by the end of"',
-        'bitcoin "we go to"',
-        '"my target" bitcoin',
+        '"by the end of" bitcoin', '"by the end of" ethereum', '"by the end of" solana',
+        'bitcoin "price target"', 'ethereum "will hit"', 'bitcoin "will hit"',
+        'solana "will hit"', 'bitcoin "we go to"', '"my target" bitcoin',
+        'bitcoin "before the end of"', 'eth "by the end of"', 'btc "end of month"',
+        'bitcoin "this month" target', 'ethereum "price target"', 'sol "price target"',
     ]
     WINDOWS = [
-        ("2025-11-01", "2025-11-30"),
-        ("2025-12-01", "2025-12-31"),
-        ("2026-01-01", "2026-01-31"),
-        ("2026-02-01", "2026-02-28"),
-        ("2026-03-01", "2026-03-31"),
-        ("2026-04-01", "2026-04-30"),
+        ("2025-09-01", "2025-09-30"), ("2025-10-01", "2025-10-31"), ("2025-11-01", "2025-11-30"),
+        ("2025-12-01", "2025-12-31"), ("2026-01-01", "2026-01-31"), ("2026-02-01", "2026-02-28"),
+        ("2026-03-01", "2026-03-31"), ("2026-04-01", "2026-04-30"), ("2026-05-01", "2026-05-31"),
     ]
-    preds = harvest(WINDOWS, QUERIES)
-    with open("predictions.json", "w") as f:
+    preds = harvest(WINDOWS, QUERIES, min_faves=10, per_query_pages=2)
+    with open("predictions_big.json", "w") as f:
         json.dump(preds, f, indent=1)
     print(f"wrote predictions.json with {len(preds)} claims")
