@@ -375,6 +375,92 @@ tl.cell(row=TL_FIRST+len(tests)+1, column=2,
         value="Status: Ready — both test cases run by the human steward and passed.").font = Font(bold=True, color=GREEN)
 tl.sheet_properties.tabColor = "6B7280"
 
+
+# ============ NEXT BEST MOVE (steward-approved milestone 1: schema) ============
+# Estimator choice is the steward's (milestone 2): mu = mean of the LAST TWO attempts,
+# because our process changed mid-tournament and the full history under-weights that.
+# Small-sample caveat is printed in the sheet itself rather than hidden.
+nb = wb.create_sheet("Next Best Move")
+nb.sheet_view.showGridLines = False
+nb["B2"] = "NEXT BEST MOVE  ·  where should the next attempt go?"
+nb["B2"].font = title_font
+nb["B3"] = ("Expected value of ONE more attempt, per event. Only light-blue cells are inputs. "
+            "mu = average of the last two scores (steward's choice); sigma = spread of all scores so far.")
+nb["B3"].font = sub_font
+
+nb_head = ["Event", "Best", "Left", "n", "mu (last 2)", "sigma", "P(next > best)", "EV of next attempt", "Verdict", "eligible EV", "EV bar"]
+NB_HEAD = 5
+for i,h in enumerate(nb_head):
+    hdr(nb, f"{get_column_letter(2+i)}{NB_HEAD}", h)
+for i,w in enumerate([28,7,7,5,12,9,15,20,26,14,24]):
+    nb.column_dimensions[get_column_letter(2+i)].width = w
+
+NB_ROWS = [
+    ("More Minds are better than one", 28, 1, 5, 26.5, 1.52),
+    ("Mindsheets Masterpiece",         25, 2, 5, 23.5, 4.04),
+    ("Calm before the Storm",          25, 2, 6, 23.5, 1.67),
+    ("Cross Word Puzzle",              25, 1, 6, 22.5, 1.72),
+    ("Minds Building Chatbots",        26, 1, 7, 23.0, 1.90),
+    ("AstroMesh: Minds & MCP",         26, 3, 5, 23.5, 1.30),
+    ("Special Skills using X",         26, 7, 1, 26.0, 1.50),
+]
+NB_FIRST = NB_HEAD + 1
+for i,(ev_name,best,att_left,n,mu,sd) in enumerate(NB_ROWS):
+    r = NB_FIRST + i
+    nb.cell(row=r, column=2, value=ev_name).alignment = left
+    for col,val in ((3,best),(4,att_left),(5,n),(6,mu),(7,sd)):
+        c = nb.cell(row=r, column=col, value=val)
+        c.alignment = center
+        if col in (3,4,6,7):
+            c.fill = PatternFill("solid", fgColor=LIGHT)   # steward-editable inputs
+    # P(next beats current best) — NORMDIST is supported by Excel, LibreOffice and Sheets
+    nb.cell(row=r, column=8, value=f"=IF($E{r}<2,\"n/a\",1-NORMDIST($C{r},$F{r},$G{r},TRUE))")
+    # E[max(best, X)] - best, closed form for a normal X
+    nb.cell(row=r, column=9,
+        value=(f"=IF($E{r}<2,\"insufficient history\","
+               f"$C{r}*NORMDIST($C{r},$F{r},$G{r},TRUE)"
+               f"+$F{r}*(1-NORMDIST($C{r},$F{r},$G{r},TRUE))"
+               f"+$G{r}*$G{r}*NORMDIST($C{r},$F{r},$G{r},FALSE)-$C{r})"))
+    nb.cell(row=r, column=10,
+        value=(f"=IF($E{r}<2,\"need >=2 scores\","
+               f"IF($D{r}=0,\"no attempts left\","
+               f"IF($I{r}>=0.5,\"SHOOT — best use of an attempt\","
+               f"IF($I{r}>=0.15,\"worthwhile\",\"low return\"))))"))
+    for col in range(2,13):
+        cc = nb.cell(row=r, column=col); cc.border = border
+        if cc.font is None or not cc.font.bold: cc.font = cell_font
+    nb.cell(row=r, column=11,
+        value=f"=IF(AND($D{r}>0,$E{r}>=2),$I{r},-999)")
+    # steward-approved styling (milestone 3, option B): a text bar, identical in every engine
+    nb.cell(row=r, column=12,
+        value=f"=IF($E{r}<2,\"\",REPT(\"|\",ROUND(MAX($I{r},0)*20,0)))")
+    nb.cell(row=r, column=12).font = Font(name="Menlo", size=11, color=BLUE)
+    nb.cell(row=r, column=11).number_format = "0.00"
+    nb.cell(row=r, column=8).number_format = "0.0%"
+    nb.cell(row=r, column=9).number_format = "0.00"
+    nb.cell(row=r, column=9).alignment = center
+    nb.cell(row=r, column=8).alignment = center
+
+NB_LAST = NB_FIRST + len(NB_ROWS) - 1
+# only rows with attempts left and enough history are eligible
+nb[f"B{NB_LAST+2}"] = "RECOMMENDATION"
+nb[f"B{NB_LAST+2}"].font = Font(bold=True, color=NAVY, size=12)
+nb[f"D{NB_LAST+2}"] = (f"=INDEX($B${NB_FIRST}:$B${NB_LAST},"
+                       f"MATCH(MAX($K${NB_FIRST}:$K${NB_LAST}),$K${NB_FIRST}:$K${NB_LAST},0))")
+nb[f"D{NB_LAST+2}"].font = Font(bold=True, size=12, color=BLUE)
+nb[f"B{NB_LAST+3}"] = ("Caveats, stated rather than hidden: EV assumes the next score is normal around mu. "
+                       "Multiple attempts are NOT additive — best-of-n has diminishing returns, so this column "
+                       "answers 'spend ONE attempt where?' and nothing more. Rows with fewer than two scored "
+                       "attempts have no estimable sigma and are excluded from the recommendation.")
+nb[f"B{NB_LAST+3}"].font = sub_font
+nb.merge_cells(start_row=NB_LAST+3, start_column=2, end_row=NB_LAST+3, end_column=10)
+nb.conditional_formatting.add(f"I{NB_FIRST}:I{NB_LAST}",
+    ColorScaleRule(start_type="min", start_color="F8D7DA", end_type="max", end_color="C9E7C4"))
+nb.sheet_properties.tabColor = GREEN
+
+wb.calculation.fullCalcOnLoad = True
+wb.calculation.calcMode = "auto"
+
 import os
 out = os.path.join(os.path.dirname(__file__), "BattleOfTheMinds_Scoreboard.xlsx")
 wb.save(out)
