@@ -1,0 +1,10 @@
+Probing free-model pool...
+  probe nvidia/nemotron-3-super-120b-a12b:free        -> '__ERROR__ HTTP 429'
+  probe google/gemma-4-26b-a4b-it:free                -> '__ERROR__ HTTP 429'
+  probe inclusionai/ling-3.0-flash:free               -> '__ERROR__ HTTP 429'
+  probe nvidia/nemotron-3-ultra-550b-a55b:free        -> '__ERROR__ HTTP 429'
+  probe poolside/laguna-xs-2.1:free                   -> '__ERROR__ HTTP 429'
+  probe openai/gpt-oss-20b:free                       -> '__ERROR__ HTTP 429'
+  probe nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free -> '__ERROR__ HTTP 429'
+  probe cohere/north-mini-code:free                   -> '__ERROR__ HTTP 429'
+  probe google/gemma-4-31b-it:free                    -> '__ERROR__ HTTP 429'
