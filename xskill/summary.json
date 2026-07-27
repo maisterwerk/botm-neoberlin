@@ -1,0 +1,20 @@
+{
+ "posts_scanned": 3648,
+ "regex_candidates": 745,
+ "prefilter_survivors": 64,
+ "adjudicated_kept": 11,
+ "adjudicated_dropped": 53,
+ "drop_reasons": {
+  "THIRD_PARTY_FORECAST": 17,
+  "NOT_A_PRICE": 12,
+  "NO_REAL_DEADLINE": 10,
+  "WRONG_NUMBER": 1,
+  "HYPOTHETICAL": 7,
+  "QUESTION": 3,
+  "AMBIGUOUS": 2,
+  "WRONG_DIRECTION": 1
+ },
+ "resolved": 11,
+ "hits": 0,
+ "falsifiability_rate_pct": 0.3
+}

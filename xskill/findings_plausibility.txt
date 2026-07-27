@@ -1,0 +1,23 @@
+EX-ANTE PLAUSIBILITY — computed only from data available on the posting date
+
+account                needed  days  base rate       odds  verdict        actual
+@DigitsCapital          16.2%    28       2.2%   ~1 in 45  LONG SHOT      MISS
+@TheAwfulTrader         13.1%    27       5.9%   ~1 in 17  LONG SHOT      MISS
+@ACInvestorBlog         36.3%    62       0.0%          —  IMPOSSIBLE in sampleMISS
+@C_Zar_69420            10.0%    32       8.6%   ~1 in 12  LONG SHOT      MISS
+@cryptobullying         47.1%    12       0.0%          —  IMPOSSIBLE in sampleMISS
+@Tekeee                -30.5%     4       0.0%          —  IMPOSSIBLE in sampleMISS
+@TrueGemHunter         -58.6%    36       0.0%          —  IMPOSSIBLE in sampleMISS
+@EthereanVibin          42.4%    16       0.0%          —  IMPOSSIBLE in sampleMISS
+@DavidFBailey           17.2%    27       1.1%   ~1 in 91  LONG SHOT      MISS
+@rektober               18.5%    61       2.9%   ~1 in 34  LONG SHOT      MISS
+@cozypront              -9.1%     6       6.8%   ~1 in 15  LONG SHOT      MISS
+
+11/11 claims were LONG SHOTS or worse at the moment they were posted.
+Every one of them missed. The base rate knew months in advance.
+
+What a typical X price claim asks for, versus what the market actually does:
+  bitcoin   median |30d move| =   8.5%   90th pct =  23.0%
+  ethereum  median |30d move| =  10.7%   90th pct =  30.7%
+  solana    median |30d move| =   9.9%   90th pct =  32.3%
+  ledger    median |required move| =  18.5%   max =  58.6%

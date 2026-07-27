@@ -1,0 +1,16 @@
+[
+  {"id":"2049313571125793235","keep":false,"reason":"HYPOTHETICAL"},
+  {"id":"2048771343315861782","keep":false,"reason":"NOT_A_PRICE"},
+  {"id":"2048574805150994642","keep":false,"reason":"THIRD_PARTY_FORECAST"},
+  {"id":"2049199568949010885","keep":false,"reason":"NOT_A_PRICE"},
+  {"id":"2043080588362682822","keep":false,"reason":"NOT_A_PRICE"},
+  {"id":"2046961549185515844","keep":false,"reason":"THIRD_PARTY_FORECAST"},
+  {"id":"2044504916153053415","keep":false,"reason":"NOT_A_PRICE"},
+  {"id":"2040514743354761286","keep":false,"reason":"NOT_A_PRICE"},
+  {"id":"2059529430440067264","keep":false,"reason":"THIRD_PARTY_FORECAST"},
+  {"id":"2058738944989147488","keep":true,"target_usd":70000,"direction":"below","confidence":"low"},
+  {"id":"2059741433322774784","keep":false,"reason":"THIRD_PARTY_FORECAST"},
+  {"id":"2059702815581254008","keep":false,"reason":"THIRD_PARTY_FORECAST"},
+  {"id":"2056183997235859574","keep":false,"reason":"THIRD_PARTY_FORECAST"},
+  {"id":"2056371510181265714","keep":false,"reason":"NOT_A_PRICE"}
+]

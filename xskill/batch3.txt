@@ -1,0 +1,41 @@
+ID 2049313571125793235 | @bariksis | posted 2026-04-29 | asset=bitcoin | spot_then=$76,332 | parsed_target=$79,000 | parsed_dir=above | deadline=2026-05-03
+TEXT: If Powell doesn’t nuke the markets tomorrow, then I think we go for that Bitcoin $79K resistance by the end of the week and smash through it.
+
+ID 2048771343315861782 | @Shibizens | posted 2026-04-27 | asset=bitcoin | spot_then=$78,638 | parsed_target=$77,919 | parsed_dir=above | deadline=2026-04-30
+TEXT: SHIBIZENS NEWS UPDATE | April 27, 2026 Market Overview 🔸 BTC: $77,919 (-0.19%) 🔸 ETH: $2,314 (-1.38%) 🔸 Market Cap: $2.59T (-0.38%) 🔸 Fear & Greed: 44 (Neutral) 🔸 Altcoin Index: 41 / 100 1. Strategy buys 3,273 BTC for $255M Strategy acquired 3,273 BTC at an average price of $77,906. The company’s total holdings reached 818,334 BTC with a total cost basis of approximately $61.81 billion and an aver
+
+ID 2048574805150994642 | @Polymarket | posted 2026-04-27 | asset=bitcoin | spot_then=$78,638 | parsed_target=$79,000 | parsed_dir=above | deadline=2026-04-30
+TEXT: NEW: Bitcoin surges above $79,000. 71% chance Bitcoin reclaims $80,000 by the end of the month. https://t.co/RFPNqfr4Mk
+
+ID 2049199568949010885 | @m_gaddaphe | posted 2026-04-28 | asset=bitcoin | spot_then=$77,367 | parsed_target=$76,000 | parsed_dir=above | deadline=2026-06-30
+TEXT: Bitcoin is trading around the $76K level right now, with market participants watching closely to see if it can build enough momentum to challenge higher resistance zones. ETF inflows remain steady, while broader sentiment still appears cautious. This kind of environment often reflects uncertainty, with some investors accumulating while others wait for clearer confirmation. If momentum strengthens,
+
+ID 2043080588362682822 | @yourfriendSOMMI | posted 2026-04-11 | asset=bitcoin | spot_then=$72,920 | parsed_target=$73,000 | parsed_dir=above | deadline=2026-04-30
+TEXT: ❤️💛💚💙 🧃 Juicy News #1360 🟢 BTC $73K 🟢 ETH $2300 🟢 ETH-BTC = 0.031 🛢️ Oil $90 🔻 🩹 PulseChain pDAI is UP +16% 🇺🇸 Oil is trading at $89 on HyperLiquid, which is down -5% from CME close, potentially signifying more "Risk ON" Sentiment 🇺🇸 President Trump says massive numbers of empty oil tankers are heading to the US to load up with the "best and sweetest oil" in the world. 🇺🇸 TRUMP: "We have more oil 
+
+ID 2046961549185515844 | @WalletV_io | posted 2026-04-22 | asset=bitcoin | spot_then=$76,326 | parsed_target=$74,000 | parsed_dir=above | deadline=2026-04-30
+TEXT: Bitcoin went from $74k → nearly $79k in the past 3 days. 80% chances $BTC will hit $80,000 by end of month. https://t.co/AUyNmbIHQq
+
+ID 2044504916153053415 | @atalantis7 | posted 2026-04-15 | asset=bitcoin | spot_then=$74,297 | parsed_target=$80,000 | parsed_dir=above | deadline=2026-04-30
+TEXT: BTC: while STRC is a beautiful new ponzi, sentiment bottomed and R:R is to the upside, i want to see new marginal buyers step-in otherwise we'll just keep frontrunning Mike and sell on the ex-dividend date. ETF flows are still meh, miners are net sellers (AI pivot), CTAs will only chase >80k, and unregulated participants who used to buy BTC as a risk proxy can now just trade stonks onchain. i'm po
+
+ID 2040514743354761286 | @1000xgirl | posted 2026-04-04 | asset=bitcoin | spot_then=$66,823 | parsed_target=$67,000 | parsed_dir=above | deadline=2026-04-30
+TEXT: We’re officially in April — historically one of the strongest months for Bitcoin across multiple cycles. 🚨Market Snapshot 🚨 🔴(BTC): $69,000 🔴Total Crypto Market Cap: $2.45 Trillion 🔴BTC Dominance: 57–58% BTC has defended the $67K–$68K support zone multiple times this quarter after a tough 25% drawdown in early 2026. We’re currently consolidating below the March local high of ~$73K, but on-chain ac
+
+ID 2059529430440067264 | @max_olufemi | posted 2026-05-27 | asset=bitcoin | spot_then=$75,851 | parsed_target=$82,000 | parsed_dir=above | deadline=2026-06-30
+TEXT: AI’s Bitcoin Prediction Might Be the Most Realistic One Yet While most AI models in this series made aggressive predictions for Bitcoin, xAI’s Grok took a much more cautious approach. Instead of predicting a massive breakout or another explosive rally, Grok estimated Bitcoin could reach around $82,000 to $88,000 by the end of June. That represents a more modest 8–15% recovery from recent levels. A
+
+ID 2058738944989147488 | @cozypront | posted 2026-05-25 | asset=bitcoin | spot_then=$77,016 | parsed_target=$70,000 | parsed_dir=above | deadline=2026-05-31
+TEXT: I remain bearish going into this new week I think we could trade around 70k by the end of the week #Bitcoin https://t.co/c2Bc0SG1VO
+
+ID 2059741433322774784 | @CryptoBLDRs | posted 2026-05-27 | asset=ethereum | spot_then=$2,072 | parsed_target=$2,000 | parsed_dir=below | deadline=2026-05-31
+TEXT: Polymarket traders are pricing a 56% chance of Ethereum falling below $2,000 by the end of the month. https://t.co/FImG5APlzV
+
+ID 2059702815581254008 | @Polymarket | posted 2026-05-27 | asset=ethereum | spot_then=$2,072 | parsed_target=$2,000 | parsed_dir=below | deadline=2026-05-31
+TEXT: NEW: Ethereum projected to crash below $2,000 by the end of the month. 56% chance. https://t.co/43S1yBNOWi
+
+ID 2056183997235859574 | @Polymarket | posted 2026-05-18 | asset=ethereum | spot_then=$2,131 | parsed_target=$2,000 | parsed_dir=below | deadline=2026-05-31
+TEXT: JUST IN: Ethereum projected to plunge below $2,000 by the end of the month. 56% chance. https://t.co/43S1yBNOWi
+
+ID 2056371510181265714 | @SebMontgomery | posted 2026-05-18 | asset=solana | spot_then=$85 | parsed_target=$638 | parsed_dir=above | deadline=2026-05-31
+TEXT: Vibhu is up $638 in the Solana vs pro Hyperliquid perps trader. $459 of that PnL is from shorting WTI crude oil. The chain wars are being decided by oil futures. Peak 2026 crypto. Who do you think will win by the end of May 25th? https://t.co/QlE3rJXPjG

@@ -1,0 +1,21 @@
+RESOLVED LEDGER — 11 first-party falsifiable claims
+
+account             asset    posted     deadline      target   actual    needed     moved  result
+@DigitsCapital      bitcoin  2025-10-03 2025-10-31   140,000  108,409     16.2%    -10.0%  MISS
+@TheAwfulTrader     bitcoin  2025-11-03 2025-11-30   125,000   90,832     13.1%    -17.8%  MISS
+@ACInvestorBlog     bitcoin  2025-10-30 2025-12-31   150,000   88,364     36.3%    -19.7%  MISS
+@C_Zar_69420        bitcoin  2025-11-29 2025-12-31   100,000   88,364     10.0%     -2.8%  MISS
+@cryptobullying     solana   2026-01-19 2026-01-31       200      117     47.6%    -13.3%  MISS
+@Tekeee             bitcoin  2026-02-24 2026-02-28    45,000   65,891    -30.5%      1.8%  MISS
+@TrueGemHunter      bitcoin  2026-02-23 2026-03-31    27,000   66,691    -58.6%      2.3%  MISS
+@EthereanVibin      ethereum 2026-03-15 2026-03-31     3,000    2,024     42.4%     -3.9%  MISS
+@DavidFBailey       bitcoin  2026-03-04 2026-03-31    80,000   66,691     17.2%     -2.3%  MISS
+@rektober           bitcoin  2026-03-31 2026-05-31    79,000   73,820     18.5%     10.7%  MISS
+@cozypront          bitcoin  2026-05-25 2026-05-31    70,000   73,820     -9.1%     -4.1%  MISS
+
+Aggregate
+  claims resolved            11
+  hit rate (the posters)     0/11 = 0%
+  hit rate (DRIFT baseline)  0/11 = 0%   <- free, no information
+  edge over drift            +0%
+  directional split          8 'above' / 3 'below'
