@@ -120,8 +120,13 @@ seed = [
  ("Demo-Alpha", "(fictional)", EVENTS[0], 8, 9, 8),
  ("Demo-Alpha", "(fictional)", EVENTS[1], 9, 8, 8),
  ("Demo-Alpha", "(fictional)", EVENTS[2], 7, 8, 9),
+ # A SECOND, weaker submission to an event Demo-Alpha has already entered. It is here on
+ # purpose: the Leaderboard must keep the better score (24) and ignore this one. The earlier
+ # SUMIFS build would have added them into 45.
+ ("Demo-Alpha", "(fictional)", EVENTS[2], 6, 7, 8),
  ("Demo-Beta",  "(fictional)", EVENTS[0], 7, 7, 6),
  ("Demo-Beta",  "(fictional)", EVENTS[3], 8, 8, 7),
+ ("Demo-Beta",  "(fictional)", EVENTS[4], 7, 8, 7),
 ]
 DATA_FIRST = start + 1
 DATA_ROWS = 40  # room for entries
@@ -386,24 +391,30 @@ for i,h in enumerate(th):
 for i,w in enumerate([5,40,38,40,44,9]):
     tl.column_dimensions[get_column_letter(2+i)].width = w
 tests = [
- (1, "Recommendation excludes an event with no attempts left",
-     "Next Best Move D7 (Mindsheets Left): 2 -> 0",
-     "D14 switches to 'Calm before the Storm'",
-     "Calm before the Storm (Excel)", "Pass"),
- (2, "EV reacts correctly to a lower spread",
-     "D7 back to 2; G7 (Mindsheets sigma): 4.04 -> 1",
-     "I7 drops 0.97 -> ~0.03; verdict 'low return'; D14 -> Calm",
-     "as expected (Excel)", "Pass"),
- (3, "Cross-app check: Apple Numbers, first build",
-     "Open build without cached values in Numbers",
-     "Values shown", "ALL CELLS BLANK - Numbers does not recalculate imported formulas", "FAIL"),
- (4, "Cross-app check: Apple Numbers, after fix",
+ (1, "Cross-app check: Apple Numbers, first build",
+     "Open a build written without cached values",
+     "Values shown",
+     "ALL CELLS BLANK - Numbers does not recalculate imported formulas", "FAIL"),
+ (2, "Cross-app check: Apple Numbers, after fix",
      "Open build with fullCalcOnLoad + baked-in values",
      "Values shown AND live recalculation",
      "Values shown; recalculation only after editing the cell", "PARTIAL"),
- (5, "New submission totals correctly",
-     "Submissions F14=9; G14=8; H14=7",
-     "I14 = 24; Grade = Strong", "24; Strong", "Pass"),
+ (3, "Best-of-event: a WEAKER second submission must be ignored",
+     "Submissions row 17: C=NeoBerlin, E=Mindsheets, F/G/H = 5/5/5",
+     "I17=15, J17='Fair'; Leaderboard K5 stays 25; L5 stays 186",
+     "I17=15, Fair; K5=25; L5=186 (Excel, MacBook)", "Pass"),
+ (4, "Best-of-event: a STRONGER second submission must take over",
+     "Same row: F/G/H = 10/10/9",
+     "I17=29, J17='Elite'; Leaderboard K5=29; L5=190; Dashboard H6=190",
+     "all as expected (Excel, MacBook)", "Pass"),
+ (5, "Next Best Move reacts to a changed score",
+     "After test 4 (Mindsheets best 25 -> 29), read Next Best Move C12 and D14",
+     "C12 becomes 29, Mindsheets EV collapses, D14 -> 'Calm before the Storm'",
+     "C12 STILL 25 and D14 still 'Mindsheets' - the tab never updated", "FAIL"),
+ (6, "Same check after the fix (Best now read from the Leaderboard)",
+     "Repeat test 4, then read Next Best Move C12 / I12 / D14",
+     "C12 = 29; I12 falls 0.427 -> 0.030; D14 -> 'Calm before the Storm'",
+     "PENDING - awaiting the steward's re-test", "PENDING"),
 ]
 TL_FIRST = TL_HEAD+1
 for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
@@ -417,7 +428,7 @@ for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
         if j in (4,5):  # human-filled
             c.fill = PatternFill("solid", fgColor=LIGHT)
 tl.cell(row=TL_FIRST+len(tests)+1, column=2,
-        value=("Status: Ready — in Microsoft Excel and LibreOffice Calc, verified by the human steward. "
+        value=("Status: Partially Ready — tests 1-5 were run by the human steward in Excel on macOS; test 6 (the re-test of the fix he prompted) is still pending. "
                "Apple Numbers displays every value but does not re-evaluate imported formulas until a cell "
                "is edited; that is a Numbers import behaviour, not a formula error, and it is listed above "
                "as test 3 (FAIL) and test 4 (PARTIAL) rather than omitted.")).font = Font(bold=True, color=GREEN)
@@ -432,7 +443,7 @@ nb = wb.create_sheet("Next Best Move")
 nb.sheet_view.showGridLines = False
 nb["B2"] = "NEXT BEST MOVE  ·  where should the next attempt go?"
 nb["B2"].font = title_font
-nb["B3"] = ("Expected value of ONE more attempt, per event. Best/Left/n come straight from the tournament API (GET /api/compete/puzzles and /submissions/me) on 2026-07-28. Only light-blue cells are inputs. "
+nb["B3"] = ("Expected value of ONE more attempt, per event. Best/Left/n come straight from the tournament API (GET /api/compete/puzzles and /submissions/me) on 2026-07-28. Only light-blue cells are inputs; 'Best' is read live from the Leaderboard, so raising a score anywhere updates this tab and the recommendation. "
             "mu = average of the last two scores (steward's choice); sigma = spread of all scores so far.")
 nb["B3"].font = sub_font
 
@@ -443,6 +454,10 @@ for i,h in enumerate(nb_head):
 for i,w in enumerate([28,7,7,5,12,9,15,20,26,14,24]):
     nb.column_dimensions[get_column_letter(2+i)].width = w
 
+# Column C ("Best") used to be a typed-in number. The human steward caught it: raising a score
+# on Submissions changed the Leaderboard but left this tab — and its recommendation — frozen on
+# stale figures. A decision aid that does not react to the data is worse than none, so "Best" is
+# now read live out of the Leaderboard. The short key in column N is what the lookup matches on.
 NB_ROWS = [
     ("Special Skills using X",          28, 4, 4, 27.5, 0.71),
     ("More Minds are better than one",  28, 1, 5, 26.5, 1.36),
@@ -453,14 +468,26 @@ NB_ROWS = [
     ("Mindsheets Masterpiece",          25, 1, 6, 22.5, 3.3),
 ]
 NB_FIRST = NB_HEAD + 1
+NB_KEY = {"Special Skills using X":"X-Skill",
+          "More Minds are better than one":"Research",
+          "Cross Word Puzzle":"Crossword",
+          "Calm before the Storm":"Calm",
+          "AstroMesh: Minds & MCP":"AstroMesh",
+          "Minds Building Chatbots":"Chatbots",
+          "Mindsheets Masterpiece":"Mindsheets"}
+nb.cell(row=NB_FIRST-1, column=14, value="key").font = Font(size=8, italic=True, color="B0B4C0")
 for i,(ev_name,best,att_left,n,mu,sd) in enumerate(NB_ROWS):
     r = NB_FIRST + i
     nb.cell(row=r, column=2, value=ev_name).alignment = left
-    for col,val in ((3,best),(4,att_left),(5,n),(6,mu),(7,sd)):
+    nb.cell(row=r, column=14, value=NB_KEY[ev_name]).font = Font(size=8, color="B0B4C0")
+    # "Best" is COMPUTED from the Leaderboard, never typed
+    c = nb.cell(row=r, column=3,
+        value=f'=INDEX(Leaderboard!$E$5:$K$5,MATCH($N{r},Leaderboard!$E$4:$K$4,0))')
+    c.alignment = center
+    for col,val in ((4,att_left),(5,n),(6,mu),(7,sd)):
         c = nb.cell(row=r, column=col, value=val)
         c.alignment = center
-        if col in (3,4,6,7):
-            c.fill = PatternFill("solid", fgColor=LIGHT)   # steward-editable inputs
+        c.fill = PatternFill("solid", fgColor=LIGHT)   # steward-editable inputs
     # P(next beats current best) — NORMDIST is supported by Excel, LibreOffice and Sheets
     nb.cell(row=r, column=8, value=f"=IF($E{r}<2,\"n/a\",1-NORMDIST($C{r},$F{r},$G{r},TRUE))")
     # E[max(best, X)] - best, closed form for a normal X
