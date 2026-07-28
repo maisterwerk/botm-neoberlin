@@ -89,7 +89,7 @@ headers = ["#", "Mind", "Steward", "Event", "Correctness", "Clarity", "Creativit
 start = 4
 for i, h in enumerate(headers):
     hdr(sub, f"{get_column_letter(2+i)}{start}", h, BLUE if i>0 else NAVY)
-widths = [5, 20, 16, 30, 12, 10, 12, 11, 9]
+widths = [5, 20, 22, 52, 12, 10, 12, 11, 9]
 for i, w in enumerate(widths):
     sub.column_dimensions[get_column_letter(2+i)].width = w
 
@@ -319,7 +319,7 @@ rw["B5"] = "Prize pool (ETH)"; rw["B5"].font = lbl_font
 rw["D5"] = 3.0; rw["D5"].fill = PatternFill("solid", fgColor=LIGHT); rw["D5"].border = border
 rw["D5"].alignment = center; rw["D5"].font = Font(bold=True, color=BLUE, size=12); rw["D5"].number_format = "0.000"
 rw["E5"] = "← input the pool"; rw["E5"].font = sub_font
-for i,w in enumerate([3,20,10,12,20,14,14,14]):
+for i,w in enumerate([26,10,12,16,12,14,14,14]):
     rw.column_dimensions[get_column_letter(2+i)].width = w
 # table: steward, total merit, weight=sqrt(merit), payout
 rwh = ["Steward", "Minds", "Σ merit", "Weight = √merit", "Share %", "Payout (ETH)"]
