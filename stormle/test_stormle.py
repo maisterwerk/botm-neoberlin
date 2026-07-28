@@ -25,7 +25,7 @@ with sync_playwright() as pw:
     # 4 rejects a non-word
     pg.evaluate("__reset('calm')")
     pg.evaluate("__play('ZZZZZ')")
-    t("4. a non-word is refused", "not in the word list" in pg.evaluate("__state().msg"),
+    t("4. a non-word is refused", "not a word" in pg.evaluate("__state().msg"),
       pg.evaluate("__state().msg"))
 
     # 5 calm mode: playing the day's answer wins
@@ -61,7 +61,7 @@ with sync_playwright() as pw:
     # 9 the storm host never lies: its reply is the true pattern for EVERY survivor
     liar=pg.evaluate("""()=>{
       let bad=0; let c=__words.slice();
-      for(const g of ['TEARS','MOUND','BLIMP','QUICK']){
+      for(const g of ['TEARS','MOUND','QUICK','LUCID']){
         const r=__adversarial(g,c);
         for(const w of r.survivors) if(__score(g,w)!==r.pattern) bad++;
         c=r.survivors;
@@ -89,9 +89,21 @@ with sync_playwright() as pw:
       "got" in h and "asked" in h, str(sorted(h.keys())))
 
     # 11c the aggregate line must not claim more bits than exist
-    note=pg.inner_text("#effNote")
-    t("11c. summary reports skill and luck, not an unbounded bit total",
-      "Skill" in note and "Luck" in note, note[:90])
+    # 11c: the summary must not assert a bit budget. Play a long game, then check NUMERICALLY
+    # that no figure presented as a total exceeds log2(pool), and that skill is a real ratio.
+    pg.evaluate("__reset('calm')")
+    for w in ["MUMMY","VIVID","PUPPY","KAYAK"]:
+        if not pg.evaluate("__state().over"): pg.evaluate(f"__play('{w}')")
+    note=pg.inner_text("#effNote"); su=pg.evaluate("__summary()")
+    import re as _re
+    nums=[float(x) for x in _re.findall(r"[-+]?\d+\.\d+", note)]
+    cap=math.log2(1552)
+    t("11c. no figure in the summary exceeds log2(pool) = 10.60",
+      all(abs(n)<=cap+1e-9 for n in nums), f"{nums} vs cap {cap:.2f}")
+    t("11d. skill is a bounded ratio, not a ratio of unbounded sums",
+      0.0<=su["skill"]<=1.0, f"skill={su['skill']:.3f}")
+    t("11e. the summary never asserts a bit budget", "bits available" not in note.lower()
+      and "of the" not in note.lower(), note[:100])
 
     # 12 keyboard colouring reflects best-known letter state
     pg.evaluate("__reset('calm')"); pg.evaluate("__play('TEARS')")
@@ -138,17 +150,49 @@ with sync_playwright() as pw:
       f"{ms:.0f} ms with {left} candidates alive")
 
     # 18 the daily salt makes storm a different puzzle each day
-    diff=pg.evaluate("""()=>{
-      const a=__adversarial('TEARS',__words,'1'), b=__adversarial('TEARS',__words,'2');
-      return {sameSize:a.survivors.length===b.survivors.length, aPat:a.pattern, bPat:b.pattern};}""")
-    t("18. the salt only ever breaks exact ties, never the largest-bucket rule",
-      diff["sameSize"] is True, str(diff))
+    # 18: find a guess that ACTUALLY has a tie for the largest bucket, then prove two things:
+    #     the salt can change which tied pattern is chosen, and it never changes the size.
+    r=pg.evaluate("""()=>{
+      let tiedFound=null, changed=0, sizeChanged=0, scanned=0;
+      for(const g of __words.slice(0,400)){
+        const b=new Map();
+        for(const a of __words){const p=__score(g,a); b.set(p,(b.get(p)||0)+1);}
+        let mx=0,cnt=0; for(const c of b.values()){ if(c>mx){mx=c;cnt=1;} else if(c===mx) cnt++; }
+        scanned++;
+        if(cnt<2) continue;
+        if(!tiedFound) tiedFound=g;
+        const seen=new Set();
+        for(const s of ['1','2','3','4','5','6','7','8']){
+          const x=__adversarial(g,__words,s);
+          if(x.survivors.length!==mx) sizeChanged++;
+          seen.add(x.pattern);
+        }
+        if(seen.size>1) changed++;
+      }
+      return {scanned, tiedFound, changed, sizeChanged};}""")
+    t("18. the salt never changes the size of the chosen bucket", r["sizeChanged"]==0, str(r))
+    t("18b. where an exact tie exists, different salts really do pick differently",
+      r["changed"]>0 and r["tiedFound"] is not None, str(r))
 
     # the optimised integer-coded rule must BE the display rule, not merely resemble it
     bad=pg.evaluate("__fastPathAgrees()")
     t("19. fast path == display path on all 2,408,704 pairs (in-browser)", bad==0, f"{bad} mismatches")
 
-    t("20. no JS errors", errs==[], "; ".join(errs[:2]))
+    # 20: a real English word outside the ANSWER pool must still be an allowed guess
+    pg.evaluate("__reset('calm')")
+    pg.evaluate("__play('BLIMP')")
+    t("20. a real word outside the answer pool is accepted as a guess",
+      len(pg.evaluate("__state().rows"))==1, str(pg.evaluate("__state().msg")))
+    pg.evaluate("__reset('calm')"); pg.evaluate("__play('ZZZQQ')")
+    m=pg.evaluate("__state().msg")
+    t("20b. a non-word is still refused", "not a word" in m and len(pg.evaluate("__state().rows"))==0, m)
+    t("20c. proper nouns are not in the guess list", pg.evaluate("__guesses.has('AARON')") is False)
+
+    ex=pg.evaluate("__fastPathAgreesExtra()")
+    t("20d. fast path == display path for the wider guess list too", ex["bad"]==0,
+      f'{ex["checked"]:,} pairs, {ex["bad"]} mismatches')
+
+    t("21. no JS errors", errs==[], "; ".join(errs[:2]))
     pg.evaluate("__reset('calm')")
     for w in ["TEARS","SNORE"]: pg.evaluate(f"__play('{w}')")
     pg.wait_for_timeout(700); pg.screenshot(path="stormle.png")

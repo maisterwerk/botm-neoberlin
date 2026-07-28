@@ -129,7 +129,7 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
 
 <footer>
   Type or use the keys · <b>Enter</b> submits · <b>Backspace</b> deletes. Answer pool: <span id="poolN"></span> common five-letter words, embedded — no network calls, no dependencies.<br>
-  Built by NeoBerlin. Storm mode is Absurdle (qntm); the barometer is WordleBot\u2019s idea, live. Scoring, entropy and the host are computed here, with no network calls.
+  Built by NeoBerlin. Storm mode is Absurdle (qntm); the barometer is WordleBot's idea, live. Scoring, entropy and the host are computed here, with no network calls.
 </footer>
 </div>
 
@@ -163,8 +163,13 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
    an independent Python implementation over all pool^2 pairs.
    ================================================================ */
 const WORDS = [__WORDS__];
+const EXTRA_GUESSES = [__EXTRA__];
 const N = WORDS.length;
-const SET = new Set(WORDS);
+/* Answers come from WORDS. GUESSES is a larger list of real five-letter words you are allowed
+   to type — Wordle accepts far more words than it ever uses as answers, and refusing BLIMP or
+   JIFFY because they happen not to be in the answer pool is simply wrong. Candidate filtering
+   and all entropy work still range over WORDS. */
+const GUESSES = new Set(WORDS.concat(EXTRA_GUESSES));
 const LOG2 = Math.log2;
 
 /* --- Wordle's scoring rule: greens claimed first, then yellows draw
@@ -188,8 +193,12 @@ function score(guess, answer){
    same rule is evaluated on precomputed letter codes and the pattern is packed into
    a base-3 integer 0..242, so a whole distribution is counted in a typed array with
    no allocation at all. A self-test asserts the two agree on every pair. */
-const CODES = WORDS.map(w => Uint8Array.from([...w], c => c.charCodeAt(0)-65));
-const IDX = new Map(WORDS.map((w,i)=>[w,i]));
+// Codes cover EVERY legal guess, not just the answer pool. Indexing only the pool meant that
+// guessing a real word from outside it (BLIMP) crashed the entropy path — found by the test
+// added when the guess list was widened. Answers keep indices 0..WORDS.length-1.
+const ALLW = WORDS.concat(EXTRA_GUESSES);
+const CODES = ALLW.map(w => Uint8Array.from([...w], c => c.charCodeAt(0)-65));
+const IDX = new Map(ALLW.map((w,i)=>[w,i]));
 const _cnt = new Int32Array(26);
 const _res = new Uint8Array(5);
 function scoreCode(gi, ai){
@@ -365,18 +374,25 @@ function render(){
     // Skill = the bits you ASKED for over the bits that were available, averaged. Summing
     // realised bits would be pointless: it telescopes to log2(pool) for everyone who wins,
     // and summing per-turn expectations against a fixed budget is not a meaningful quantity.
-    const a=history.reduce((s,h)=>s+h.asked,0), b=history.reduce((s,h)=>s+h.best,0);
+    // Skill is the MEAN of the per-move ratios. It is deliberately not a ratio of sums:
+    // sum(asked) and sum(best) are sums of conditional expectations along one realised path
+    // and are not bounded by log2(pool), so printing either as "bits available" would assert
+    // a budget that does not exist. No bit TOTAL is displayed here for that reason.
+    const r=history.map(h=>h.best>1e-9 ? Math.min(1,h.asked/h.best) : 1);
+    const skill=r.reduce((s,x)=>s+x,0)/r.length;
     const luck=history.reduce((s,h)=>s+(h.got-h.asked),0);
-    note.innerHTML = `<b>Skill ${(100*a/Math.max(1e-9,b)).toFixed(0)}%</b> — you asked for `+
-      `${a.toFixed(2)} of the ${b.toFixed(2)} bits available. `+
-      `<b>Luck ${luck>=0?"+":""}${luck.toFixed(2)}</b> bits: what the replies gave you `+
-      `beyond what your questions were worth.`;
+    note.innerHTML = `<b>Skill ${(100*skill).toFixed(0)}%</b> — averaged over your `+
+      `${history.length} question${history.length===1?"":"s"}, each scored against the best `+
+      `question available at that moment. <b>Luck ${luck>=0?"+":""}${luck.toFixed(2)} bits</b> — `+
+      `how much more (or less) the replies delivered than your questions were worth.`;
   } else note.textContent="";
   // candidates
   // The word list is hidden by default. Printing it whenever <=40 words remained meant the
   // game solved itself: after one decent opener the answer was usually sitting on screen.
   const cd=document.getElementById("cands");
-  if(cands.length===N) cd.textContent = `${N} words. Make a guess.`;
+  if(cands.length===N) cd.textContent = peeking
+      ? `All ${N} words are still possible — there is nothing to narrow yet. Make a guess.`
+      : `${N} words. Make a guess.`;
   else if(!peeking) cd.textContent = `${cands.length} word${cands.length===1?"":"s"} still fit.`+
       (over?"":"  (Hidden — press the button if you want the puzzle solved for you.)");
   else cd.innerHTML = cands.length<=60 ? cands.map(w=>"<b>"+w+"</b>").join(" ")
@@ -393,7 +409,7 @@ function press(k){
 
 function submit(){
   if(cur.length<5) return setMsg("Five letters.","no");
-  if(!SET.has(cur)) return setMsg(cur+" is not in the word list.","no");
+  if(!GUESSES.has(cur)) return setMsg(cur+" is not a word I know.","no");
   const before = cands.length;
   const bestNow = bestGuess(cands);
   const asked = entropy(cur, cands);     // expected bits of the question the player actually asked
@@ -413,8 +429,9 @@ function submit(){
     over=true;
     // NOT the sum of realised bits: that telescopes to log2(pool) for everyone who wins and
     // so is the same number for a brilliant game and a lucky one. Skill is the honest summary.
-    const a=history.reduce((s,h)=>s+h.asked,0), b=history.reduce((s,h)=>s+h.best,0);
-    setMsg(`Solved in ${rows.length}. Skill ${(100*a/Math.max(1e-9,b)).toFixed(0)}%.`,"ok");
+    const r=history.map(h=>h.best>1e-9 ? Math.min(1,h.asked/h.best) : 1);
+    const sk=r.reduce((s,x)=>s+x,0)/r.length;
+    setMsg(`Solved in ${rows.length}. Skill ${(100*sk).toFixed(0)}%.`,"ok");
   } else if(rows.length===6){
     over=true;
     if(mode==="storm"){
@@ -442,6 +459,7 @@ window.__score = score;
 window.__entropy = entropy;
 window.__adversarial = adversarialReply;
 window.__words = WORDS;
+window.__guesses = GUESSES;
 window.__state = ()=>({mode, answer, left:cands.length, rows:rows.map(r=>r.g+":"+r.p),
                        history, over, msg:document.getElementById("msg").textContent});
 window.__play = (word)=>{ cur=word.toUpperCase(); submit(); return window.__state(); };
@@ -449,6 +467,13 @@ window.__reset = reset;
 window.__bestGuess = bestGuess;
 window.__scoreCode = scoreCode;
 window.__cands = ()=>cands.slice();
+window.__summary = ()=>{
+  if(!history.length) return null;
+  const r=history.map(h=>h.best>1e-9 ? Math.min(1,h.asked/h.best) : 1);
+  return {skill:r.reduce((s,x)=>s+x,0)/r.length,
+          luck:history.reduce((s,h)=>s+(h.got-h.asked),0),
+          note:document.getElementById("effNote").textContent};
+};
 window.__idx = w=>IDX.get(w);
 /* proves the fast integer-coded rule and the display rule are the same function */
 window.__fastPathAgrees = function(){
@@ -458,6 +483,17 @@ window.__fastPathAgrees = function(){
     for(let ai=0;ai<WORDS.length;ai++)
       if(dec(scoreCode(gi,ai))!==score(WORDS[gi],WORDS[ai])) bad++;
   return bad;
+};
+/* the same equivalence, but for guesses drawn from the WIDER allowed list */
+window.__fastPathAgreesExtra = function(){
+  const dec=c=>{const o=[];for(let i=0;i<5;i++){o.unshift("BYG"[c%3]);c=(c-c%3)/3;}return o.join("");};
+  let bad=0;
+  for(let k=0;k<EXTRA_GUESSES.length;k++){
+    const gi=IDX.get(EXTRA_GUESSES[k]);
+    for(let ai=0;ai<WORDS.length;ai++)
+      if(dec(scoreCode(gi,ai))!==score(ALLW[gi],WORDS[ai])) bad++;
+  }
+  return {checked:EXTRA_GUESSES.length*WORDS.length, bad};
 };
 window.__peek = ()=>{ peeking=true; render(); };
 window.__crosscheckHash = null;   // filled by the test harness
