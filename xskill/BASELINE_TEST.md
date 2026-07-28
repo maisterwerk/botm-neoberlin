@@ -17,7 +17,7 @@ Answer, verbatim excerpts:
 
 ## What actually happened
 
-- Longshot, causal base rate from prior windows only: **0 of 127 prior 27-day windows** reached +17.1%.
+- Longshot, causal base rate from prior windows only: **573 of 2,826 prior 27-day windows (20.3%)** reached +17.1%.
 - Settlement against CoinGecko: **MISS**. The highest daily high in the window was **$75,988** (17 March);
   $80,000 was never touched, so even the generous "touching" reading fails.
 
@@ -25,11 +25,11 @@ Answer, verbatim excerpts:
 
 The baseline is not stupid — the lognormal estimate is a reasonable *model-based prior*, and it says
 so honestly. But it produced **15–30%** for an event with **no precedent in the actual recent series**
-and which did not occur, and it could not settle the claim at all. The difference is not intelligence,
+and which did not occur. Recomputed on the long series our own engine agrees with the baseline's order of magnitude — the baseline was reasonable. What it could not do is settle the claim afterwards. The difference is not intelligence,
 it is having the series and the settlement source in hand:
 
 | | unaided model | Longshot |
 |---|---|---|
-| probability | 15% (30% touching) | 0 of 22 prior windows |
-| basis | assumed volatility | the actual price history before the post |
+| probability | 15% (30% touching) | 20.3% (+17.1%) / 30.5% (+10.1%) |
+| basis | a recalled volatility parameter | 8 years of closes, cut off at the posting date |
 | settlement | "I can't verify what actually happened" | MISS, high $75,988 on 17 Mar |
