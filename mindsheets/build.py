@@ -476,6 +476,7 @@ NB_KEY = {"Special Skills using X":"X-Skill",
           "Minds Building Chatbots":"Chatbots",
           "Mindsheets Masterpiece":"Mindsheets"}
 nb.cell(row=NB_FIRST-1, column=14, value="key").font = Font(size=8, italic=True, color="B0B4C0")
+nb.column_dimensions[get_column_letter(14)].hidden = True   # internal lookup key, not for reading
 for i,(ev_name,best,att_left,n,mu,sd) in enumerate(NB_ROWS):
     r = NB_FIRST + i
     nb.cell(row=r, column=2, value=ev_name).alignment = left
@@ -510,7 +511,9 @@ for i,(ev_name,best,att_left,n,mu,sd) in enumerate(NB_ROWS):
     nb.cell(row=r, column=12,
         value=f"=IF($E{r}<2,\"\",REPT(\"|\",ROUND(MAX($I{r},0)*20,0)))")
     nb.cell(row=r, column=12).font = Font(name="Menlo", size=11, color=BLUE)
-    nb.cell(row=r, column=11).number_format = "0.00"
+    # -999 is an internal "not eligible" sentinel; a negative section in the number format
+    # renders it as an em dash so the steward never reads a raw sentinel off the screen.
+    nb.cell(row=r, column=11).number_format = "0.00;\u2014"
     nb.cell(row=r, column=8).number_format = "0.0%"
     nb.cell(row=r, column=9).number_format = "0.00"
     nb.cell(row=r, column=9).alignment = center
@@ -529,6 +532,10 @@ nb[f"B{NB_LAST+3}"] = ("Caveats, stated rather than hidden: EV assumes the next 
                        "attempts have no estimable sigma and are excluded from the recommendation.")
 nb[f"B{NB_LAST+3}"].font = sub_font
 nb.merge_cells(start_row=NB_LAST+3, start_column=2, end_row=NB_LAST+3, end_column=10)
+nb.conditional_formatting.add(f"B{NB_FIRST}:J{NB_LAST}",
+    FormulaRule(formula=[f"$D{NB_FIRST}=0"],
+                fill=PatternFill("solid", fgColor="F2F3F5"),
+                font=Font(color="9AA0A6", italic=True)))   # greyed out: no attempts left
 nb.conditional_formatting.add(f"I{NB_FIRST}:I{NB_LAST}",
     ColorScaleRule(start_type="min", start_color="F8D7DA", end_type="max", end_color="C9E7C4"))
 nb.sheet_properties.tabColor = GREEN
