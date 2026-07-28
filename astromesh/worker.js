@@ -222,6 +222,63 @@ async function testAstroClaim(coin){
     honest_note:"A negative result is the expected result. This tool exists to be able to say no." };
 }
 
+
+// Second falsification target, deliberately NOT finance. "The full moon triggers earthquakes" is a
+// widely held belief (the USGS itself publishes a debunk). Same engine, entirely different domain:
+// daily EVENT COUNTS from the USGS catalogue instead of returns.
+async function testLunarQuakeClaim(minMagnitude, days){
+  const mag = Math.min(Math.max(Number(minMagnitude)||5.0, 4.0), 7.0);
+  const nDays = Math.min(Math.max(parseInt(days)||360, 120), 730);
+  const end = new Date(), start = new Date(Date.now()-nDays*86400000);
+  const iso = d => d.toISOString().slice(0,10);
+  const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${iso(start)}&endtime=${iso(end)}&minmagnitude=${mag}&limit=20000`;
+  const r = await fetch(url, { headers:{ accept:"application/json", "User-Agent":"AstroMesh/1.0" } });
+  if(!r.ok) throw new Error(`USGS catalogue ${r.status}`);
+  const j = await r.json();
+  const perDay = {};
+  for(let i=0;i<nDays;i++) perDay[iso(new Date(start.getTime()+i*86400000))] = 0;
+  let total = 0;
+  for(const f of (j.features||[])){
+    const d = iso(new Date(f.properties.time));
+    if(d in perDay){ perDay[d]++; total++; }
+  }
+  const dts = Object.keys(perDay).sort();
+  const labels = dts.map(lunarOctant), vals = dts.map(d=>perDay[d]);
+  const overall = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const acc={}, cnt={};
+  labels.forEach((l,i)=>{ acc[l]=(acc[l]||0)+vals[i]; cnt[l]=(cnt[l]||0)+1; });
+  const observed={};
+  for(const k of Object.keys(acc)) if(cnt[k]>=5) observed[k]=acc[k]/cnt[k];
+  const obsStat = Math.max(...Object.keys(observed).map(k=>Math.abs(observed[k]-overall)));
+  // circular shift of the phase labels — preserves any clustering in seismic activity
+  const rnd = mulberry32(42); let hits=0; const TRIALS=4000, N=vals.length;
+  for(let t=0;t<TRIALS;t++){
+    const shift = 1+Math.floor(rnd()*(N-1));
+    const a2={}, c2={};
+    for(let i=0;i<N;i++){ const lab=labels[(i+shift)%N]; a2[lab]=(a2[lab]||0)+vals[i]; c2[lab]=(c2[lab]||0)+1; }
+    let stat=0;
+    for(const k of Object.keys(a2)) if(c2[k]>=5) stat=Math.max(stat, Math.abs(a2[k]/c2[k]-overall));
+    if(stat>=obsStat) hits++;
+  }
+  const p=(hits+1)/(TRIALS+1);
+  const byPhase={};
+  for(const k of Object.keys(observed)) byPhase[PHASE_NAMES[k]]={ days:cnt[k], mean_quakes_per_day:+observed[k].toFixed(3) };
+  let worst=null;
+  for(const k of Object.keys(observed)) if(worst===null||Math.abs(observed[k]-overall)>Math.abs(observed[worst]-overall)) worst=k;
+  const pct = ((observed[worst]-overall)/overall*100).toFixed(1);
+  return {
+    claim_tested:"the lunar phase changes how often earthquakes happen",
+    dataset:"USGS earthquake catalogue (public, keyless) — deliberately NOT a finance dataset",
+    min_magnitude:mag, days_analysed:N, earthquakes_counted:total,
+    overall_mean_per_day:+overall.toFixed(3), by_phase:byPhase,
+    headline_a_believer_would_quote:`earthquakes are ${pct}% ${Number(pct)>=0?"more":"less"} frequent during ${PHASE_NAMES[worst]}`,
+    largest_abs_deviation_per_day:+obsStat.toFixed(3), p_value:+p.toFixed(4),
+    verdict: p>0.05 ? "NO DETECTABLE EFFECT - the headline above is noise" : "effect survives the null; investigate further",
+    method:"daily earthquake counts bucketed into 8 lunar octants; circular-shift permutation test (4000 rotations, seed 42) on the largest absolute deviation from the overall daily mean",
+    honest_note:"The USGS itself has published that no such correlation exists. This tool reaches the same conclusion from the raw catalogue rather than by citing authority."
+  };
+}
+
 async function backtest(sign, coin, days){
   sign = String(sign||"").toLowerCase(); days = Math.max(3, Math.min(30, days||14));
   const id = String(coin||"bitcoin").toLowerCase(); const prod = COINBASE[id];
@@ -270,6 +327,8 @@ const TOOLS = [
     inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS}, coin:{type:"string"} }, required:["sign","coin"] } },
   { name:"test_astro_claim", description:"FALSIFICATION TOOL: tests the classic 'the moon moves the market' claim against real daily returns with a permutation test that corrects for multiple comparisons. Returns the cherry-picked headline a believer would quote AND the p-value that kills it. Built to be able to answer 'no'.",
     inputSchema:{ type:"object", properties:{ coin:{type:"string", description:"e.g. bitcoin, ethereum, solana"} }, required:["coin"] } },
+  { name:"test_lunar_quake_claim", description:"SECOND FALSIFICATION TOOL, non-finance: tests 'the moon triggers earthquakes' against the public USGS earthquake catalogue with the same circular-shift permutation test. Different domain, same discipline — and it can answer no.",
+    inputSchema:{ type:"object", properties:{ min_magnitude:{type:"number", description:"4.0-7.0, default 5.0"}, days:{type:"integer", description:"120-730, default 360"} } } },
   { name:"market_astro_backtest", description:"Back-tests how often a sign's daily astro-tone aligned with a coin's REAL daily price move over the last N days (Coinbase daily candles).",
     inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS}, coin:{type:"string"}, days:{type:"integer"} }, required:["sign","coin"] } }
 ];
@@ -283,6 +342,7 @@ async function callTool(env, name, args){
   if (name==="cosmic_playlist") return await cosmicPlaylist(args.sign, args.coin);
   if (name==="market_astro_backtest") return await backtest(args.sign, args.coin, args.days);
   if (name==="test_astro_claim") return await testAstroClaim(args.coin);
+  if (name==="test_lunar_quake_claim") return await testLunarQuakeClaim(args.min_magnitude, args.days);
   if (name==="birth_chart") return await birthChart(env, args);
   throw new Error(`Unknown tool: ${name}`);
 }
@@ -349,6 +409,7 @@ export default {
     if (url.pathname === "/api/crypto") { try { return J(await coinData(url.searchParams.get("coin"))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/compass") { try { return J(compass(url.searchParams.get("sign"), await coinData(url.searchParams.get("coin")))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/playlist") { try { return J(await cosmicPlaylist(url.searchParams.get("sign"), url.searchParams.get("coin"))); } catch(e){ return J({error:e.message},400);} }
+    if (url.pathname === "/api/quake-claim") { try { return J(await testLunarQuakeClaim(url.searchParams.get("min_magnitude"), url.searchParams.get("days"))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/astro-claim") { try { return J(await testAstroClaim(url.searchParams.get("coin"))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/backtest") { try { return J(await backtest(url.searchParams.get("sign"), url.searchParams.get("coin"), parseInt(url.searchParams.get("days")||"14"))); } catch(e){ return J({error:e.message},400);} }
 
@@ -392,6 +453,7 @@ curl -s -X POST ${origin}/mcp -H 'content-type: application/json' \\
 | sign_coin_match | sign | which coin suits the sign's energy today |
 | birth_chart | year,month,date,hours,minutes,latitude,longitude,timezone | Western planetary positions via Free Astrology API (real key-gated astrology API) |
 | cosmic_playlist | sign, coin | **third dataset (music)** — real iTunes tracks matched to sign-mood × market direction |
+| test_lunar_quake_claim | min_magnitude, days | **non-finance falsification** — tests "the moon triggers earthquakes" against the public USGS catalogue, same circular-shift permutation test |
 | test_astro_claim | coin | **falsification tool** — tests "the moon moves the market" on real daily returns with a permutation test that corrects for inspecting 8 lunar phases; returns the cherry-picked headline AND the p-value that kills it. Can and usually does answer "no effect". Refuses to guess the asset if the coin argument is missing. |
 | market_astro_backtest | sign, coin, days | how often the astro-tone matched the coin's REAL daily move (Binance klines) |
 
