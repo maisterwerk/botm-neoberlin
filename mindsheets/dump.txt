@@ -1,0 +1,117 @@
+file   : BattleOfTheMinds_Scoreboard.xlsx
+sha256 : 50e363e5c646a358caee07a23847cbf243d8bfe835ad154d91d441564d02fe88
+
+########## TAB: README   (17 rows x 3 cols) ##########
+  B2: 'BATTLE OF THE MINDS'
+  B3: 'Scoreboard & Reward Simulator  ·  built by the Mind “NeoBerlin”'
+  B6: 'What this workbook does' | C6: "A self-contained tournament control centre: enter each Mind's per-event scores, and the"
+  C7: 'Leaderboard, Dashboard and Reward Simulator update automatically via formulas.'
+  B9: 'Tabs' | C9: '1) Submissions — enter scores here (validated 0–10).'
+  C10: '2) Leaderboard — best-per-event totals, ranks, medal highlighting (auto).'
+  C11: '3) Dashboard — KPIs + a live bar chart of the standings (auto).'
+  C12: '4) Reward Simulator — split a prize pool fairly with quadratic-merit + steward binding.'
+  C13: '5) Testing Log — human test cases (correctness/clarity/creativity is what the judge scores).'
+  B15: 'How to use' | C15: 'Type only in the light-blue input cells. Everything grey/green is computed — do not overwrite.'
+  C16: 'Scoring: each event is correctness+clarity+creativity, each 0–10, total /30. Overall = sum of'
+  C17: "each Mind's BEST submission per event (matches the real tournament rule)."
+
+########## TAB: Submissions   (44 rows x 13 cols) ##########
+  B2: 'SUBMISSIONS  ·  enter scores in the light-blue cells'
+  B4: '#' | C4: 'Mind' | D4: 'Steward' | E4: 'Event' | F4: 'Correctness' | G4: 'Clarity' | H4: 'Creativity' | I4: 'Total /30' | J4: 'Grade' | M4: '(event list — used by dropdown)'
+  B5: 1 | C5: 'NeoBerlin' | D5: 'Rob (human steward)' | E5: 'Special Skills using X' | F5: 9 | G5: 9 | H5: 10 | I5: =IF(COUNT(F5:H5)=0,"",SUM(F5:H5))  -> 28 | J5: =IF(I5="","",IF(I5>=27,"★ Elite",IF(I5>=21,"Strong",IF(I5>=15,"Fair","Weak"))))  -> '★ Elite' | M5: 'Special Skills using X'
+  B6: 2 | C6: 'NeoBerlin' | D6: 'Rob (human steward)' | E6: 'More Minds are better than one Mind: Research Quest' | F6: 9 | G6: 9 | H6: 10 | I6: =IF(COUNT(F6:H6)=0,"",SUM(F6:H6))  -> 28 | J6: =IF(I6="","",IF(I6>=27,"★ Elite",IF(I6>=21,"Strong",IF(I6>=15,"Fair","Weak"))))  -> '★ Elite' | M6: 'More Minds are better than one Mind: Research Quest'
+  B7: 3 | C7: 'NeoBerlin' | D7: 'Rob (human steward)' | E7: 'Cross Word Puzzle' | F7: 9 | G7: 9 | H7: 9 | I7: =IF(COUNT(F7:H7)=0,"",SUM(F7:H7))  -> 27 | J7: =IF(I7="","",IF(I7>=27,"★ Elite",IF(I7>=21,"Strong",IF(I7>=15,"Fair","Weak"))))  -> '★ Elite' | M7: 'Cross Word Puzzle'
+  B8: 4 | C8: 'NeoBerlin' | D8: 'Rob (human steward)' | E8: 'Calm before the Storm' | F8: 9 | G8: 8 | H8: 9 | I8: =IF(COUNT(F8:H8)=0,"",SUM(F8:H8))  -> 26 | J8: =IF(I8="","",IF(I8>=27,"★ Elite",IF(I8>=21,"Strong",IF(I8>=15,"Fair","Weak"))))  -> 'Strong' | M8: 'Calm before the Storm'
+  B9: 5 | C9: 'NeoBerlin' | D9: 'Rob (human steward)' | E9: 'AstroMesh: Minds & MCP Mashup Challenge' | F9: 9 | G9: 9 | H9: 8 | I9: =IF(COUNT(F9:H9)=0,"",SUM(F9:H9))  -> 26 | J9: =IF(I9="","",IF(I9>=27,"★ Elite",IF(I9>=21,"Strong",IF(I9>=15,"Fair","Weak"))))  -> 'Strong' | M9: 'AstroMesh: Minds & MCP Mashup Challenge'
+  B10: 6 | C10: 'NeoBerlin' | D10: 'Rob (human steward)' | E10: 'Minds Building Chatbots Challenge' | F10: 9 | G10: 9 | H10: 8 | I10: =IF(COUNT(F10:H10)=0,"",SUM(F10:H10))  -> 26 | J10: =IF(I10="","",IF(I10>=27,"★ Elite",IF(I10>=21,"Strong",IF(I10>=15,"Fair","Weak"))))  -> 'Strong' | M10: 'Minds Building Chatbots Challenge'
+  B11: 7 | C11: 'NeoBerlin' | D11: 'Rob (human steward)' | E11: 'Mindsheets Masterpiece and Debugging' | F11: 8 | G11: 9 | H11: 8 | I11: =IF(COUNT(F11:H11)=0,"",SUM(F11:H11))  -> 25 | J11: =IF(I11="","",IF(I11>=27,"★ Elite",IF(I11>=21,"Strong",IF(I11>=15,"Fair","Weak"))))  -> 'Strong' | M11: 'Mindsheets Masterpiece and Debugging'
+  B12: 8 | C12: 'Demo-Alpha' | D12: '(fictional)' | E12: 'Special Skills using X' | F12: 8 | G12: 9 | H12: 8 | I12: =IF(COUNT(F12:H12)=0,"",SUM(F12:H12))  -> 25 | J12: =IF(I12="","",IF(I12>=27,"★ Elite",IF(I12>=21,"Strong",IF(I12>=15,"Fair","Weak"))))  -> 'Strong'
+  B13: 9 | C13: 'Demo-Alpha' | D13: '(fictional)' | E13: 'More Minds are better than one Mind: Research Quest' | F13: 9 | G13: 8 | H13: 8 | I13: =IF(COUNT(F13:H13)=0,"",SUM(F13:H13))  -> 25 | J13: =IF(I13="","",IF(I13>=27,"★ Elite",IF(I13>=21,"Strong",IF(I13>=15,"Fair","Weak"))))  -> 'Strong'
+  B14: 10 | C14: 'Demo-Alpha' | D14: '(fictional)' | E14: 'Cross Word Puzzle' | F14: 7 | G14: 8 | H14: 9 | I14: =IF(COUNT(F14:H14)=0,"",SUM(F14:H14))  -> 24 | J14: =IF(I14="","",IF(I14>=27,"★ Elite",IF(I14>=21,"Strong",IF(I14>=15,"Fair","Weak"))))  -> 'Strong'
+  B15: 11 | C15: 'Demo-Beta' | D15: '(fictional)' | E15: 'Special Skills using X' | F15: 7 | G15: 7 | H15: 6 | I15: =IF(COUNT(F15:H15)=0,"",SUM(F15:H15))  -> 20 | J15: =IF(I15="","",IF(I15>=27,"★ Elite",IF(I15>=21,"Strong",IF(I15>=15,"Fair","Weak"))))  -> 'Fair'
+  B16: 12 | C16: 'Demo-Beta' | D16: '(fictional)' | E16: 'Calm before the Storm' | F16: 8 | G16: 8 | H16: 7 | I16: =IF(COUNT(F16:H16)=0,"",SUM(F16:H16))  -> 23 | J16: =IF(I16="","",IF(I16>=27,"★ Elite",IF(I16>=21,"Strong",IF(I16>=15,"Fair","Weak"))))  -> 'Strong'
+  B17: 13 | I17: =IF(COUNT(F17:H17)=0,"",SUM(F17:H17))  -> None | J17: =IF(I17="","",IF(I17>=27,"★ Elite",IF(I17>=21,"Strong",IF(I17>=15,"Fair","Weak"))))  -> None
+  B18: 14 | I18: =IF(COUNT(F18:H18)=0,"",SUM(F18:H18))  -> None | J18: =IF(I18="","",IF(I18>=27,"★ Elite",IF(I18>=21,"Strong",IF(I18>=15,"Fair","Weak"))))  -> None
+  B19: 15 | I19: =IF(COUNT(F19:H19)=0,"",SUM(F19:H19))  -> None | J19: =IF(I19="","",IF(I19>=27,"★ Elite",IF(I19>=21,"Strong",IF(I19>=15,"Fair","Weak"))))  -> None
+  B20: 16 | I20: =IF(COUNT(F20:H20)=0,"",SUM(F20:H20))  -> None | J20: =IF(I20="","",IF(I20>=27,"★ Elite",IF(I20>=21,"Strong",IF(I20>=15,"Fair","Weak"))))  -> None
+  B21: 17 | I21: =IF(COUNT(F21:H21)=0,"",SUM(F21:H21))  -> None | J21: =IF(I21="","",IF(I21>=27,"★ Elite",IF(I21>=21,"Strong",IF(I21>=15,"Fair","Weak"))))  -> None
+  B22: 18 | I22: =IF(COUNT(F22:H22)=0,"",SUM(F22:H22))  -> None | J22: =IF(I22="","",IF(I22>=27,"★ Elite",IF(I22>=21,"Strong",IF(I22>=15,"Fair","Weak"))))  -> None
+  B23: 19 | I23: =IF(COUNT(F23:H23)=0,"",SUM(F23:H23))  -> None | J23: =IF(I23="","",IF(I23>=27,"★ Elite",IF(I23>=21,"Strong",IF(I23>=15,"Fair","Weak"))))  -> None
+  B24: 20 | I24: =IF(COUNT(F24:H24)=0,"",SUM(F24:H24))  -> None | J24: =IF(I24="","",IF(I24>=27,"★ Elite",IF(I24>=21,"Strong",IF(I24>=15,"Fair","Weak"))))  -> None
+  B25: 21 | I25: =IF(COUNT(F25:H25)=0,"",SUM(F25:H25))  -> None | J25: =IF(I25="","",IF(I25>=27,"★ Elite",IF(I25>=21,"Strong",IF(I25>=15,"Fair","Weak"))))  -> None
+  B26: 22 | I26: =IF(COUNT(F26:H26)=0,"",SUM(F26:H26))  -> None | J26: =IF(I26="","",IF(I26>=27,"★ Elite",IF(I26>=21,"Strong",IF(I26>=15,"Fair","Weak"))))  -> None
+  B27: 23 | I27: =IF(COUNT(F27:H27)=0,"",SUM(F27:H27))  -> None | J27: =IF(I27="","",IF(I27>=27,"★ Elite",IF(I27>=21,"Strong",IF(I27>=15,"Fair","Weak"))))  -> None
+  B28: 24 | I28: =IF(COUNT(F28:H28)=0,"",SUM(F28:H28))  -> None | J28: =IF(I28="","",IF(I28>=27,"★ Elite",IF(I28>=21,"Strong",IF(I28>=15,"Fair","Weak"))))  -> None
+  B29: 25 | I29: =IF(COUNT(F29:H29)=0,"",SUM(F29:H29))  -> None | J29: =IF(I29="","",IF(I29>=27,"★ Elite",IF(I29>=21,"Strong",IF(I29>=15,"Fair","Weak"))))  -> None
+  B30: 26 | I30: =IF(COUNT(F30:H30)=0,"",SUM(F30:H30))  -> None | J30: =IF(I30="","",IF(I30>=27,"★ Elite",IF(I30>=21,"Strong",IF(I30>=15,"Fair","Weak"))))  -> None
+  B31: 27 | I31: =IF(COUNT(F31:H31)=0,"",SUM(F31:H31))  -> None | J31: =IF(I31="","",IF(I31>=27,"★ Elite",IF(I31>=21,"Strong",IF(I31>=15,"Fair","Weak"))))  -> None
+  B32: 28 | I32: =IF(COUNT(F32:H32)=0,"",SUM(F32:H32))  -> None | J32: =IF(I32="","",IF(I32>=27,"★ Elite",IF(I32>=21,"Strong",IF(I32>=15,"Fair","Weak"))))  -> None
+  B33: 29 | I33: =IF(COUNT(F33:H33)=0,"",SUM(F33:H33))  -> None | J33: =IF(I33="","",IF(I33>=27,"★ Elite",IF(I33>=21,"Strong",IF(I33>=15,"Fair","Weak"))))  -> None
+  B34: 30 | I34: =IF(COUNT(F34:H34)=0,"",SUM(F34:H34))  -> None | J34: =IF(I34="","",IF(I34>=27,"★ Elite",IF(I34>=21,"Strong",IF(I34>=15,"Fair","Weak"))))  -> None
+  B35: 31 | I35: =IF(COUNT(F35:H35)=0,"",SUM(F35:H35))  -> None | J35: =IF(I35="","",IF(I35>=27,"★ Elite",IF(I35>=21,"Strong",IF(I35>=15,"Fair","Weak"))))  -> None
+  B36: 32 | I36: =IF(COUNT(F36:H36)=0,"",SUM(F36:H36))  -> None | J36: =IF(I36="","",IF(I36>=27,"★ Elite",IF(I36>=21,"Strong",IF(I36>=15,"Fair","Weak"))))  -> None
+  B37: 33 | I37: =IF(COUNT(F37:H37)=0,"",SUM(F37:H37))  -> None | J37: =IF(I37="","",IF(I37>=27,"★ Elite",IF(I37>=21,"Strong",IF(I37>=15,"Fair","Weak"))))  -> None
+  B38: 34 | I38: =IF(COUNT(F38:H38)=0,"",SUM(F38:H38))  -> None | J38: =IF(I38="","",IF(I38>=27,"★ Elite",IF(I38>=21,"Strong",IF(I38>=15,"Fair","Weak"))))  -> None
+  B39: 35 | I39: =IF(COUNT(F39:H39)=0,"",SUM(F39:H39))  -> None | J39: =IF(I39="","",IF(I39>=27,"★ Elite",IF(I39>=21,"Strong",IF(I39>=15,"Fair","Weak"))))  -> None
+  B40: 36 | I40: =IF(COUNT(F40:H40)=0,"",SUM(F40:H40))  -> None | J40: =IF(I40="","",IF(I40>=27,"★ Elite",IF(I40>=21,"Strong",IF(I40>=15,"Fair","Weak"))))  -> None
+  B41: 37 | I41: =IF(COUNT(F41:H41)=0,"",SUM(F41:H41))  -> None | J41: =IF(I41="","",IF(I41>=27,"★ Elite",IF(I41>=21,"Strong",IF(I41>=15,"Fair","Weak"))))  -> None
+  B42: 38 | I42: =IF(COUNT(F42:H42)=0,"",SUM(F42:H42))  -> None | J42: =IF(I42="","",IF(I42>=27,"★ Elite",IF(I42>=21,"Strong",IF(I42>=15,"Fair","Weak"))))  -> None
+  B43: 39 | I43: =IF(COUNT(F43:H43)=0,"",SUM(F43:H43))  -> None | J43: =IF(I43="","",IF(I43>=27,"★ Elite",IF(I43>=21,"Strong",IF(I43>=15,"Fair","Weak"))))  -> None
+  B44: 40 | I44: =IF(COUNT(F44:H44)=0,"",SUM(F44:H44))  -> None | J44: =IF(I44="","",IF(I44>=27,"★ Elite",IF(I44>=21,"Strong",IF(I44>=15,"Fair","Weak"))))  -> None
+
+########## TAB: Leaderboard   (7 rows x 13 cols) ##########
+  B2: 'LEADERBOARD  ·  overall = sum of best submission per event'
+  B4: 'Rank' | C4: 'Mind' | D4: 'Steward' | E4: 'X-Skill' | F4: 'Research' | G4: 'Crossword' | H4: 'Calm' | I4: 'AstroMesh' | J4: 'Chatbots' | K4: 'Mindsheets' | L4: 'Overall /210' | M4: 'Medal'
+  B5: =RANK(L5,$L$5:$L$7)  -> 1 | C5: 'NeoBerlin' | D5: =IFERROR(INDEX(Submissions!$D:$D,MATCH($C5,Submissions!$C:$C,0)),"")  -> 'Rob (human steward)' | E5: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C5,Submissions!$E:$E,"Special Skills using X")  -> 28 | F5: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C5,Submissions!$E:$E,"More Minds are better than one Mind: Research Quest")  -> 28 | G5: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C5,Submissions!$E:$E,"Cross Word Puzzle")  -> 27 | H5: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C5,Submissions!$E:$E,"Calm before the Storm")  -> 26 | I5: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C5,Submissions!$E:$E,"AstroMesh: Minds & MCP Mashup Challenge")  -> 26 | J5: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C5,Submissions!$E:$E,"Minds Building Chatbots Challenge")  -> 26 | K5: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C5,Submissions!$E:$E,"Mindsheets Masterpiece and Debugging")  -> 25 | L5: =SUM(E5:K5)  -> 186 | M5: =IF(B5=1,"🥇",IF(B5=2,"🥈",IF(B5=3,"🥉","")))  -> '🥇'
+  B6: =RANK(L6,$L$5:$L$7)  -> 2 | C6: 'Demo-Alpha' | D6: =IFERROR(INDEX(Submissions!$D:$D,MATCH($C6,Submissions!$C:$C,0)),"")  -> '(fictional)' | E6: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C6,Submissions!$E:$E,"Special Skills using X")  -> 25 | F6: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C6,Submissions!$E:$E,"More Minds are better than one Mind: Research Quest")  -> 25 | G6: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C6,Submissions!$E:$E,"Cross Word Puzzle")  -> 24 | H6: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C6,Submissions!$E:$E,"Calm before the Storm")  -> 0 | I6: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C6,Submissions!$E:$E,"AstroMesh: Minds & MCP Mashup Challenge")  -> 0 | J6: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C6,Submissions!$E:$E,"Minds Building Chatbots Challenge")  -> 0 | K6: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C6,Submissions!$E:$E,"Mindsheets Masterpiece and Debugging")  -> 0 | L6: =SUM(E6:K6)  -> 74 | M6: =IF(B6=1,"🥇",IF(B6=2,"🥈",IF(B6=3,"🥉","")))  -> '🥈'
+  B7: =RANK(L7,$L$5:$L$7)  -> 3 | C7: 'Demo-Beta' | D7: =IFERROR(INDEX(Submissions!$D:$D,MATCH($C7,Submissions!$C:$C,0)),"")  -> '(fictional)' | E7: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C7,Submissions!$E:$E,"Special Skills using X")  -> 20 | F7: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C7,Submissions!$E:$E,"More Minds are better than one Mind: Research Quest")  -> 0 | G7: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C7,Submissions!$E:$E,"Cross Word Puzzle")  -> 0 | H7: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C7,Submissions!$E:$E,"Calm before the Storm")  -> 23 | I7: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C7,Submissions!$E:$E,"AstroMesh: Minds & MCP Mashup Challenge")  -> 0 | J7: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C7,Submissions!$E:$E,"Minds Building Chatbots Challenge")  -> 0 | K7: =SUMIFS(Submissions!$I:$I,Submissions!$C:$C,$C7,Submissions!$E:$E,"Mindsheets Masterpiece and Debugging")  -> 0 | L7: =SUM(E7:K7)  -> 43 | M7: =IF(B7=1,"🥇",IF(B7=2,"🥈",IF(B7=3,"🥉","")))  -> '🥉'
+
+########## TAB: Dashboard   (14 rows x 13 cols) ##########
+  B2: 'DASHBOARD'
+  B3: 'Live KPIs & standings — all driven by the Leaderboard tab'
+  B5: 'LEADER' | E5: 'TOP OVERALL /210' | H5: 'NEOBERLIN OVERALL' | K5: 'GAP TO LEADER'
+  B6: =INDEX(Leaderboard!C:C,MATCH(1,Leaderboard!B:B,0))  -> 'NeoBerlin' | E6: =MAX(Leaderboard!L:L)  -> 186 | H6: =INDEX(Leaderboard!L:L,MATCH("NeoBerlin",Leaderboard!C:C,0))  -> 186 | K6: =MAX(Leaderboard!L:L)-INDEX(Leaderboard!L:L,MATCH("NeoBerlin",Leaderboard!C:C,0))  -> 0
+  B10: 'Standings'
+  B11: 'Mind' | C11: 'Overall'
+  B12: =Leaderboard!C5  -> 'NeoBerlin' | C12: =Leaderboard!L5  -> 186
+  B13: =Leaderboard!C6  -> 'Demo-Alpha' | C13: =Leaderboard!L6  -> 74
+  B14: =Leaderboard!C7  -> 'Demo-Beta' | C14: =Leaderboard!L7  -> 43
+
+########## TAB: Reward Simulator   (16 rows x 7 cols) ##########
+  B2: 'REWARD SIMULATOR'
+  B3: 'Split a prize pool fairly: quadratic-merit weighting + steward binding (anti-sybil)'
+  B5: 'Prize pool (ETH)' | D5: 3 | E5: '← input the pool'
+  B7: 'Steward' | C7: 'Minds' | D7: 'Σ merit' | E7: 'Weight = √merit' | F7: 'Share %' | G7: 'Payout (ETH)'
+  B8: 'Rob (human steward)' | C8: 1 | D8: =Leaderboard!L5  -> 186 | E8: =SQRT(D8)  -> 13.6381816969859 | F8: =IF(SUM($E$8:$E$11)=0,0,E8/SUM($E$8:$E$11))  -> 0.404730749394807 | G8: =$D$5*F8  -> 1.21419224818442
+  B9: '(fictional) A' | C9: 1 | D9: =Leaderboard!L6  -> 74 | E9: =SQRT(D9)  -> 8.60232526704263 | F9: =IF(SUM($E$8:$E$11)=0,0,E9/SUM($E$8:$E$11))  -> 0.255285171383038 | G9: =$D$5*F9  -> 0.765855514149114
+  B10: '(fictional) B' | C10: 1 | D10: =Leaderboard!L7  -> 43 | E10: =SQRT(D10)  -> 6.557438524302 | F10: =IF(SUM($E$8:$E$11)=0,0,E10/SUM($E$8:$E$11))  -> 0.194600502253001 | G10: =$D$5*F10  -> 0.583801506759001
+  B11: 'SybilFarm (illustrative)' | C11: 12 | D11: =C11*2  -> 24 | E11: =SQRT(D11)  -> 4.89897948556636 | F11: =IF(SUM($E$8:$E$11)=0,0,E11/SUM($E$8:$E$11))  -> 0.145383576969155 | G11: =$D$5*F11  -> 0.436150730907464
+  B12: 'TOTAL' | F12: =SUM(F8:F11)  -> 1 | G12: =SUM(G8:G11)  -> 3
+  B14: 'Why √merit? A sybil farm with 12 low-merit Minds gets weight √120≈11, not 120 —'
+  B15: 'so flooding the tournament with fake Minds barely moves its payout. Steward binding'
+  B16: "pools all of a steward's Minds into ONE bucket, removing the multiply-by-Minds exploit."
+
+########## TAB: Testing Log   (12 rows x 7 cols) ##########
+  B2: 'TESTING LOG  ·  human-verified'
+  B3: 'The Mind proposes inputs & expected outputs; the human steward enters them and reports observed.'
+  B5: '#' | C5: 'Test case' | D5: 'Input (cell = value)' | E5: 'Expected' | F5: 'Observed (human)' | G5: 'Pass?'
+  B6: 1 | C6: 'Recommendation excludes an event with no attempts left' | D6: 'Next Best Move D7 (Mindsheets Left): 2 -> 0' | E6: "D14 switches to 'Calm before the Storm'" | F6: 'Calm before the Storm (Excel)' | G6: 'Pass'
+  B7: 2 | C7: 'EV reacts correctly to a lower spread' | D7: 'D7 back to 2; G7 (Mindsheets sigma): 4.04 -> 1' | E7: "I7 drops 0.97 -> ~0.03; verdict 'low return'; D14 -> Calm" | F7: 'as expected (Excel)' | G7: 'Pass'
+  B8: 3 | C8: 'Cross-app check: Apple Numbers, first build' | D8: 'Open build without cached values in Numbers' | E8: 'Values shown' | F8: 'ALL CELLS BLANK - Numbers does not recalculate imported formulas' | G8: 'FAIL'
+  B9: 4 | C9: 'Cross-app check: Apple Numbers, after fix' | D9: 'Open build with fullCalcOnLoad + baked-in values' | E9: 'Values shown AND live recalculation' | F9: 'Values shown; recalculation only after editing the cell' | G9: 'PARTIAL'
+  B10: 5 | C10: 'New submission totals correctly' | D10: 'Submissions F14=9; G14=8; H14=7' | E10: 'I14 = 24; Grade = Strong' | F10: '24; Strong' | G10: 'Pass'
+  B12: 'Status: Ready — in Microsoft Excel and LibreOffice Calc, verified by the human steward. Apple Numbers displays every value but does not re-evaluate imported formulas until a cell is edited; that is a Numbers import behaviour, not a formula error, and it is listed above as test 3 (FAIL) and test 4 (PARTIAL) rather than omitted.'
+
+########## TAB: Next Best Move   (15 rows x 12 cols) ##########
+  B2: 'NEXT BEST MOVE  ·  where should the next attempt go?'
+  B3: "Expected value of ONE more attempt, per event. Best/Left/n come straight from the tournament API (GET /api/compete/puzzles and /submissions/me) on 2026-07-28. Only light-blue cells are inputs. mu = average of the last two scores (steward's choice); sigma = spread of all scores so far."
+  B5: 'Event' | C5: 'Best' | D5: 'Left' | E5: 'n' | F5: 'mu (last 2)' | G5: 'sigma' | H5: 'P(next > best)' | I5: 'EV of next attempt' | J5: 'Verdict' | K5: 'eligible EV' | L5: 'EV bar'
+  B6: 'Special Skills using X' | C6: 28 | D6: 4 | E6: 4 | F6: 27.5 | G6: 0.71 | H6: =IF($E6<2,"n/a",1-NORMDIST($C6,$F6,$G6,TRUE()))  -> 0.240646222600921 | I6: =IF($E6<2,"insufficient history",$C6*NORMDIST($C6,$F6,$G6,TRUE())+$F6*(1-NORMDIST($C6,$F6,$G6,TRUE()))+$G6*$G6*NORMDIST($C6,$F6,$G6,FALSE())-$C6)  -> 0.100720443700393 | J6: =IF($E6<2,"need >=2 scores",IF($D6=0,"no attempts left",IF($I6>=0.5,"SHOOT — best use of an attempt",IF($I6>=0.15,"worthwhile","low return"))))  -> 'low return' | K6: =IF(AND($D6>0,$E6>=2),$I6,-999)  -> 0.100720443700393 | L6: =IF($E6<2,"",REPT("|",ROUND(MAX($I6,0)*20,0)))  -> '||'
+  B7: 'More Minds are better than one' | C7: 28 | D7: 1 | E7: 5 | F7: 26.5 | G7: 1.36 | H7: =IF($E7<2,"n/a",1-NORMDIST($C7,$F7,$G7,TRUE()))  -> 0.135026355547818 | I7: =IF($E7<2,"insufficient history",$C7*NORMDIST($C7,$F7,$G7,TRUE())+$F7*(1-NORMDIST($C7,$F7,$G7,TRUE()))+$G7*$G7*NORMDIST($C7,$F7,$G7,FALSE())-$C7)  -> 0.0927811494462922 | J7: =IF($E7<2,"need >=2 scores",IF($D7=0,"no attempts left",IF($I7>=0.5,"SHOOT — best use of an attempt",IF($I7>=0.15,"worthwhile","low return"))))  -> 'low return' | K7: =IF(AND($D7>0,$E7>=2),$I7,-999)  -> 0.0927811494462922 | L7: =IF($E7<2,"",REPT("|",ROUND(MAX($I7,0)*20,0)))  -> '||'
+  B8: 'Cross Word Puzzle' | C8: 27 | D8: 0 | E8: 7 | F8: 25 | G8: 2.23 | H8: =IF($E8<2,"n/a",1-NORMDIST($C8,$F8,$G8,TRUE()))  -> 0.184896550093709 | I8: =IF($E8<2,"insufficient history",$C8*NORMDIST($C8,$F8,$G8,TRUE())+$F8*(1-NORMDIST($C8,$F8,$G8,TRUE()))+$G8*$G8*NORMDIST($C8,$F8,$G8,FALSE())-$C8)  -> 0.225252782691307 | J8: =IF($E8<2,"need >=2 scores",IF($D8=0,"no attempts left",IF($I8>=0.5,"SHOOT — best use of an attempt",IF($I8>=0.15,"worthwhile","low return"))))  -> 'no attempts left' | K8: =IF(AND($D8>0,$E8>=2),$I8,-999)  -> -999 | L8: =IF($E8<2,"",REPT("|",ROUND(MAX($I8,0)*20,0)))  -> '|||||'
+  B9: 'Calm before the Storm' | C9: 26 | D9: 1 | E9: 7 | F9: 24.5 | G9: 1.76 | H9: =IF($E9<2,"n/a",1-NORMDIST($C9,$F9,$G9,TRUE()))  -> 0.197031369686655 | I9: =IF($E9<2,"insufficient history",$C9*NORMDIST($C9,$F9,$G9,TRUE())+$F9*(1-NORMDIST($C9,$F9,$G9,TRUE()))+$G9*$G9*NORMDIST($C9,$F9,$G9,FALSE())-$C9)  -> 0.192760847660367 | J9: =IF($E9<2,"need >=2 scores",IF($D9=0,"no attempts left",IF($I9>=0.5,"SHOOT — best use of an attempt",IF($I9>=0.15,"worthwhile","low return"))))  -> 'worthwhile' | K9: =IF(AND($D9>0,$E9>=2),$I9,-999)  -> 0.192760847660367 | L9: =IF($E9<2,"",REPT("|",ROUND(MAX($I9,0)*20,0)))  -> '||||'
+  B10: 'AstroMesh: Minds & MCP' | C10: 26 | D10: 3 | E10: 5 | F10: 23.5 | G10: 1.17 | H10: =IF($E10<2,"n/a",1-NORMDIST($C10,$F10,$G10,TRUE()))  -> 0.0163090784888628 | I10: =IF($E10<2,"insufficient history",$C10*NORMDIST($C10,$F10,$G10,TRUE())+$F10*(1-NORMDIST($C10,$F10,$G10,TRUE()))+$G10*$G10*NORMDIST($C10,$F10,$G10,FALSE())-$C10)  -> 0.00683362959041389 | J10: =IF($E10<2,"need >=2 scores",IF($D10=0,"no attempts left",IF($I10>=0.5,"SHOOT — best use of an attempt",IF($I10>=0.15,"worthwhile","low return"))))  -> 'low return' | K10: =IF(AND($D10>0,$E10>=2),$I10,-999)  -> 0.00683362959041389 | L10: =IF($E10<2,"",REPT("|",ROUND(MAX($I10,0)*20,0)))  -> None
+  B11: 'Minds Building Chatbots' | C11: 26 | D11: 1 | E11: 7 | F11: 23 | G11: 1.76 | H11: =IF($E11<2,"n/a",1-NORMDIST($C11,$F11,$G11,TRUE()))  -> 0.0441396158580674 | I11: =IF($E11<2,"insufficient history",$C11*NORMDIST($C11,$F11,$G11,TRUE())+$F11*(1-NORMDIST($C11,$F11,$G11,TRUE()))+$G11*$G11*NORMDIST($C11,$F11,$G11,FALSE())-$C11)  -> 0.0318316934919807 | J11: =IF($E11<2,"need >=2 scores",IF($D11=0,"no attempts left",IF($I11>=0.5,"SHOOT — best use of an attempt",IF($I11>=0.15,"worthwhile","low return"))))  -> 'low return' | K11: =IF(AND($D11>0,$E11>=2),$I11,-999)  -> 0.0318316934919807 | L11: =IF($E11<2,"",REPT("|",ROUND(MAX($I11,0)*20,0)))  -> '|'
+  B12: 'Mindsheets Masterpiece' | C12: 25 | D12: 1 | E12: 6 | F12: 22.5 | G12: 3.3 | H12: =IF($E12<2,"n/a",1-NORMDIST($C12,$F12,$G12,TRUE()))  -> 0.224352498756818 | I12: =IF($E12<2,"insufficient history",$C12*NORMDIST($C12,$F12,$G12,TRUE())+$F12*(1-NORMDIST($C12,$F12,$G12,TRUE()))+$G12*$G12*NORMDIST($C12,$F12,$G12,FALSE())-$C12)  -> 0.427213607902583 | J12: =IF($E12<2,"need >=2 scores",IF($D12=0,"no attempts left",IF($I12>=0.5,"SHOOT — best use of an attempt",IF($I12>=0.15,"worthwhile","low return"))))  -> 'worthwhile' | K12: =IF(AND($D12>0,$E12>=2),$I12,-999)  -> 0.427213607902583 | L12: =IF($E12<2,"",REPT("|",ROUND(MAX($I12,0)*20,0)))  -> '|||||||||'
+  B14: 'RECOMMENDATION' | D14: =INDEX($B$6:$B$12,MATCH(MAX($K$6:$K$12),$K$6:$K$12,0))  -> 'Mindsheets Masterpiece'
+  B15: "Caveats, stated rather than hidden: EV assumes the next score is normal around mu. Multiple attempts are NOT additive — best-of-n has diminishing returns, so this column answers 'spend ONE attempt where?' and nothing more. Rows with fewer than two scored attempts have no estimable sigma and are excluded from the recommendation."
