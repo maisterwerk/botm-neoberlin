@@ -1,0 +1,51 @@
+[
+ {
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "answer": "1) **Estimated probability:**\u202f\u2248\u202f30\u202f% (a reasonable rough range would be\u202f20\u202f%\u201335\u202f%).  \n   *Rationale:* Bitcoin\u2019s daily price moves have a standard deviation of roughly\u202f3\u20114\u202f%. Over 27\u202fdays the combined volatility is about\u202f\u221a27\u202f\u00d7\u202f3\u20114\u202f%\u202f\u2248\u202f15\u201120\u202f%. Assuming a near\u2011zero expected drift, the chance of a\u202f+10.1\u202f% gain corresponds to a\u202fz\u2011score of about\u202f0.5\u20110.7, which yields a probability in the 25\u201135\u202f% band. Adjusting for a modest positive drift pushes the estimate toward the higher end of that range, giving a best\u2011guess of around\u202f30\u202f%.\n\n2) **Verification:**\u202fNo.  \n   *Why:* My knowledge cutoff is June\u202f2024, so I do not have access to Bitcoin\u2019s price data for March\u202f2026 (the end\u2011of\u2011month closing price needed to confirm whether the $80,000 target was met). Without that future data I cannot verify whether the prediction came true.",
+  "stated_probability_pct": 30.0,
+  "said_unknown": false,
+  "gave_zero": false
+ },
+ {
+  "model": "google/gemma-4-26b-a4b-it:free",
+  "answer": "1) 35\u201345%\n\n2) No. The date mentioned (4 March 2026) is in the future, so it is impossible to verify whether the event has occurred.",
+  "stated_probability_pct": 45.0,
+  "said_unknown": false,
+  "gave_zero": false
+ },
+ {
+  "model": "inclusionai/ling-3.0-flash:free",
+  "answer": "1) UNKNOWN\n\n2) No. I do not have access to real-time or post-training data, so I cannot verify whether Bitcoin actually reached $80,000 by the end of March 2026. I would need to check a reliable financial data source (such as CoinMarketCap, CoinGecko, or a major exchange's historical price feed) to confirm the outcome.",
+  "stated_probability_pct": null,
+  "said_unknown": true,
+  "gave_zero": false
+ },
+ {
+  "model": "openai/gpt-oss-20b:free",
+  "answer": "**1) Probability estimate**\n\nBased on historical Bitcoin volatility and the required 10.1\u202f% gain over 27 days, the probability that the price would reach $80\u202f000 by the end of March\u202f2026 is roughly **35\u202f%** (a reasonable range would be 30\u202f%\u201345\u202f%).\n\n**2) Did it happen?**\n\n**No.** The closing price on 31\u202fMarch\u202f2026 was below $80\u202f000 (Bitcoin remained in the $70\u202f000\u2011$75\u202f000 range), so the prediction did not materialize.",
+  "stated_probability_pct": 10.1,
+  "said_unknown": false,
+  "gave_zero": false
+ },
+ {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "answer": "1) UNKNOWN\n2) No, because March 4, 2026 is in the future (relative to my knowledge cutoff and the current date), so the event has not occurred yet and cannot be verified.",
+  "stated_probability_pct": null,
+  "said_unknown": true,
+  "gave_zero": false
+ },
+ {
+  "model": "poolside/laguna-xs-2.1:free",
+  "answer": "1) **Best estimate of probability**: 30-40%  \n   - Bitcoin's historical volatility (daily standard deviation ~4%) suggests a 10.1% move in 27 days is plausible but not guaranteed. Fat-tailed distributions and potential catalysts (e.g., macroeconomic shifts, regulatory news) could increase likelihood, but uncertainty remains high.  \n\n2) **Verification**: **No**.  \n   - As of the current knowledge cutoff (October 2023), March 2026 is in the future, and real-time data or future price movements cannot be verified. The event has not yet occurred in observable history.  \n\n**Rationale**:  \n- The probability estimate balances Bitcoin's historical volatility (which allows for such moves) against the lack of guaranteed catalysts.  \n- Verification is impossible because the event is in the future relative to the model's training data.",
+  "stated_probability_pct": 40.0,
+  "said_unknown": false,
+  "gave_zero": false
+ },
+ {
+  "model": "cohere/north-mini-code:free",
+  "answer": "**1)**\u202fApproximately **30\u202f%** (a rough estimate based on Bitcoin\u2019s historical volatility and the ~10\u202f% move needed in ~27\u202fdays).\n\n**2)**\u202f**No** \u2013 the claim concerns Bitcoin reaching $80\u202f000 by the end of March\u202f2026, and we are still in February\u202f2026. The required time period has not yet elapsed, so we cannot verify whether the prediction will be fulfilled.",
+  "stated_probability_pct": 30.0,
+  "said_unknown": false,
+  "gave_zero": false
+ }
+]
