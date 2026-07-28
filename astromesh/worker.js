@@ -198,9 +198,10 @@ async function testAstroClaim(coin){
   // destroys that serial dependence and understates the variance of a bucket mean, which makes the
   // test anti-conservative. Rotating the PHASE LABELS against the return series keeps both the
   // block structure and the volatility clustering intact. (An outside reviewer caught this.)
-  const rnd=mulberry32(42); let hits=0; const TRIALS=4000, N=vals.length;
-  for(let t=0;t<TRIALS;t++){
-    const shift=1+Math.floor(rnd()*(N-1));
+  // EXACT test: enumerate ALL N-1 distinct rotations rather than sampling 4000 with replacement
+  // from ~348 possibilities, which added Monte-Carlo noise and no information (reviewer's point).
+  let hits=0; const N=vals.length; const TRIALS=N-1;
+  for(let shift=1; shift<N; shift++){
     const acc={}, cnt={};
     for(let i=0;i<N;i++){ const lab=labels[(i+shift)%N];
       acc[lab]=(acc[lab]||0)+vals[i]; cnt[lab]=(cnt[lab]||0)+1; }
@@ -208,6 +209,7 @@ async function testAstroClaim(coin){
     for(const k of Object.keys(acc)) if(cnt[k]>=5) stat=Math.max(stat,Math.abs(acc[k]/cnt[k]));
     if(stat>=obsStat) hits++;
   }
+  const effectiveAlignments = Math.round(N/29.53);
   const p=(hits+1)/(TRIALS+1);
   const byPhase={};
   for(const k of Object.keys(observed)) byPhase[PHASE_NAMES[k]]={ n:buckets[k].length, mean_pct:+observed[k].toFixed(3) };
@@ -217,8 +219,12 @@ async function testAstroClaim(coin){
     days_of_history:dts.length, daily_returns_used:vals.length, by_phase:byPhase,
     headline_a_believer_would_quote:`${coin} moves ${observed[worst].toFixed(2)}% on average during ${PHASE_NAMES[worst]}`,
     largest_abs_bucket_mean_pct:+obsStat.toFixed(3), p_value:+p.toFixed(4),
+    computed_at_utc: new Date().toISOString(),
+    exact_test: true, rotations_enumerated: TRIALS,
+    effective_distinct_alignments: effectiveAlignments,
+    smallest_attainable_p: +(1/(effectiveAlignments+1)).toFixed(4),
     verdict: p>0.05 ? "NO DETECTABLE EFFECT - the headline above is noise" : "effect survives the null; investigate further",
-    method:"daily log-returns bucketed into 8 lunar octants; CIRCULAR-SHIFT permutation test (4000 rotations, seed 42) on the largest absolute bucket mean. Rotating the phase labels rather than shuffling the returns preserves volatility clustering, which a naive shuffle destroys; the max-statistic corrects for inspecting eight phases at once. No correction is applied ACROSS coins.",
+    method:"daily log-returns bucketed into 8 lunar octants; EXACT circular-shift test enumerating all N-1 rotations of the phase labels, on the largest absolute bucket mean. Rotating the phase labels rather than shuffling the returns preserves volatility clustering, which a naive shuffle destroys; the max-statistic corrects for inspecting eight phases at once. No correction is applied ACROSS coins.",
     honest_note:"A negative result is the expected result. This tool exists to be able to say no." };
 }
 
@@ -251,15 +257,18 @@ async function testLunarQuakeClaim(minMagnitude, days){
   for(const k of Object.keys(acc)) if(cnt[k]>=5) observed[k]=acc[k]/cnt[k];
   const obsStat = Math.max(...Object.keys(observed).map(k=>Math.abs(observed[k]-overall)));
   // circular shift of the phase labels — preserves any clustering in seismic activity
-  const rnd = mulberry32(42); let hits=0; const TRIALS=4000, N=vals.length;
-  for(let t=0;t<TRIALS;t++){
-    const shift = 1+Math.floor(rnd()*(N-1));
-    const a2={}, c2={};
-    for(let i=0;i<N;i++){ const lab=labels[(i+shift)%N]; a2[lab]=(a2[lab]||0)+vals[i]; c2[lab]=(c2[lab]||0)+1; }
+  // EXACT test: enumerate ALL N-1 distinct rotations. Sampling 4000 of ~348 possible shifts with
+  // replacement added Monte-Carlo noise and no information (a reviewer pointed this out).
+  let hits=0; const N=vals.length; const TRIALS=N-1;
+  for(let shift=1; shift<N; shift++){
+    const acc={}, cnt={};
+    for(let i=0;i<N;i++){ const lab=labels[(i+shift)%N];
+      acc[lab]=(acc[lab]||0)+vals[i]; cnt[lab]=(cnt[lab]||0)+1; }
     let stat=0;
-    for(const k of Object.keys(a2)) if(c2[k]>=5) stat=Math.max(stat, Math.abs(a2[k]/c2[k]-overall));
+    for(const k of Object.keys(acc)) if(cnt[k]>=5) stat=Math.max(stat,Math.abs(acc[k]/cnt[k]-overall));
     if(stat>=obsStat) hits++;
   }
+  const effectiveAlignments = Math.round(N/29.53);
   const p=(hits+1)/(TRIALS+1);
   const byPhase={};
   for(const k of Object.keys(observed)) byPhase[PHASE_NAMES[k]]={ days:cnt[k], mean_quakes_per_day:+observed[k].toFixed(3) };
@@ -273,8 +282,10 @@ async function testLunarQuakeClaim(minMagnitude, days){
     overall_mean_per_day:+overall.toFixed(3), by_phase:byPhase,
     headline_a_believer_would_quote:`earthquakes are ${pct}% ${Number(pct)>=0?"more":"less"} frequent during ${PHASE_NAMES[worst]}`,
     largest_abs_deviation_per_day:+obsStat.toFixed(3), p_value:+p.toFixed(4),
+    computed_at_utc:new Date().toISOString(), exact_test:true, rotations_enumerated:TRIALS,
+    effective_distinct_alignments:Math.round(N/29.53), smallest_attainable_p:+(1/(Math.round(N/29.53)+1)).toFixed(4),
     verdict: p>0.05 ? "NO DETECTABLE EFFECT - the headline above is noise" : "effect survives the null; investigate further",
-    method:"daily earthquake counts bucketed into 8 lunar octants; circular-shift permutation test (4000 rotations, seed 42) on the largest absolute deviation from the overall daily mean",
+    method:"daily earthquake counts bucketed into 8 lunar octants; EXACT circular-shift test enumerating all N-1 rotations on the largest absolute deviation from the overall daily mean",
     honest_note:"The USGS itself has published that no such correlation exists. This tool reaches the same conclusion from the raw catalogue rather than by citing authority."
   };
 }
@@ -455,7 +466,7 @@ curl -s -X POST ${origin}/mcp -H 'content-type: application/json' \\
 | cosmic_playlist | sign, coin | **third dataset (music)** — real iTunes tracks matched to sign-mood × market direction |
 | test_lunar_quake_claim | min_magnitude, days | **non-finance falsification** — tests "the moon triggers earthquakes" against the public USGS catalogue, same circular-shift permutation test |
 | test_astro_claim | coin | **falsification tool** — tests "the moon moves the market" on real daily returns with a permutation test that corrects for inspecting 8 lunar phases; returns the cherry-picked headline AND the p-value that kills it. Can and usually does answer "no effect". Refuses to guess the asset if the coin argument is missing. |
-| market_astro_backtest | sign, coin, days | how often the astro-tone matched the coin's REAL daily move (Binance klines) |
+| market_astro_backtest | sign, coin, days | how often the astro-tone matched the coin's REAL daily move (Coinbase candles) |
 
 ## How the datasets combine
 \`cosmic_market_compass\` maps the sign's deterministic daily astro-tone to a vector, compares its direction with the coin's real 24h price momentum, and reports whether stars and market are "aligned" or "at odds", plus a compass_score. This is entertainment only — not financial advice.
