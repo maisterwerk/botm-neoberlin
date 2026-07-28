@@ -91,9 +91,10 @@ with sync_playwright() as pw:
     pg.click("#bClear")
     has=pg.evaluate("!!document.getElementById('mob')")
     t("20a. an input exists so phones can raise a keyboard", has)
-    pg.evaluate("document.querySelector('[data-r=\"0\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    pg.eval_on_selector('[data-r="0"][data-c="0"]', "el=>el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
     t("20b. tapping a square focuses that input", pg.evaluate("document.activeElement.id")=="mob",
       pg.evaluate("document.activeElement.id"))
+    if "Down" in pg.inner_text("#cluebar"): pg.keyboard.press(" ")   # aim at 1-Across
     for ch in "TOP":
         pg.evaluate("(c)=>{const m=document.getElementById('mob');m.value=c;m.dispatchEvent(new Event('input',{bubbles:true}))}", ch)
     t("20c. typing through that input fills the grid (phone path)",
@@ -106,7 +107,8 @@ with sync_playwright() as pw:
 
     # real-event coverage for the interactions the write-up claims
     pg.click("#bClear")
-    pg.evaluate("document.querySelector('[data-r=\"1\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    pg.eval_on_selector('[data-r="1"][data-c="0"]', "el=>el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    if "Down" in pg.inner_text("#cluebar"): pg.keyboard.press(" ")   # aim at 4-Across
     for ch in "EARNS": pg.keyboard.press(ch)
     pg.keyboard.press("Backspace")
     a1=pg.evaluate("__state().user[1]")
@@ -147,7 +149,23 @@ with sync_playwright() as pw:
     t("27. the very first click selects Across, not Down",
       "Across" in pg.inner_text("#cluebar"), pg.inner_text("#cluebar").replace("\n"," ")[:40])
 
-    t("28. no JS errors during the whole run", errs==[], "; ".join(errs[:3]))
+    # a focused button must be operable by keyboard, not just reachable
+    pg.click("#bClear"); pg.focus("#bCheck")
+    before=pg.inner_text("#cluebar")
+    pg.keyboard.press(" ")
+    t("29. Space on a focused button does not hijack the grid direction",
+      pg.inner_text("#cluebar")==before, "cluebar changed")
+    # the themed clue numbers must not be coloured before the puzzle is solved
+    pg.reload(); pg.wait_for_timeout(300)
+    hot=pg.eval_on_selector_all("li.themeclue .n",
+      "els=>els.filter(e=>getComputedStyle(e).color.indexOf('163')>=0).length")
+    t("30a. themed clue numbers not highlighted before the solve", hot==0, str(hot))
+    pg.evaluate("__autofill(null)")
+    hot=pg.eval_on_selector_all("li.themeclue .n",
+      "els=>els.filter(e=>getComputedStyle(e).color.indexOf('163')>=0).length")
+    t("30b. themed clue numbers highlighted after the solve", hot==3, str(hot))
+
+    t("31. no JS errors during the whole run", errs==[], "; ".join(errs[:3]))
 
     pg.click("#bClear"); pg.evaluate("__autofill(null)"); pg.wait_for_timeout(1400)
     pg.screenshot(path="solved.png")

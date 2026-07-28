@@ -59,7 +59,7 @@ li:hover{background:#1c2128}
 li.sel{background:#1f2f4d}
 li.done{color:var(--dim)}
 li .n{font-weight:800;min-width:19px;text-align:right;color:var(--dim)}
-li.themeclue .n{color:var(--theme)}
+body.solved li.themeclue .n{color:var(--theme)}
 
 #reveal{display:none;margin-top:18px;padding:14px 16px;border-radius:9px;
   background:linear-gradient(90deg,#1f2937,#312244);border:1px solid var(--theme);font-size:15px;line-height:1.5}
@@ -75,7 +75,7 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;color:v
 <div class="wrap">
 <header>
   <h1>Set<span>tled</span></h1>
-  <p class="sub">A 5×5 mini. Three of the answers are what you get asked for when "trust me" is not enough — and they are standing next to each other.</p>
+  <p class="sub">A 5×5 mini. Three of the answers have something in common, and they are standing next to each other. Solve it to find out what.</p>
 </header>
 
 <div class="layout">
@@ -133,7 +133,7 @@ const CLUES = {
   "7A":"Perch at a bar",
   "8A":"Ones over there",
   "9A":"Bureau man?",
-  "1D":"One way to find out",
+  "1D":"Crash ___ dummy",
   "2D":"Swearing, of a sort",
   "3D":"What Q.E.D. concludes",
   "5D":"Wine taster's asset",
@@ -215,7 +215,9 @@ function buildList(dir,el){
       if(THEME_KEYS.indexOf(k)>=0) li.classList.add("themeclue");
       li.innerHTML='<span class="n">'+entries[k].n+'</span><span>'+CLUES[k]+'</span>';
       li.addEventListener("click",()=>{
-        const e=entries[k]; cur={r:e.cells[0][0],c:e.cells[0][1],dir:dir}; draw();
+        const e=entries[k]; cur={r:e.cells[0][0],c:e.cells[0][1],dir:dir};
+        everClicked=true; draw();
+        const m=document.getElementById("mob"); if(m){ m.value=""; m.focus({preventScroll:true}); }
       });
       el.appendChild(li);
     });
@@ -288,14 +290,18 @@ document.getElementById("mob").addEventListener("input",e=>{
 
 document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
+  const k=e.key;
+  // While a button has focus it owns the keyboard: Space must click it, letters and arrows
+  // must not leak into the grid. Tab still moves focus onward.
+  if(document.activeElement && document.activeElement.tagName==="BUTTON" && k!=="Tab") return;
   // A real keydown is authoritative; blank the mirror input so `input` cannot double-fire.
   const mob=document.getElementById("mob"); if(mob) mob.value="";
-  const k=e.key;
   // Tab cycles clues only while the grid has focus; otherwise it must reach the buttons.
   if(k==="Tab"){
     if(document.activeElement && document.activeElement.tagName==="BUTTON") return;
     e.preventDefault(); nextClue(e.shiftKey); draw(); return; }
-  if(k===" "){ e.preventDefault(); const o=cur.dir==="A"?"D":"A";
+  if(k===" "){
+    e.preventDefault(); const o=cur.dir==="A"?"D":"A";
                if(entryAt(cur.r,cur.c,o)) cur.dir=o; draw(); return; }
   if(k==="ArrowUp"){e.preventDefault();cur.dir="D";step(-1,0);draw();return;}
   if(k==="ArrowDown"){e.preventDefault();cur.dir="D";step(1,0);draw();return;}
@@ -332,6 +338,7 @@ function setStatus(t,cls){ const s=document.getElementById("status");
 function syncSolved(){
   if(done && !(isComplete() && gridCorrect())){
     done=false;
+    document.body.classList.remove("solved");
     document.getElementById("reveal").style.display="none";
     setStatus("");
     draw();
@@ -362,6 +369,7 @@ function check(){
   setStatus("Solved — every across and down answer checks out.","ok");
   if(!done){
     done=true;
+    document.body.classList.add("solved");
     draw();          // the themed squares are only marked once the puzzle is solved
     let i=0;
     for(let r=0;r<N;r++) for(let c=0;c<N;c++){
@@ -395,7 +403,8 @@ document.getElementById("bWord").addEventListener("click",()=>{
 document.getElementById("bClear").addEventListener("click",()=>{
   for(let r=0;r<N;r++) for(let c=0;c<N;c++){ user[r][c]=""; revealedCell[r][c]=false;
     wrongMark[r][c]=false; cellEl[r][c].classList.remove("wrong"); }
-  done=false; document.getElementById("reveal").style.display="none";
+  done=false; document.body.classList.remove("solved");
+  document.getElementById("reveal").style.display="none";
   setStatus(""); draw();
 });
 
