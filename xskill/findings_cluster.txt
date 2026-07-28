@@ -1,0 +1,32 @@
+CLUSTER-ROBUST RE-ANALYSIS
+
+claims with >=30 prior windows           : 41
+exact duplicates removed                 : 14
+    @poe_real69 and @cryptojourneyrs posted the same bitcoin claim due 2024-11-30
+    @venturefounder and @venturefounder posted the same ethereum claim due 2025-05-31
+    @AshCrypto and @GordonGekko posted the same bitcoin claim due 2025-12-31
+    @tokenomicsguy and @KAIZ3NS posted the same solana claim due 2025-12-31
+    @deg_ape and @nehalzzzz1 posted the same ethereum claim due 2025-12-31
+    @AshCrypto and @0xHedCrypto posted the same bitcoin claim due 2025-12-31
+    @deg_ape and @Zubby_Zubem posted the same ethereum claim due 2025-12-31
+    @tokenomicsguy and @RealJackPoor posted the same solana claim due 2025-12-31
+    @AshCrypto and @ToolySOL posted the same bitcoin claim due 2025-12-31
+    @deg_ape and @KamilShaheen19 posted the same ethereum claim due 2025-12-31
+    @deg_ape and @BandzMcBagz posted the same ethereum claim due 2025-12-31
+    @deg_ape and @samuelKenny01 posted the same ethereum claim due 2025-12-31
+    @AshCrypto and @integral_crypto posted the same bitcoin claim due 2025-12-31
+    @AshCrypto and @ACInvestorBlog posted the same bitcoin claim due 2025-12-31
+claims after de-duplication              : 27
+
+clusters (asset x calendar month)        : 20, mean size 1.35, max 3
+estimated intra-cluster correlation      : 0.000
+design effect                            : 1.00
+EFFECTIVE SAMPLE SIZE                    : 27.0  (nominal 27)
+
+Our engine predicted 4.98 hits; 2 occurred. Shortfall 2.98.
+Cluster bootstrap (20,000 resamples of whole clusters, seed 42):
+  P(shortfall this large or larger under our own probabilities) = 0.0458
+  bootstrap mean shortfall under the null = -0.01 (sd 1.83)
+
+For comparison, the naive independent Poisson-binomial gave P = 0.0083.
+The cluster-robust figure is the one to quote.
