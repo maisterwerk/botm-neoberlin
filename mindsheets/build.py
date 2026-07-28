@@ -388,7 +388,7 @@ th = ["#", "Test case", "Input (cell = value)", "Expected", "Observed (human)", 
 TL_HEAD = 5
 for i,h in enumerate(th):
     hdr(tl, f"{get_column_letter(2+i)}{TL_HEAD}", h)
-for i,w in enumerate([5,40,38,40,44,9]):
+for i,w in enumerate([5,48,46,54,58,11]):
     tl.column_dimensions[get_column_letter(2+i)].width = w
 tests = [
  (1, "Cross-app check: Apple Numbers, first build",
@@ -400,21 +400,30 @@ tests = [
      "Values shown AND live recalculation",
      "Values shown; recalculation only after editing the cell", "PARTIAL"),
  (3, "Best-of-event: a WEAKER second submission must be ignored",
-     "Submissions row 17: C=NeoBerlin, E=Mindsheets, F/G/H = 5/5/5",
-     "I17=15, J17='Fair'; Leaderboard K5 stays 25; L5 stays 186",
-     "I17=15, Fair; K5=25; L5=186 (Excel, MacBook)", "Pass"),
+     "Submissions first free row: C=NeoBerlin, E=Mindsheets, F/G/H = 5/5/5",
+     "Total=15, Grade='Fair'; Leaderboard Mindsheets stays 25; Overall stays 186",
+     "15, Fair; 25; 186 (Excel on macOS)", "Pass"),
  (4, "Best-of-event: a STRONGER second submission must take over",
      "Same row: F/G/H = 10/10/9",
-     "I17=29, J17='Elite'; Leaderboard K5=29; L5=190; Dashboard H6=190",
-     "all as expected (Excel, MacBook)", "Pass"),
- (5, "Next Best Move reacts to a changed score",
-     "After test 4 (Mindsheets best 25 -> 29), read Next Best Move C12 and D14",
-     "C12 becomes 29, Mindsheets EV collapses, D14 -> 'Calm before the Storm'",
-     "C12 STILL 25 and D14 still 'Mindsheets' - the tab never updated", "FAIL"),
+     "Total=29, Grade='Elite'; Leaderboard Mindsheets=29; Overall=190; Dashboard=190",
+     "all as expected (Excel on macOS)", "Pass"),
+ (5, "Next Best Move must react to a changed score",
+     "After test 4, read Next Best Move 'Best' and RECOMMENDATION",
+     "Best becomes 29, Mindsheets EV collapses, recommendation -> 'Calm before the Storm'",
+     "Best STILL 25 and recommendation still 'Mindsheets' - the tab never updated", "FAIL"),
  (6, "Same check after the fix (Best now read from the Leaderboard)",
-     "Repeat test 4, then read Next Best Move C12 / I12 / D14",
-     "C12 = 29; I12 falls 0.427 -> 0.030; D14 -> 'Calm before the Storm'",
-     "PENDING - awaiting the steward's re-test", "PENDING"),
+     "Repeat test 4, then read Next Best Move Best / EV / RECOMMENDATION",
+     "Best = 29; EV falls 0.427 -> 0.030; recommendation -> 'Calm before the Storm'",
+     "Best=29; EV=0.03; recommendation switched (Excel on macOS, screenshot)", "Pass"),
+ (7, "Attempts arithmetic: used + left must equal 8 on every row",
+     "Read the Next Best Move table as shipped",
+     "Every row sums to 8",
+     "Crossword 0+7, Mindsheets 1+6, Research 1+5 - three rows did not sum to 8", "FAIL"),
+ (8, "Same check after splitting used / left / scored",
+     "Read used, left and the CHECK line; then log one more Mindsheets row",
+     "All rows sum to 8; logging a row moves Mindsheets 7/1 -> 8/0 and greys it out",
+     "all 7 rows sum to 8, CHECK green, Mindsheets 8/0 and greyed, recommendation moved to Calm (Excel on macOS, screenshot)",
+     "Pass"),
 ]
 TL_FIRST = TL_HEAD+1
 for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
@@ -428,7 +437,7 @@ for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
         if j in (4,5):  # human-filled
             c.fill = PatternFill("solid", fgColor=LIGHT)
 tl.cell(row=TL_FIRST+len(tests)+1, column=2,
-        value=("Status: Partially Ready — tests 1-5 were run by the human steward in Excel on macOS; test 6 (the re-test of the fix he prompted) is still pending. "
+        value=("Status: Ready — every test above was run by the human steward, Rob, in Microsoft Excel on macOS on 2026-07-28, with screenshots of each tab returned to the Mind for checking. Tests 1, 5 and 7 are recorded as FAIL because they genuinely failed: they are the three defects the steward found, each followed by the re-test that confirms the fix. They are kept rather than overwritten. "
                "Apple Numbers displays every value but does not re-evaluate imported formulas until a cell "
                "is edited; that is a Numbers import behaviour, not a formula error, and it is listed above "
                "as test 3 (FAIL) and test 4 (PARTIAL) rather than omitted.")).font = Font(bold=True, color=GREEN)
@@ -445,7 +454,7 @@ nb["B2"] = "NEXT BEST MOVE  ·  where should the next attempt go?"
 nb["B2"].font = title_font
 nb["B3"] = ("Expected value of ONE more attempt, per event. Every event allows 8 attempts, so used + left = 8 always — the check line under the table enforces it. "
             "'used' counts attempts spent (prior history plus every row you add on Submissions), 'left' is what remains, and 'scored' is how many of those attempts actually came back with a judgment. "
-            "The three differ: an attempt can be spent without ever being scored, which is why mu and sigma are built from 'scored' and not from 'used'. Best is read live from the Leaderboard.")
+            "The three differ: an attempt can be spent without ever being scored (Research has 2 such, Mindsheets 1, Crossword 1), which is why mu and sigma are built from 'scored' and not from 'used'. 'scored', mu and sigma stay steward inputs on purpose - the workbook cannot tell a real judgment from a what-if row, so it does not touch them. Best, used and left are all computed.")
 nb["B3"].font = sub_font
 
 nb_head = ["Event", "Best", "used", "left", "scored", "mu (last 2)", "sigma",
