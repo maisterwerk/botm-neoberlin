@@ -33,6 +33,8 @@ with sync_playwright() as pw:
     ans=pg.evaluate("__state().answer")
     st=pg.evaluate(f"__play('{ans}')")
     t("5. calm mode: guessing the answer wins", st["over"] and "Solved in 1" in st["msg"], st["msg"])
+    t("5b. the win message reports skill, not a total that is identical for every winner",
+      "Skill" in st["msg"] and "bits taken" not in st["msg"], st["msg"])
 
     # 6 barometer arithmetic: bits taken == log2(before) - log2(after)
     pg.evaluate("__reset('calm')")
@@ -68,33 +70,28 @@ with sync_playwright() as pw:
     t("9. storm host never lies (reply is true for every survivor)",
       liar["bad"]==0 and liar["left"]>0, str(liar))
 
-    # 10 storm is still winnable when you corner it
-    pg.evaluate("__reset('storm')")
-    won=pg.evaluate("""()=>{
-      for(let i=0;i<6;i++){
-        const s=__state();
-        if(s.over) return s;
-        // play greedily from whatever is still possible
-        const w=(s.left===1)?null:null;
-        __play(__words.find(x=>true));
-        break;
-      }
-      return __state();}""")
-    t("10. storm mode accepts a guess and advances", len(pg.evaluate("__state().rows"))==1,
-      str(pg.evaluate("__state().rows")))
+    # 10 the recommender must prefer a word that could actually win
+    pg.evaluate("__reset('calm')")
+    one=pg.evaluate("__bestGuess(['WHIFF'])")
+    t("10. with one candidate left the recommender says that word, not a throwaway",
+      one["word"]=="WHIFF", str(one))
+    few=pg.evaluate("__bestGuess(['HOLLY','JOLLY','LOWLY','WOOLY'])")
+    t("10b. with a handful left it recommends a word that can win",
+      few["word"] in ['HOLLY','JOLLY','LOWLY','WOOLY'], str(few))
 
-    # 11 storm: cornering it to a single word forces GGGGG
-    corner=pg.evaluate("""()=>{
-      __reset('storm');
-      // shrink by brute force: keep guessing the alphabetically first survivor
-      for(let i=0;i<6;i++){
-        const s=__state(); if(s.over) break;
-        const st=__state();
-        __play(__words[0]);
-      }
-      return __state();}""")
-    t("11. storm terminates within six guesses", corner["over"] is True or len(corner["rows"])==6,
-      f'rows={len(corner["rows"])} over={corner["over"]}')
+    # 11 skill is graded on the QUESTION asked, not on the draw
+    pg.evaluate("__reset('calm')")
+    st=pg.evaluate("__play('MUMMY')")
+    h=st["history"][0]
+    t("11. a weak question is graded weak however lucky the reply",
+      abs(h["asked"]-2.1014)<1e-3 and h["asked"]<h["best"], f'asked={h["asked"]:.4f} best={h["best"]:.4f}')
+    t("11b. the realised bits are reported separately from the question's worth",
+      "got" in h and "asked" in h, str(sorted(h.keys())))
+
+    # 11c the aggregate line must not claim more bits than exist
+    note=pg.inner_text("#effNote")
+    t("11c. summary reports skill and luck, not an unbounded bit total",
+      "Skill" in note and "Luck" in note, note[:90])
 
     # 12 keyboard colouring reflects best-known letter state
     pg.evaluate("__reset('calm')"); pg.evaluate("__play('TEARS')")
@@ -116,7 +113,42 @@ with sync_playwright() as pw:
     t("14. Backspace edits the current guess (SLATX -> SLATE)",
       len(rows)==1 and rows[0].startswith("SLATE"), str(rows))
 
-    t("15. no JS errors", errs==[], "; ".join(errs[:2]))
+    # 15 the candidate list must not solve the puzzle for you
+    pg.evaluate("__reset('calm')"); pg.evaluate("__play('TEARS')")
+    txt=pg.inner_text("#cands")
+    ans=pg.evaluate("__state().answer")
+    t("15. candidate words are hidden by default (no self-spoiler)",
+      ans not in txt and "still fit" in txt, txt[:70])
+    pg.click("#peek")
+    t("15b. they can still be revealed on request", ans in pg.inner_text("#cands"),
+      pg.inner_text("#cands")[:70])
+
+    # 16 Space must not re-fire the focused on-screen key
+    pg.evaluate("__reset('calm')")
+    pg.click("#kb button[data-k='Q']"); pg.keyboard.press(" ")
+    row=pg.evaluate("(()=>{let s='';for(let c=0;c<5;c++){const t=document.querySelector(`.tile[data-r=\"0\"][data-c=\"${c}\"]`);s+=t.textContent||'.'}return s})()")
+    t("16. Space does not retype the focused key", row=="Q....", row)
+
+    # 17 the storm host must stay responsive
+    pg.evaluate("__reset('storm')")
+    pg.evaluate("__play('MUMMY')")          # move 1 is a precomputed constant; move 2 is the work
+    left=pg.evaluate("__state().left")
+    ms=pg.evaluate("(()=>{const t=performance.now();__play('VIVID');return performance.now()-t})()")
+    t("17. a storm move with a large live candidate set stays under 1.5s", ms<1500,
+      f"{ms:.0f} ms with {left} candidates alive")
+
+    # 18 the daily salt makes storm a different puzzle each day
+    diff=pg.evaluate("""()=>{
+      const a=__adversarial('TEARS',__words,'1'), b=__adversarial('TEARS',__words,'2');
+      return {sameSize:a.survivors.length===b.survivors.length, aPat:a.pattern, bPat:b.pattern};}""")
+    t("18. the salt only ever breaks exact ties, never the largest-bucket rule",
+      diff["sameSize"] is True, str(diff))
+
+    # the optimised integer-coded rule must BE the display rule, not merely resemble it
+    bad=pg.evaluate("__fastPathAgrees()")
+    t("19. fast path == display path on all 2,408,704 pairs (in-browser)", bad==0, f"{bad} mismatches")
+
+    t("20. no JS errors", errs==[], "; ".join(errs[:2]))
     pg.evaluate("__reset('calm')")
     for w in ["TEARS","SNORE"]: pg.evaluate(f"__play('{w}')")
     pg.wait_for_timeout(700); pg.screenshot(path="stormle.png")

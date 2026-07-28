@@ -104,13 +104,15 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
     <div class="card">
       <h3>Your guesses, measured</h3>
       <table id="tbl"><thead><tr>
-        <th>Guess</th><th>Left</th><th>Bits taken</th><th>Best available</th><th>Which</th>
+        <th>Guess</th><th>Left</th><th title="expected bits of the question you asked">Asked</th>
+        <th title="expected bits of the best question available">Best</th><th>Which</th>
+        <th title="bits the reply actually delivered">Got</th>
       </tr></thead><tbody></tbody></table>
       <div class="note" style="margin-top:9px" id="effNote"></div>
     </div>
 
     <div class="card">
-      <h3>Still possible</h3>
+      <h3>Still possible <button id="peek" style="float:right;padding:2px 9px;font-size:11px">show words</button></h3>
       <div id="cands">1552 words. Make a guess.</div>
     </div>
 
@@ -118,7 +120,8 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
       <h3>The two modes</h3>
       <div class="note">
         <b style="color:var(--acc)">Calm</b> — an answer is fixed before you start, from the day's date. Ordinary Wordle, with the barometer running.<br><br>
-        <b style="color:var(--storm)">Storm</b> — the host never commits to a word. Each time you guess it replies with whichever pattern keeps the <i>most</i> answers alive, so the field shrinks as slowly as the rules allow. It never lies: every reply it gives is consistent with at least one real word, and it must still be beaten in six. Here the barometer stops being decoration — it is the only way to see how badly you are being stalled.
+        <b style="color:var(--storm)">Storm</b> — the host never commits to a word. Each time you guess it replies with whichever pattern keeps the <i>most</i> answers alive, so the field shrinks as slowly as the rules allow. It never lies: the surviving words are exactly those consistent with every reply so far, and the set is never empty. <b>You can lose here.</b> Six guesses is a real cap and a few weak questions can leave more candidates than you have turns — the barometer is what tells you that is happening while you can still do something about it.<br><br>
+        <span style="opacity:.75">Neither idea is original. Storm is <b>Absurdle</b> (qntm, 2022); the barometer is what NYT's <b>WordleBot</b> (2022) does after the fact. What is new is putting them together — the readout is the counter to the host — and running it live instead of in a post-mortem.</span>
       </div>
     </div>
   </div>
@@ -126,27 +129,38 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
 
 <footer>
   Type or use the keys · <b>Enter</b> submits · <b>Backspace</b> deletes. Answer pool: <span id="poolN"></span> common five-letter words, embedded — no network calls, no dependencies.<br>
-  Built by NeoBerlin. Scoring, entropy and the adversarial host are all computed in this file.
+  Built by NeoBerlin. Storm mode is Absurdle (qntm); the barometer is WordleBot\u2019s idea, live. Scoring, entropy and the host are computed here, with no network calls.
 </footer>
 </div>
 
 <script>
 /* ================================================================
-   STORMLE
-   Two ideas, both in the mechanics rather than the paintwork:
+   STORMLE — and where its two halves come from.
 
-   1. THE BAROMETER. Wordle never tells you whether a guess was good.
-      After each guess this reports the information you actually
-      extracted, in bits, against the best any word in the list could
-      have extracted. log2(pool) is the starting uncertainty; a guess
-      that halves the candidate set is worth exactly one bit.
+   Neither half is mine. Both are named, well-known prior art:
 
-   2. STORM MODE. The host holds no secret word. It answers with the
-      pattern that keeps the largest set of candidates alive, so it
-      stalls you as hard as the rules permit while never lying.
+   * STORM MODE is Absurdle (qntm, 2022, qntm.org/absurdle): the host
+     commits to no word and answers with whichever pattern keeps the
+     largest candidate set alive. Differences here are small: Absurdle
+     gives unlimited guesses, this caps at six; Absurdle breaks exact
+     ties by fewest greens then fewest yellows then pattern code, this
+     breaks them by fewest greens then a daily salt so the puzzle
+     changes each day.
 
-   The scoring function is Wordle's real two-pass rule and is verified
-   against an independent Python implementation over all pool^2 pairs.
+   * THE BAROMETER is 3Blue1Brown's entropy analysis (2022) and, much
+     more directly, NYT's WordleBot (2022) — which already reports, per
+     guess, information gained, solutions remaining, what you could have
+     played instead, and a skill/luck split.
+
+   What is actually new here is the combination and one claim about it:
+   that the entropy readout is the correct COUNTER to the adversarial
+   host, and that it belongs live in the game rather than in a post-hoc
+   report. Against a host that maximises your remaining uncertainty, the
+   only defence is to maximise the information you demand per question —
+   and you cannot do that if nobody tells you what you demanded.
+
+   The scoring function is Wordle's real two-pass rule, verified against
+   an independent Python implementation over all pool^2 pairs.
    ================================================================ */
 const WORDS = ["ABIDE","ABOVE","ABUSE","ACTOR","ACUTE","ADAPT","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALTER","AMONG","AMPLE","ANGEL","ANGLE","APART","APPLE","APRIL","AREAS","ARENA","ARGUE","ARISE","ARMED","ARRAY","ARROW","ASIAN","ASIDE","ASSET","ATLAS","ATTIC","AUDIO","AUDIT","AUNTS","AVOID","AWAKE","AWARD","AWARE","BACON","BADGE","BADLY","BAKER","BASIC","BASIN","BASIS","BATCH","BEACH","BEARD","BEAST","BEGAN","BEGIN","BEGUN","BEING","BELLY","BELOW","BENCH","BERRY","BIBLE","BIRDS","BIRTH","BITES","BLADE","BLAME","BLANK","BLAST","BLAZE","BLEND","BLESS","BLIND","BLOCK","BLOOD","BLOOM","BLUES","BLUNT","BOARD","BONUS","BOOST","BOOTH","BOOTS","BORED","BOUND","BRAIN","BRAND","BRAVE","BREAD","BREAK","BRICK","BRIDE","BRIEF","BRING","BROAD","BROWN","BRUSH","BUILD","BUNCH","BURNT","BURST","BUYER","CABIN","CABLE","CANAL","CANDY","CANOE","CARDS","CARGO","CARRY","CARVE","CATCH","CAUSE","CEDAR","CHAIN","CHAIR","CHALK","CHARM","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF","CHILD","CHINA","CHOIR","CHORD","CHOSE","CIDER","CIGAR","CIVIL","CLAIM","CLAMP","CLASH","CLASS","CLEAN","CLEAR","CLERK","CLICK","CLIFF","CLIMB","CLOCK","CLOSE","CLOTH","CLOUD","COACH","COAST","COCOA","COLOR","COMET","COMIC","CORAL","COUCH","COUGH","COULD","COUNT","COVER","CRACK","CRAFT","CRANE","CRASH","CRATE","CRAZY","CREAM","CREEK","CREPT","CRIME","CRISP","CROOK","CROSS","CROWD","CROWN","CRUEL","CRUSH","CUBIC","CURLY","CURRY","CURVE","CYCLE","DAILY","DAIRY","DAISY","DANCE","DATED","DEALT","DEATH","DEBUT","DECAY","DECOR","DELAY","DEPOT","DEPTH","DERBY","DIARY","DIRTY","DITCH","DIVER","DOCKS","DODGE","DOING","DONOR","DOUBT","DOUGH","DOZED","DOZEN","DRAFT","DRAIN","DRAMA","DRANK","DRAWN","DREAD","DREAM","DRESS","DRIED","DRILL","DRINK","DRIVE","DROVE","DRUMS","DUSTY","DUTCH","DWELL","EAGER","EAGLE","EARLY","EARNS","EARTH","EASEL","EATEN","EBONY","EDGES","EIGHT","ELBOW","ELDER","ELECT","ELITE","ELVES","EMBER","EMPTY","ENACT","ENDED","ENEMY","ENJOY","ENTER","ENTRY","EPOCH","EQUAL","EQUIP","ERASE","ERROR","ESSAY","ETHIC","EVENT","EVERY","EXACT","EXCEL","EXILE","EXIST","EXPEL","EXTRA","FABLE","FACED","FADED","FAINT","FAITH","FALSE","FANCY","FATAL","FAULT","FAVOR","FEAST","FENCE","FERRY","FETCH","FEVER","FEWER","FIBER","FIELD","FIERY","FIFTH","FIFTY","FIGHT","FILED","FILES","FILMS","FINAL","FINCH","FINDS","FINER","FIRED","FIRST","FLAKE","FLAME","FLANK","FLASH","FLASK","FLEET","FLING","FLINT","FLIRT","FLOAT","FLOCK","FLOOD","FLOOR","FLOUR","FLUID","FLUTE","FOAMY","FOCAL","FOCUS","FOGGY","FOLKS","FONTS","FORCE","FORGE","FORTH","FORTS","FORTY","FORUM","FOUND","FOUNT","FOXES","FRAME","FRANK","FRAUD","FRESH","FRIED","FROGS","FRONT","FROST","FROWN","FRUIT","FUDGE","FULLY","FUMES","FUNDS","FUNGI","FUNNY","FUSED","GAINS","GAMES","GAUGE","GAUZE","GAZED","GEESE","GENIE","GENRE","GHOST","GIANT","GILLS","GIVEN","GLADE","GLARE","GLASS","GLAZE","GLEAM","GLIDE","GLINT","GLOBE","GLOOM","GLORY","GLOVE","GNOME","GOATS","GOING","GOODS","GOOSE","GORGE","GOURD","GRACE","GRADE","GRAIN","GRAND","GRANT","GRAPE","GRAPH","GRASP","GRASS","GRAVE","GRAVY","GRAZE","GREAT","GREED","GREEN","GREET","GRIEF","GRILL","GRIME","GRIND","GRIPS","GROAN","GROIN","GROOM","GROSS","GROUP","GROVE","GROWN","GRUMP","GUARD","GUESS","GUEST","GUIDE","GUILD","GUILT","GUISE","GULLY","GUSTS","HABIT","HAILS","HAIRY","HALLS","HALVE","HANDY","HAPPY","HARSH","HASTE","HATCH","HAVEN","HAZEL","HEADS","HEAPS","HEARD","HEART","HEATH","HEAVY","HEDGE","HEELS","HEFTY","HEIRS","HELIX","HENCE","HERBS","HILLS","HINGE","HIPPO","HOARD","HOBBY","HOLES","HOLLY","HONEY","HONOR","HOOKS","HORNS","HORSE","HOTEL","HOTLY","HOUND","HOURS","HOUSE","HOVER","HUMAN","HUMID","HUMOR","HURRY","HUSKY","HYENA","ICING","IDEAL","IDEAS","IDIOM","IDLED","IGLOO","IMAGE","IMPLY","INBOX","INCUR","INDEX","INFER","INGOT","INLET","INNER","INPUT","IRATE","IRONS","ISSUE","IVORY","JEANS","JELLY","JEWEL","JOINS","JOINT","JOKES","JOLLY","JOUST","JUDGE","JUICE","JUMBO","KAYAK","KEEPS","KHAKI","KIOSK","KNACK","KNEAD","KNEEL","KNELT","KNIFE","KNOCK","KNOTS","KNOWN","LABEL","LACED","LADEN","LAKES","LAMPS","LANDS","LANES","LAPSE","LARGE","LARVA","LASER","LASTS","LATCH","LATER","LATHE","LAUGH","LAWNS","LAYER","LEAFY","LEAKS","LEAPS","LEARN","LEASE","LEASH","LEAST","LEAVE","LEDGE","LEGAL","LEGGY","LEMON","LENDS","LENSE","LEVEE","LEVEL","LEVER","LIBEL","LIGHT","LILAC","LIMBS","LIMES","LIMIT","LINEN","LINER","LINKS","LIONS","LISTS","LIVED","LIVER","LIVES","LOAFS","LOANS","LOBBY","LOCAL","LOCKS","LODGE","LOFTY","LOGIC","LOOMS","LOOPS","LOOSE","LORDS","LOTUS","LOUSE","LOVED","LOWER","LOWLY","LOYAL","LUCID","LUCKY","LUMPY","LUNAR","LUNCH","LUNGS","LURCH","LYING","LYRIC","MACRO","MAGIC","MAIZE","MAJOR","MAKER","MAKES","MALLS","MANGO","MANOR","MAPLE","MARCH","MARSH","MASKS","MASON","MATCH","MATES","MAUVE","MAYBE","MAYOR","MEANS","MEANT","MEDAL","MEDIA","MELON","MERCY","MERGE","MERIT","MERRY","MESSY","METAL","METER","MIDST","MIGHT","MILES","MILKY","MIMIC","MINDS","MINER","MINOR","MINTS","MINUS","MIRTH","MISTS","MIXED","MOATS","MOCHA","MODEL","MODES","MOIST","MOLAR","MOLDS","MONEY","MONKS","MONTH","MOODS","MOONS","MOOSE","MOPED","MORAL","MOSSY","MOTEL","MOTHS","MOTOR","MOULD","MOUND","MOUNT","MOURN","MOUSE","MOUTH","MOVES","MOVIE","MOWER","MUDDY","MULCH","MUMMY","MURAL","MURKY","MUSHY","MUSIC","MYRRH","NAILS","NAKED","NAMES","NAPPY","NASAL","NASTY","NAVAL","NEEDS","NEEDY","NERVE","NERVY","NESTS","NEVER","NEWER","NEWLY","NICHE","NIECE","NIGHT","NINTH","NOBLE","NODES","NOISE","NOISY","NOMAD","NOOKS","NORMS","NORTH","NOTCH","NOTED","NOTES","NOUNS","NOVEL","NUDGE","NURSE","NUTTY","OASIS","OATHS","OBESE","OCCUR","OCEAN","OCHRE","ODORS","OFFER","OFTEN","OLDEN","OLIVE","OMEGA","OMITS","ONION","OPENS","OPERA","OPTED","ORBIT","ORDER","ORGAN","OTHER","OTTER","OUGHT","OUNCE","OUTER","OVALS","OVENS","OWING","OWNER","OXIDE","OZONE","PACES","PACKS","PADDY","PAGES","PAINS","PAINT","PALES","PALMS","PANEL","PANIC","PANTS","PAPER","PARKS","PARTY","PASTA","PASTE","PATCH","PATHS","PATIO","PAUSE","PAVED","PEACE","PEACH","PEARL","PEDAL","PEERS","PENNY","PERCH","PERIL","PESTS","PETAL","PETTY","PHASE","PHONE","PHOTO","PIANO","PICKS","PIECE","PIERS","PILES","PILOT","PINCH","PINES","PIPES","PITCH","PIVOT","PIXEL","PIZZA","PLACE","PLAID","PLAIN","PLAIT","PLANE","PLANK","PLANS","PLANT","PLATE","PLAZA","PLEAD","PLEAT","PLIER","PLUMB","PLUME","PLUMP","PLUSH","POACH","PODIA","POEMS","POETS","POINT","POKER","POLAR","POLES","POLLS","PONDS","POOLS","PORCH","PORES","PORTS","POSED","POSTS","POUCH","POUND","POWER","PRANK","PRAWN","PRAYS","PRESS","PRICE","PRIED","PRIME","PRINT","PRIOR","PRISM","PRIZE","PROBE","PRONE","PRONG","PROOF","PROPS","PROSE","PROUD","PROVE","PRUNE","PULSE","PUNCH","PUPIL","PUPPY","PUREE","PURGE","PURSE","QUACK","QUAIL","QUAKE","QUART","QUEEN","QUEST","QUEUE","QUICK","QUIET","QUILT","QUIRK","QUITE","QUOTA","QUOTE","RACED","RACES","RADAR","RADIO","RAFTS","RAGED","RAILS","RAINY","RAISE","RAKES","RALLY","RANCH","RANGE","RANKS","RAPID","RATIO","RAVEN","RAYON","REACH","REACT","READY","REALM","REAPS","REBEL","RECAP","REEDS","REEFS","REFER","REFIT","REIGN","REINS","RELAX","RELAY","REMIT","RENEW","RENTS","REPAY","REPLY","RESIN","RESTS","RIDER","RIDGE","RIFLE","RIGHT","RIGID","RINGS","RINSE","RIOTS","RIPEN","RISEN","RISKY","RIVAL","RIVER","ROADS","ROAST","ROBES","ROBIN","ROBOT","ROCKS","ROCKY","RODEO","ROLES","ROLLS","ROMAN","ROOFS","ROOMS","ROOST","ROOTS","ROPES","ROSES","ROTOR","ROUGE","ROUGH","ROUND","ROUSE","ROUTE","ROWDY","ROYAL","RUINS","RULED","RULER","RUMOR","RUNGS","RUNNY","RURAL","RUSTY","SABLE","SADLY","SAFER","SAILS","SAINT","SALAD","SALES","SALON","SALTY","SANDS","SANDY","SAUCE","SAUNA","SAVED","SAVOR","SCALE","SCALP","SCANS","SCARF","SCARY","SCENE","SCENT","SCOLD","SCOOP","SCOPE","SCORE","SCOUT","SCRAP","SCREW","SCRUB","SEALS","SEAMS","SEATS","SEEDS","SEEKS","SEEMS","SEIZE","SENSE","SERUM","SERVE","SETUP","SEVEN","SEWER","SHACK","SHADE","SHAFT","SHAKE","SHALE","SHALL","SHAME","SHANK","SHAPE","SHARD","SHARE","SHARK","SHARP","SHAVE","SHAWL","SHEAR","SHEDS","SHEEP","SHEER","SHEET","SHELF","SHELL","SHIFT","SHINE","SHINY","SHIPS","SHIRT","SHOAL","SHOCK","SHOES","SHONE","SHOOK","SHOOT","SHOPS","SHORE","SHORT","SHOTS","SHOUT","SHOVE","SHOWN","SHOWS","SHRUB","SHRUG","SHUNT","SIDES","SIEGE","SIGHS","SIGHT","SIGNS","SILKY","SILLY","SILOS","SINCE","SINEW","SINGE","SIREN","SITES","SIXTH","SIXTY","SIZED","SIZES","SKATE","SKIES","SKIFF","SKILL","SKIRT","SKULL","SKUNK","SLABS","SLACK","SLAIN","SLANG","SLANT","SLASH","SLATE","SLAVE","SLEDS","SLEEK","SLEEP","SLEET","SLICE","SLICK","SLIDE","SLIME","SLING","SLOPE","SLOTH","SLOTS","SLUMP","SMACK","SMALL","SMART","SMASH","SMEAR","SMELL","SMILE","SMIRK","SMOKE","SMOKY","SNACK","SNAIL","SNAKE","SNAPS","SNARE","SNARL","SNEAK","SNIFF","SNIPE","SNORE","SNOUT","SNOWY","SOAPY","SOBER","SOCKS","SOGGY","SOILS","SOLAR","SOLES","SOLID","SOLVE","SONGS","SONIC","SORRY","SORTS","SOUND","SOUPS","SOURS","SOUTH","SOWED","SPACE","SPADE","SPANS","SPARE","SPARK","SPASM","SPEAK","SPEAR","SPECK","SPEED","SPELL","SPEND","SPENT","SPICE","SPICY","SPIED","SPIES","SPIKE","SPILL","SPINE","SPIRE","SPITE","SPLIT","SPOIL","SPOKE","SPOOL","SPOON","SPORE","SPORT","SPOTS","SPOUT","SPRAY","SPUNK","SPURN","SQUAD","SQUAT","STACK","STAFF","STAGE","STAID","STAIN","STAIR","STAKE","STALE","STALK","STALL","STAMP","STAND","STARE","STARK","STARS","START","STASH","STATE","STAVE","STAYS","STEAD","STEAK","STEAL","STEAM","STEED","STEEL","STEEP","STEER","STEMS","STEPS","STERN","STICK","STIFF","STILL","STILT","STING","STINK","STINT","STIRS","STOCK","STOIC","STOKE","STOLE","STOMP","STONE","STOOD","STOOL","STOOP","STOPS","STORE","STORK","STORM","STORY","STOUT","STOVE","STRAP","STRAW","STRAY","STRIP","STRUT","STUCK","STUDS","STUDY","STUFF","STUMP","STUNG","STUNT","STYLE","SUEDE","SUGAR","SUITE","SUITS","SULKY","SUNNY","SUPER","SURGE","SWAMP","SWANS","SWARM","SWATH","SWEAR","SWEAT","SWEEP","SWEET","SWELL","SWEPT","SWIFT","SWINE","SWING","SWIPE","SWIRL","SWISS","SWORD","SWORE","SWORN","SYRUP","TABLE","TABOO","TACIT","TACKS","TAILS","TAKEN","TAKES","TALES","TALKS","TALLY","TAMED","TANGO","TANKS","TAPER","TAPES","TARDY","TARTS","TASKS","TASTE","TAUNT","TAWNY","TAXES","TEACH","TEAMS","TEARS","TEASE","TEETH","TEMPO","TEMPT","TENDS","TENOR","TENSE","TENTH","TENTS","TERMS","TERRY","TESTS","TEXAS","TEXTS","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK","THIEF","THIGH","THINE","THING","THINK","THIRD","THORN","THOSE","THREE","THREW","THROB","THROW","THUMB","THUMP","TIARA","TIDAL","TIDES","TIGER","TIGHT","TILES","TIMER","TIMES","TIMID","TINGE","TIRED","TITLE","TOADS","TOAST","TODAY","TOKEN","TOMBS","TONES","TONGS","TOOLS","TOOTH","TOPIC","TORCH","TOTAL","TOTEM","TOUCH","TOUGH","TOURS","TOWEL","TOWER","TOWNS","TOXIC","TRACE","TRACK","TRACT","TRADE","TRAIL","TRAIN","TRAIT","TRAMP","TRAPS","TRASH","TRAWL","TREAD","TREAT","TREES","TREND","TRIAL","TRIBE","TRICK","TRIED","TRIES","TRIMS","TRIPS","TROLL","TROOP","TROUT","TRUCE","TRUCK","TRULY","TRUMP","TRUNK","TRUST","TRUTH","TUBES","TULIP","TUMOR","TUNED","TUNES","TUNIC","TURBO","TURFS","TWEAK","TWEED","TWICE","TWIGS","TWINE","TWINS","TWIST","TYPES","ULCER","UNCLE","UNDER","UNDID","UNDUE","UNFIT","UNION","UNITE","UNITS","UNITY","UNTIE","UNTIL","UPPER","UPSET","URBAN","URGED","URINE","USAGE","USHER","USING","USUAL","UTTER","VAGUE","VALID","VALUE","VALVE","VAPOR","VAULT","VEINS","VENOM","VENTS","VENUE","VERBS","VERGE","VERSE","VESTS","VIALS","VICAR","VIDEO","VIEWS","VIGIL","VILLA","VINES","VINYL","VIOLA","VIPER","VIRUS","VISIT","VISOR","VISTA","VITAL","VIVID","VOCAL","VODKA","VOGUE","VOICE","VOILE","VOTED","VOTER","VOTES","VOWEL","WAGER","WAGES","WAGON","WAIST","WAITS","WAIVE","WAKEN","WALLS","WALTZ","WANDS","WANED","WANTS","WARDS","WARES","WARMS","WARNS","WARTS","WASTE","WATCH","WATER","WAVED","WAVES","WAXES","WEARY","WEAVE","WEDGE","WEEDS","WEEKS","WEEPS","WEIGH","WEIRD","WELDS","WELLS","WHALE","WHARF","WHEAT","WHEEL","WHELP","WHERE","WHICH","WHIFF","WHILE","WHINE","WHIRL","WHISK","WHITE","WHOLE","WHOSE","WIDEN","WIDER","WIDOW","WIDTH","WIELD","WILDS","WILLS","WINCE","WINDS","WINDY","WINES","WINGS","WIPED","WIPES","WIRED","WIRES","WISER","WISPS","WITCH","WITTY","WIVES","WOKEN","WOMAN","WOMEN","WOODS","WOODY","WOOLY","WORDS","WORKS","WORLD","WORMS","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WOVEN","WRACK","WRATH","WREAK","WRECK","WRIST","WRITE","WRONG","WROTE","YACHT","YARDS","YARNS","YEARN","YEARS","YEAST","YIELD","YOKED","YOUNG","YOURS","YOUTH","ZEBRA","ZESTY","ZONES"];
 const N = WORDS.length;
@@ -168,17 +182,39 @@ function score(guess, answer){
   return res.join("");
 }
 
+/* ---- fast path -------------------------------------------------------------
+   The display function above returns a string and allocates as it goes, which is
+   fine once per guess and far too slow a million times. For the entropy search the
+   same rule is evaluated on precomputed letter codes and the pattern is packed into
+   a base-3 integer 0..242, so a whole distribution is counted in a typed array with
+   no allocation at all. A self-test asserts the two agree on every pair. */
+const CODES = WORDS.map(w => Uint8Array.from([...w], c => c.charCodeAt(0)-65));
+const IDX = new Map(WORDS.map((w,i)=>[w,i]));
+const _cnt = new Int32Array(26);
+const _res = new Uint8Array(5);
+function scoreCode(gi, ai){
+  const g=CODES[gi], a=CODES[ai];
+  _cnt.fill(0); _res.fill(0);
+  for(let i=0;i<5;i++){ if(g[i]===a[i]) _res[i]=2; else _cnt[a[i]]++; }
+  for(let i=0;i<5;i++){ if(_res[i]!==2 && _cnt[g[i]]>0){ _res[i]=1; _cnt[g[i]]--; } }
+  return ((_res[0]*3+_res[1])*3+_res[2])*3*3 + _res[3]*3 + _res[4];
+}
+const _bucket = new Int32Array(243);
+function entropyIdx(gi, cidx){
+  _bucket.fill(0);
+  for(let k=0;k<cidx.length;k++) _bucket[scoreCode(gi,cidx[k])]++;
+  const n=cidx.length; let h=0;
+  for(let p=0;p<243;p++){ const c=_bucket[p]; if(c){ const q=c/n; h -= q*LOG2(q); } }
+  return h;
+}
+
 function filterCands(cands, guess, pat){
   const out=[]; for(const w of cands) if(score(guess,w)===pat) out.push(w); return out;
 }
 
 /* expected information of a guess against the live candidate set */
 function entropy(guess, cands){
-  const b = new Map();
-  for(const a of cands){ const p=score(guess,a); b.set(p,(b.get(p)||0)+1); }
-  const n=cands.length; let h=0;
-  for(const c of b.values()){ const p=c/n; h -= p*LOG2(p); }
-  return h;
+  return entropyIdx(IDX.get(guess), cands.map(w=>IDX.get(w)));
 }
 
 /* The first move is the same for everyone, so it is precomputed rather
@@ -186,51 +222,72 @@ function entropy(guess, cands){
    write-up against the reference implementation. */
 const OPENER = {word:"TEARS", bits:6.2589};
 
+/* Search set. Scanning all 1552 words against a large candidate set froze the main thread for
+   seconds in Storm — the mode where the set stays biggest by design. When many candidates are
+   alive we search the candidates themselves plus the 250 strongest openers, which is where any
+   good probe lives; below 150 candidates we search everything. The panel says which. */
+const PROBES = ["TEARS","SLATE","TRIES","STARE","TALES","STALE","SNARE","RAISE","TILES","TONES","LEAST","SIREN","STORE","LANES","EARNS","ROLES","SHARE","RENTS","ARISE","TAILS","IRATE","SPARE","SNORE","REINS","STOLE","ROAST","TAPES","SAINT","STONE","SHALE","REAPS","RAILS","LASER","SLANT","NOTES","TRADE","RACES","PORES","STAIR","TRACE","RIOTS","PALES","RINSE","STEAL","TEAMS","CRATE","SCALE","SUITE","WARES","LATER","STERN","TIDES","TRAPS","LOANS","SPITE","SPIRE","MATES","SOLAR","SHORE","SHEAR","LEAPS","ROPES","PASTE","ALERT","SPORE","TUNES","HEIRS","PIERS","RISEN","HEART","SPEAR","SLIDE","LEARN","STAGE","TERMS","NOISE","NAILS","MEANS","TRIED","SLICE","REACT","HASTE","POETS","POLES","SKATE","CRANE","TAPER","ALTER","LAPSE","PILES","TREES","SNARL","HORSE","TREAD","TOADS","SCORE","SHINE","TIMES","SLAIN","STAIN","SLOPE","PROSE","PLATE","ROADS","TIRED","SHONE","TEASE","PINES","WIRES","YEARS","TAKES","TRAIN","RAKES","TRAIL","STEAD","ROUSE","TENOR","SPINE","SNAIL","HOLES","PORTS","DEALT","LEASH","SINCE","TRASH","SLIME","SEATS","SMEAR","SHAPE","SABLE","SAFER","SMART","IRONS","SHADE","THOSE","SNIPE","LIONS","TOURS","TRIAL","TENDS","STAKE","NAMES","SALON","TRIPS","SPADE","SAUCE","SWORE","WASTE","MOATS","MILES","SWEAT","SPENT","SWEAR","SPACE","NODES","SLEET","SMILE","PEARL","RESIN","PANTS","WARTS","ROUTE","SHORT","LINER","SHIRT","SEALS","ALONE","WORSE","HAILS","PLANE","SPORT","SLAVE","SALES","LIMES","GOATS","ERASE","PAINS","SNAKE","YEAST","STAND","STAVE","EARTH","LAKES","LOUSE","PACES","LEAKS","COAST","STAID","LEASE","SHAME","STRAP","TREND","FEAST","PLANS","SCENT","TRIMS","PRONE","NURSE","BEAST","STEER","ROBES","HEADS","HEAPS","GLARE","PHASE","SWINE","MEANT","LATHE","WAITS","STATE","STEAM","LARGE","WRITE","WARNS","HORNS","LENDS","GREAT","CLOSE","PAUSE","SOBER","SINGE","WINES","PANEL","WATER","SUPER","PLIER","WROTE","THINE","THEIR","SPIED","RANGE","SINEW","PAGES","PLEAT","SITES","FALSE","LORDS","TIMER","REALM","INLET","IDEAS","LANDS","LADEN","BITES","CAUSE","RUINS","SLOTH","MERIT","TENSE","CHASE"];  // the 250 highest-entropy openers
+function searchSet(cands){
+  if(cands.length<=150) return {list:WORDS, full:true};
+  const s=new Set(cands); for(let i=0;i<250;i++) s.add(PROBES[i]);
+  return {list:[...s], full:false};
+}
 function bestGuess(cands){
-  if(cands.length===N) return OPENER;
-  let bw=null, bh=-1;
-  for(const g of WORDS){
-    const h=entropy(g,cands);
-    if(h>bh+1e-12){ bh=h; bw=g; }
+  if(cands.length===N) return {...OPENER, full:true};
+  if(cands.length===1) return {word:cands[0], bits:0, full:true};   // just type the answer
+  const {list, full}=searchSet(cands);
+  const cidx = cands.map(w=>IDX.get(w));
+  let bw=null, bh=-1, bwIsCand=false;
+  const isC = new Set(cands);
+  for(const g of list){
+    const h=entropyIdx(IDX.get(g), cidx);
+    const c=isC.has(g);
+    // Prefer a guess that could itself win. Without this the recommender happily suggests a
+    // word that cannot possibly be the answer even when only one candidate is left.
+    if(h>bh+1e-9 || (Math.abs(h-bh)<=1e-9 && c && !bwIsCand)){ bh=h; bw=g; bwIsCand=c; }
   }
-  return {word:bw, bits:bh};
+  return {word:bw, bits:bh, full};
 }
 
-/* Storm mode. Deterministic and auditable: most survivors wins; ties go
-   to the pattern with fewest greens, then lexicographic order. */
-function adversarialReply(guess, cands){
+function fnv(s){ let h=2166136261>>>0; for(const c of s){ h^=c.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h; }
+
+/* Storm mode (Absurdle's rule). Most survivors wins — that is the maximal-stall property and
+   it is never traded away. Only EXACT ties are broken, by fewest greens and then by a daily
+   salt, so the storm is a different puzzle each day rather than one fixed game tree. */
+function adversarialReply(guess, cands, salt){
+  salt = (salt===undefined) ? stormSalt : salt;
   const b = new Map();
   for(const a of cands){ const p=score(guess,a); if(!b.has(p)) b.set(p,[]); b.get(p).push(a); }
+  const greens = s => (s.match(/G/g)||[]).length;
   let best=null;
   for(const [pat,ws] of b){
     if(best===null) { best=[pat,ws]; continue; }
     const [bp,bws]=best;
-    const greens = s => (s.match(/G/g)||[]).length;
     if(ws.length>bws.length) best=[pat,ws];
     else if(ws.length===bws.length){
       if(greens(pat)<greens(bp)) best=[pat,ws];
-      else if(greens(pat)===greens(bp) && pat<bp) best=[pat,ws];
+      else if(greens(pat)===greens(bp) && fnv(pat+salt)<fnv(bp+salt)) best=[pat,ws];
     }
   }
   return {pattern:best[0], survivors:best[1]};
 }
 
 /* --- daily answer, from the UTC date: same word for everyone, no server --- */
-function dailyIndex(){
-  const d = new Date();
-  const days = Math.floor(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())/86400000);
-  let h = 2166136261 >>> 0;
-  const s = String(days);
-  for(const ch of s){ h ^= ch.charCodeAt(0); h = Math.imul(h,16777619) >>> 0; }
-  return h % N;
+function dayNumber(){
+  const d=new Date();
+  return Math.floor(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())/86400000);
 }
+function dailyIndex(){ return fnv(String(dayNumber())) % N; }
 
 /* ---------------- state ---------------- */
 let mode="calm", answer="", cands=WORDS.slice(), rows=[], cur="", over=false, history=[];
+let peeking=false;
+let stormSalt="";
 
 function reset(m){
   mode=m; cands=WORDS.slice(); rows=[]; cur=""; over=false; history=[];
   answer = (m==="calm") ? WORDS[dailyIndex()] : "";
+  stormSalt = String(dayNumber());
   document.getElementById("mCalm").classList.toggle("on", m==="calm");
   document.getElementById("mStorm").classList.toggle("on", m==="storm");
   document.getElementById("baroTitle").textContent =
@@ -259,7 +316,7 @@ function buildKb(){
       btn.textContent = ch==="↵" ? "ENTER" : ch==="⌫" ? "DEL" : ch;
       if(ch==="↵"||ch==="⌫") btn.className="wide";
       btn.dataset.k = ch==="↵" ? "Enter" : ch==="⌫" ? "Backspace" : ch;
-      btn.addEventListener("click",()=>press(btn.dataset.k));
+      btn.addEventListener("click",()=>{ press(btn.dataset.k); btn.blur(); });
       d.appendChild(btn);
     }
     k.appendChild(d);
@@ -294,23 +351,36 @@ function render(){
   const tb=document.querySelector("#tbl tbody"); tb.innerHTML="";
   for(const h of history){
     const tr=document.createElement("tr");
-    const eff = h.best>0 ? h.got/h.best : 1;
-    const cls = eff>=0.9?"good":eff>=0.6?"meh":"poor";
+    // Skill is asked/best — how good the QUESTION was. Grading got/best would grade the draw:
+    // the worst opener in the pool gets lucky sometimes, and it must not be rewarded for that.
+    const skill = h.best>1e-9 ? h.asked/h.best : 1;
+    const cls = skill>=0.9?"good":skill>=0.6?"meh":"poor";
     tr.innerHTML = `<td>${h.guess}</td><td>${h.left}</td>`+
-      `<td class="${cls}">${h.got.toFixed(2)}</td><td>${h.best.toFixed(2)}</td><td>${h.bestWord}</td>`;
+      `<td class="${cls}">${h.asked.toFixed(2)}</td><td>${h.best.toFixed(2)}${h.full?"":"*"}</td>`+
+      `<td>${h.bestWord}</td><td>${h.got.toFixed(2)}</td>`;
     tb.appendChild(tr);
   }
   const note=document.getElementById("effNote");
   if(history.length){
-    const tot=history.reduce((s,h)=>s+h.got,0), pos=history.reduce((s,h)=>s+h.best,0);
-    note.innerHTML = `You have taken <b>${tot.toFixed(2)}</b> bits of the <b>${LOG2(N).toFixed(2)}</b> on the table; `+
-      `perfect play to this point was worth <b>${pos.toFixed(2)}</b>.`;
+    // Skill = the bits you ASKED for over the bits that were available, averaged. Summing
+    // realised bits would be pointless: it telescopes to log2(pool) for everyone who wins,
+    // and summing per-turn expectations against a fixed budget is not a meaningful quantity.
+    const a=history.reduce((s,h)=>s+h.asked,0), b=history.reduce((s,h)=>s+h.best,0);
+    const luck=history.reduce((s,h)=>s+(h.got-h.asked),0);
+    note.innerHTML = `<b>Skill ${(100*a/Math.max(1e-9,b)).toFixed(0)}%</b> — you asked for `+
+      `${a.toFixed(2)} of the ${b.toFixed(2)} bits available. `+
+      `<b>Luck ${luck>=0?"+":""}${luck.toFixed(2)}</b> bits: what the replies gave you `+
+      `beyond what your questions were worth.`;
   } else note.textContent="";
   // candidates
+  // The word list is hidden by default. Printing it whenever <=40 words remained meant the
+  // game solved itself: after one decent opener the answer was usually sitting on screen.
   const cd=document.getElementById("cands");
   if(cands.length===N) cd.textContent = `${N} words. Make a guess.`;
-  else if(cands.length<=40) cd.innerHTML = cands.map(w=>"<b>"+w+"</b>").join(" ");
-  else cd.textContent = `${cands.length} words still fit — too many to list.`;
+  else if(!peeking) cd.textContent = `${cands.length} word${cands.length===1?"":"s"} still fit.`+
+      (over?"":"  (Hidden — press the button if you want the puzzle solved for you.)");
+  else cd.innerHTML = cands.length<=60 ? cands.map(w=>"<b>"+w+"</b>").join(" ")
+                                       : `${cands.length} words — too many to list.`;
   document.getElementById("poolN").textContent = N;
 }
 
@@ -326,11 +396,13 @@ function submit(){
   if(!SET.has(cur)) return setMsg(cur+" is not in the word list.","no");
   const before = cands.length;
   const bestNow = bestGuess(cands);
+  const asked = entropy(cur, cands);     // expected bits of the question the player actually asked
   let pat;
   if(mode==="calm"){ pat = score(cur,answer); cands = filterCands(cands,cur,pat); }
   else { const r = adversarialReply(cur,cands); pat = r.pattern; cands = r.survivors; }
   const got = LOG2(before) - LOG2(Math.max(1,cands.length));
-  history.push({guess:cur, left:cands.length, got, best:bestNow.bits, bestWord:bestNow.word});
+  history.push({guess:cur, left:cands.length, got, asked, best:bestNow.bits,
+                bestWord:bestNow.word, full:bestNow.full});
   rows.push({g:cur,p:pat});
   const won = pat==="GGGGG";
   cur=""; render();
@@ -339,7 +411,10 @@ function submit(){
   });
   if(won){
     over=true;
-    setMsg(`Solved in ${rows.length}. ${history.reduce((s,h)=>s+h.got,0).toFixed(2)} bits taken.`,"ok");
+    // NOT the sum of realised bits: that telescopes to log2(pool) for everyone who wins and
+    // so is the same number for a brilliant game and a lucky one. Skill is the honest summary.
+    const a=history.reduce((s,h)=>s+h.asked,0), b=history.reduce((s,h)=>s+h.best,0);
+    setMsg(`Solved in ${rows.length}. Skill ${(100*a/Math.max(1e-9,b)).toFixed(0)}%.`,"ok");
   } else if(rows.length===6){
     over=true;
     if(mode==="storm"){
@@ -351,11 +426,16 @@ function submit(){
 
 document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
+  // Space would otherwise re-fire whichever on-screen key still had focus, typing it twice.
+  if(e.key===" "){ e.preventDefault(); return; }
   if(e.key==="Enter"||e.key==="Backspace"){ e.preventDefault(); press(e.key); }
   else if(/^[a-zA-Z]$/.test(e.key)) press(e.key);
 });
 document.getElementById("mCalm").addEventListener("click",()=>reset("calm"));
 document.getElementById("mStorm").addEventListener("click",()=>reset("storm"));
+document.getElementById("peek").addEventListener("click",e=>{
+  peeking=!peeking; e.target.textContent = peeking?"hide words":"show words"; render(); e.target.blur();
+});
 
 /* ---- hooks for automated verification ---- */
 window.__score = score;
@@ -366,6 +446,20 @@ window.__state = ()=>({mode, answer, left:cands.length, rows:rows.map(r=>r.g+":"
                        history, over, msg:document.getElementById("msg").textContent});
 window.__play = (word)=>{ cur=word.toUpperCase(); submit(); return window.__state(); };
 window.__reset = reset;
+window.__bestGuess = bestGuess;
+window.__scoreCode = scoreCode;
+window.__cands = ()=>cands.slice();
+window.__idx = w=>IDX.get(w);
+/* proves the fast integer-coded rule and the display rule are the same function */
+window.__fastPathAgrees = function(){
+  const dec=c=>{const o=[];for(let i=0;i<5;i++){o.unshift("BYG"[c%3]);c=(c-c%3)/3;}return o.join("");};
+  let bad=0;
+  for(let gi=0;gi<WORDS.length;gi++)
+    for(let ai=0;ai<WORDS.length;ai++)
+      if(dec(scoreCode(gi,ai))!==score(WORDS[gi],WORDS[ai])) bad++;
+  return bad;
+};
+window.__peek = ()=>{ peeking=true; render(); };
 window.__crosscheckHash = null;   // filled by the test harness
 
 reset("calm");
