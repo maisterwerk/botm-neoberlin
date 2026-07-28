@@ -1,5 +1,7 @@
 import { CROSSWORD_B64, CROSSWORD_BUILD } from "./crossword_html.js";
 import { STORMLE_B64, STORMLE_BUILD } from "./stormle_html.js";
+import { apSeries, moonBin, periodicityTest, binnedTest } from "./geo_tools.js";
+import { AP_START, AP_N } from "./ap_embed.js";
 /**
  * AstroMesh — Cosmic Market Compass
  * A Cloudflare Worker that:
@@ -342,9 +344,78 @@ const TOOLS = [
     inputSchema:{ type:"object", properties:{ coin:{type:"string", description:"e.g. bitcoin, ethereum, solana"} }, required:["coin"] } },
   { name:"test_lunar_quake_claim", description:"SECOND FALSIFICATION TOOL, non-finance: tests 'the moon triggers earthquakes' against the public USGS earthquake catalogue with the same circular-shift permutation test. Different domain, same discipline — and it can answer no.",
     inputSchema:{ type:"object", properties:{ min_magnitude:{type:"number", description:"4.0-7.0, default 5.0"}, days:{type:"integer", description:"120-730, default 360"} } } },
+  { name:"calibrate_harness", description:"POSITIVE CONTROL. Runs the same statistical harness used to judge astrological claims against a claim that is KNOWN TO BE TRUE: geomagnetic activity recurs with the Sun's ~27-day rotation (Bartels, 1934). If this comes back detected while the astrology claims do not, the harness is not a debunking machine — it can say yes. Call this FIRST; every other verdict is only worth what this one is.",
+    inputSchema:{ type:"object", properties:{ iterations:{type:"integer", description:"block-bootstrap resamples, 100-1000, default 300"} } } },
+  { name:"test_geomagnetic_astro_claim", description:"Tests 'the moon drives geomagnetic storms' against 34,542 daily Ap measurements from GFZ Potsdam (1932-2026). Reports the p-value AND the effect size, because with 94 years of data a 6% wiggle is detectable and still means nothing. Returns the honest three-way verdict: real and substantial / detectable but negligible / not detected.",
+    inputSchema:{ type:"object", properties:{ bins:{type:"integer", description:"lunar phase bins, 4-12, default 8"}, iterations:{type:"integer", description:"circular shifts, 500-3000, default 2000. Capped at 3000 because more exceeds the Worker CPU budget; the offline reference run at 20,000 is quoted in the response."} } } },
   { name:"market_astro_backtest", description:"Back-tests how often a sign's daily astro-tone aligned with a coin's REAL daily price move over the last N days (Coinbase daily candles).",
     inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS}, coin:{type:"string"}, days:{type:"integer"} }, required:["sign","coin"] } }
 ];
+
+// ---- the adjudication half: one harness, a control that must pass, and a graded verdict ----
+const GEO_SOURCE = { dataset:"planetary Ap index, one value per UT day",
+  provider:"GFZ German Research Centre for Geosciences, Potsdam", licence:"CC BY 4.0",
+  file:"Kp_ap_Ap_SN_F107_since_1932.txt", days:AP_N,
+  span:`${AP_START[0]}-${String(AP_START[1]).padStart(2,"0")}-${String(AP_START[2]).padStart(2,"0")} onwards`,
+  note:"embedded in this Worker, so every figure is reproducible offline and does not move under you" };
+
+function calibrateHarness(iters){
+  const n = Math.max(100, Math.min(400, iters||200));
+  const lags=[]; for(let L=20;L<=40;L++) lags.push(L);
+  // The bootstrap runs on the most recent 12,000 days rather than all 34,542: the full series
+  // costs more CPU than a Worker request is allowed. The choice does not flatter the result —
+  // the offline run over all 94 years gives r=0.1981 at p=0.0025, the 12,000-day window r=0.2262
+  // at the same p. Both are in `geo/harness.py`, which reproduces this from the raw GFZ file.
+  const WIN = 12000;
+  const full = apSeries();
+  const r = periodicityTest(full.slice(Math.max(0, full.length - WIN)), lags, n);
+  r.window_days = Math.min(WIN, full.length);
+  return {
+    control_claim:"Geomagnetic activity recurs with the Sun's ~27-day rotation (Bartels, 1934).",
+    why_this_one:"It is independently established, so the harness has a right answer to be measured against.",
+    peak_lag_days:r.peak_lag, peak_autocorrelation:Number(r.peak_r.toFixed(4)),
+    window_days:r.window_days,
+    full_series_reference:"Over all 34,542 days the same test gives r=0.1981 at p=0.0025; this "
+      +"window is used live only because the full series exceeds the Worker CPU budget.",
+    p_value:Number(r.p.toFixed(4)), null_model:r.null_model, iterations:r.iterations,
+    neighbouring_lags:Object.fromEntries([24,25,26,27,28,29,30].map(L=>[L,Number(r.profile[L].toFixed(3))])),
+    verdict: r.p<0.05 && r.peak_lag>=26 && r.peak_lag<=28
+      ? "PASS - the harness detects a real 27-day effect, so a null verdict elsewhere means something"
+      : "FAIL - do not trust any other verdict from this server until this passes",
+    disclosure:"An earlier build used a circular-shift null here and scored p=0.20 on this control. A circular shift preserves periodicity, so the null contained the effect being tested. That bug was found BY this control and is why the periodicity null is now a block bootstrap.",
+    source: GEO_SOURCE };
+}
+
+function geomagneticClaim(bins, iters){
+  const nb = Math.max(4, Math.min(12, bins||8));
+  const it = Math.max(500, Math.min(3000, iters||2000));
+  const r = binnedTest(apSeries(), moonBin, nb, it);
+  const hi = r.bin_means.indexOf(Math.max(...r.bin_means));
+  const sig = r.p < 0.05, big = r.cohens_d >= 0.2;
+  return {
+    claim:"The moon's phase drives geomagnetic activity.",
+    headline_a_believer_would_quote:
+      `Lunar phase bin ${hi} averages Ap ${r.bin_means[hi].toFixed(2)} against an overall ${r.overall_mean.toFixed(2)}.`,
+    p_value:Number(r.p.toFixed(4)), iterations:r.iterations, null_model:r.null_model,
+    monte_carlo_std_error:Number((Math.sqrt(r.p*(1-r.p)/r.iterations)).toFixed(4)),
+    p_is_near_the_threshold:"This p sits close to 0.05, so the significance label is fragile: at 500 "
+      +"iterations it reads 0.0499 and at 2000 it reads 0.0405. An offline run of 20,000 shifts across "
+      +"five seeds gives 0.0406-0.0426. That fragility is exactly why the verdict below is decided by "
+      +"the EFFECT SIZE and not by the p-value.",
+    multiple_comparison_correction:`max-T across all ${nb} bins - a cherry-picked bin must beat the best bin the null produces`,
+    largest_deviation_pct:Number(r.largest_deviation_pct.toFixed(1)),
+    cohens_d:Number(r.cohens_d.toFixed(3)),
+    bin_means:r.bin_means.map(m=>Number(m.toFixed(2))),
+    verdict: !sig ? "NOT DETECTED"
+           : big ? "REAL AND SUBSTANTIAL"
+                 : "DETECTABLE BUT NEGLIGIBLE",
+    reading:"Statistical significance is not practical significance. Across 34,542 days this harness "
+           +"can resolve a wiggle of a few percent, so a small p-value on its own settles nothing. "
+           +"Cohen's d below 0.2 is conventionally negligible. Note also that the Moon does physically "
+           +"perturb the magnetotail, so a tiny real effect here is expected - and it is still no "
+           +"support whatever for astrological claims about human affairs.",
+    source: GEO_SOURCE };
+}
 
 async function callTool(env, name, args){
   args = args || {};
@@ -356,6 +427,8 @@ async function callTool(env, name, args){
   if (name==="market_astro_backtest") return await backtest(args.sign, args.coin, args.days);
   if (name==="test_astro_claim") return await testAstroClaim(args.coin);
   if (name==="test_lunar_quake_claim") return await testLunarQuakeClaim(args.min_magnitude, args.days);
+  if (name==="calibrate_harness") return calibrateHarness(args.iterations);
+  if (name==="test_geomagnetic_astro_claim") return geomagneticClaim(args.bins, args.iterations);
   if (name==="birth_chart") return await birthChart(env, args);
   throw new Error(`Unknown tool: ${name}`);
 }

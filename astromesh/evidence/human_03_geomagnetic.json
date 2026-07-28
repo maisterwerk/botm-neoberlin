@@ -1,0 +1,33 @@
+{
+  "claim": "The moon's phase drives geomagnetic activity.",
+  "headline_a_believer_would_quote": "Lunar phase bin 7 averages Ap 13.77 against an overall 13.34.",
+  "p_value": 0.0405,
+  "iterations": 2000,
+  "null_model": "circular shift (preserves autocorrelation, decouples the calendar)",
+  "monte_carlo_std_error": 0.0044,
+  "p_is_near_the_threshold": "This p sits close to 0.05, so the significance label is fragile: at 500 iterations it reads 0.0499 and at 2000 it reads 0.0405. An offline run of 20,000 shifts across five seeds gives 0.0406-0.0426. That fragility is exactly why the verdict below is decided by the EFFECT SIZE and not by the p-value.",
+  "multiple_comparison_correction": "max-T across all 8 bins - a cherry-picked bin must beat the best bin the null produces",
+  "largest_deviation_pct": 6.4,
+  "cohens_d": 0.056,
+  "bin_means": [
+    13.49,
+    13.61,
+    13.08,
+    12.49,
+    13.46,
+    13.5,
+    13.32,
+    13.77
+  ],
+  "verdict": "DETECTABLE BUT NEGLIGIBLE",
+  "reading": "Statistical significance is not practical significance. Across 34,542 days this harness can resolve a wiggle of a few percent, so a small p-value on its own settles nothing. Cohen's d below 0.2 is conventionally negligible. Note also that the Moon does physically perturb the magnetotail, so a tiny real effect here is expected - and it is still no support whatever for astrological claims about human affairs.",
+  "source": {
+    "dataset": "planetary Ap index, one value per UT day",
+    "provider": "GFZ German Research Centre for Geosciences, Potsdam",
+    "licence": "CC BY 4.0",
+    "file": "Kp_ap_Ap_SN_F107_since_1932.txt",
+    "days": 34542,
+    "span": "1932-01-01 onwards",
+    "note": "embedded in this Worker, so every figure is reproducible offline and does not move under you"
+  }
+}

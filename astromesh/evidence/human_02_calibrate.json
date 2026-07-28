@@ -1,0 +1,31 @@
+{
+  "control_claim": "Geomagnetic activity recurs with the Sun's ~27-day rotation (Bartels, 1934).",
+  "why_this_one": "It is independently established, so the harness has a right answer to be measured against.",
+  "peak_lag_days": 27,
+  "peak_autocorrelation": 0.2262,
+  "window_days": 12000,
+  "full_series_reference": "Over all 34,542 days the same test gives r=0.1981 at p=0.0025; this window is used live only because the full series exceeds the Worker CPU budget.",
+  "p_value": 0.005,
+  "null_model": "block bootstrap, 13-day blocks",
+  "iterations": 200,
+  "neighbouring_lags": {
+    "24": 0.111,
+    "25": 0.145,
+    "26": 0.195,
+    "27": 0.226,
+    "28": 0.212,
+    "29": 0.158,
+    "30": 0.121
+  },
+  "verdict": "PASS - the harness detects a real 27-day effect, so a null verdict elsewhere means something",
+  "disclosure": "An earlier build used a circular-shift null here and scored p=0.20 on this control. A circular shift preserves periodicity, so the null contained the effect being tested. That bug was found BY this control and is why the periodicity null is now a block bootstrap.",
+  "source": {
+    "dataset": "planetary Ap index, one value per UT day",
+    "provider": "GFZ German Research Centre for Geosciences, Potsdam",
+    "licence": "CC BY 4.0",
+    "file": "Kp_ap_Ap_SN_F107_since_1932.txt",
+    "days": 34542,
+    "span": "1932-01-01 onwards",
+    "note": "embedded in this Worker, so every figure is reproducible offline and does not move under you"
+  }
+}

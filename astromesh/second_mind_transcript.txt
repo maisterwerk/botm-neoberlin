@@ -1,0 +1,11 @@
+### model: nvidia/nemotron-3-ultra-550b-a55b:free
+(model unreachable)
+
+### model: google/gemma-4-31b-it:free
+(model unreachable)
+
+### model: nvidia/nemotron-3-super-120b-a12b:free
+(model unreachable)
+
+### model: openai/gpt-oss-20b:free
+(model unreachable)
