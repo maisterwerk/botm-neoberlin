@@ -150,61 +150,99 @@ const COINBASE = { bitcoin:"BTC-USD", btc:"BTC-USD", ethereum:"ETH-USD", eth:"ET
   ripple:"XRP-USD", xrp:"XRP-USD", cardano:"ADA-USD", ada:"ADA-USD", dogecoin:"DOGE-USD", doge:"DOGE-USD",
   polkadot:"DOT-USD", dot:"DOT-USD", chainlink:"LINK-USD", link:"LINK-USD" };
 
-// Shared, proven-working price fetch (the backtest tool has used this exact call for days).
+// ---------- lunar falsification engine ----------
+// This tool exists to be able to answer "no". An astrology server that can only ever confirm
+// astrology is a horoscope, not an instrument.
+const SYNODIC = 29.530588853, KNOWN_NEW_MOON_JD = 2451550.1;
+const PHASE_NAMES = ["New","Waxing crescent","First quarter","Waxing gibbous","Full","Waning gibbous","Last quarter","Waning crescent"];
+function toJD(y,m,d){ if(m<=2){y-=1;m+=12;} const a=Math.floor(y/100), b=2-a+Math.floor(a/4);
+  return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+b-1524.5; }
+function lunarOctant(dateStr){ const [y,m,d]=dateStr.split("-").map(Number);
+  const days=toJD(y,m,d)-KNOWN_NEW_MOON_JD, frac=(((days%SYNODIC)+SYNODIC)%SYNODIC)/SYNODIC;
+  return Math.floor(frac*8+0.5)%8; }
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+// Shared, proven price fetch (same call the backtest tool has used successfully for days).
 async function coinbaseDaily(coinId){
   const prod = COINBASE[String(coinId||"bitcoin").toLowerCase()];
   if(!prod) throw new Error(`supported coins: ${Object.keys(COINBASE).filter(k=>k.length>3).join(", ")}`);
   const r = await fetch(`https://api.exchange.coinbase.com/products/${prod}/candles?granularity=86400`,
                         { headers:{accept:"application/json","User-Agent":"AstroMesh/1.0"} });
   if(!r.ok) throw new Error(`Coinbase candles ${r.status}`);
-  return await r.json();   // newest first: [time, low, high, open, close, volume]
+  return await r.json();
 }
 
-async function backtest(sign, coin, days){
-  sign = String(sign||"").toLowerCase(); days = Math.max(3, Math.min(30, days||14));
-  const id = String(coin||"bitcoin").toLowerCase(); const prod = COINBASE[id];
-  if (!prod) throw new Error(`backtest supports: ${Object.keys(COINBASE).filter(k=>k.length>3).join(", ")} (got "${id}")`);
+async function testAstroClaim(coin){
+  coin = String(coin||"bitcoin").toLowerCase();
   const kl = await coinbaseDaily(coin);
   const byDay = {};
   for(const k of kl) byDay[new Date(k[0]*1000).toISOString().slice(0,10)] = Number(k[4]);
   const dts = Object.keys(byDay).sort();
-  if(dts.length < 60) throw new Error("not enough history returned to test anything");
+  if(dts.length < 60) throw new Error("not enough history to test anything");
   const labels=[], vals=[];
-  for(let i=1;i<dts.length;i++){
-    const p0=byDay[dts[i-1]], p1=byDay[dts[i]];
-    if(p0>0){ labels.push(lunarOctant(dts[i])); vals.push(Math.log(p1/p0)*100); }
-  }
+  for(let i=1;i<dts.length;i++){ const p0=byDay[dts[i-1]], p1=byDay[dts[i]];
+    if(p0>0){ labels.push(lunarOctant(dts[i])); vals.push(Math.log(p1/p0)*100); } }
   const buckets={};
   labels.forEach((l,i)=>{ (buckets[l]=buckets[l]||[]).push(vals[i]); });
   const observed={}, sizes=[];
   for(const k of Object.keys(buckets)){ const v=buckets[k];
     if(v.length>=5){ observed[k]=v.reduce((a,b)=>a+b,0)/v.length; sizes.push(v.length); } }
   const obsStat=Math.max(...Object.values(observed).map(Math.abs));
-  // permutation test: the statistic is the LARGEST bucket mean, which is what corrects for
-  // inspecting eight buckets and reporting the prettiest one.
   const rnd=mulberry32(42); const pool=vals.slice(); let hits=0; const TRIALS=4000;
   for(let t=0;t<TRIALS;t++){
     for(let i=pool.length-1;i>0;i--){ const k=Math.floor(rnd()*(i+1)); const tmp=pool[i]; pool[i]=pool[k]; pool[k]=tmp; }
     let idx=0, stat=0;
-    for(const n of sizes){ let s=0; for(let i=0;i<n;i++) s+=pool[idx+i]; idx+=n; stat=Math.max(stat,Math.abs(s/n)); }
+    for(const n of sizes){ let sm=0; for(let i=0;i<n;i++) sm+=pool[idx+i]; idx+=n; stat=Math.max(stat,Math.abs(sm/n)); }
     if(stat>=obsStat) hits++;
   }
   const p=(hits+1)/(TRIALS+1);
-  const byPhase={}; for(const k of Object.keys(observed)) byPhase[PHASE_NAMES[k]]={ n:buckets[k].length, mean_pct:+observed[k].toFixed(3) };
-  let worst=null; for(const k of Object.keys(observed)) if(worst===null||Math.abs(observed[k])>Math.abs(observed[worst])) worst=k;
-  return {
-    claim_tested: "daily returns depend on the lunar phase",
-    coin, days_of_history: dts.length, daily_returns_used: vals.length,
-    by_phase: byPhase,
-    headline_a_believer_would_quote: `${coin} moves ${observed[worst].toFixed(2)}% on average during ${PHASE_NAMES[worst]}`,
-    largest_abs_bucket_mean_pct: +obsStat.toFixed(3),
-    p_value: +p.toFixed(4),
-    verdict: p>0.05 ? "NO DETECTABLE EFFECT — the headline above is noise" : "effect survives the null; investigate further",
-    method: "daily log-returns bucketed into 8 lunar octants; permutation test (4000 shuffles, seed 42) on the largest absolute bucket mean, which corrects for testing eight buckets at once",
-    honest_note: "A negative result is the expected result. This tool exists to be able to say no."
-  };
+  const byPhase={};
+  for(const k of Object.keys(observed)) byPhase[PHASE_NAMES[k]]={ n:buckets[k].length, mean_pct:+observed[k].toFixed(3) };
+  let worst=null;
+  for(const k of Object.keys(observed)) if(worst===null||Math.abs(observed[k])>Math.abs(observed[worst])) worst=k;
+  return { claim_tested:"daily returns depend on the lunar phase", coin,
+    days_of_history:dts.length, daily_returns_used:vals.length, by_phase:byPhase,
+    headline_a_believer_would_quote:`${coin} moves ${observed[worst].toFixed(2)}% on average during ${PHASE_NAMES[worst]}`,
+    largest_abs_bucket_mean_pct:+obsStat.toFixed(3), p_value:+p.toFixed(4),
+    verdict: p>0.05 ? "NO DETECTABLE EFFECT - the headline above is noise" : "effect survives the null; investigate further",
+    method:"daily log-returns bucketed into 8 lunar octants; permutation test (4000 shuffles, seed 42) on the largest absolute bucket mean, correcting for testing eight buckets at once",
+    honest_note:"A negative result is the expected result. This tool exists to be able to say no." };
 }
 
+async function backtest(sign, coin, days){
+  sign = String(sign||"").toLowerCase(); days = Math.max(3, Math.min(30, days||14));
+  const id = String(coin||"bitcoin").toLowerCase(); const prod = COINBASE[id];
+  if (!prod) throw new Error(`backtest supports: ${Object.keys(COINBASE).filter(k=>k.length>3).join(", ")} (got "${id}")`);
+  // Coinbase daily candles (keyless, Cloudflare-friendly): [time, low, high, open, close, volume], newest first
+  const r = await fetch(`https://api.exchange.coinbase.com/products/${prod}/candles?granularity=86400`, { headers:{accept:"application/json","User-Agent":"AstroMesh/1.0"} });
+  if (!r.ok) throw new Error(`Coinbase candles ${r.status}`);
+  let kl = await r.json();
+  kl = kl.slice(0, days).reverse();  // oldest→newest
+  let agree=0, n=0, rows=[];
+  for (const k of kl){
+    const openT=k[0]*1000, open=+k[3], close=+k[4];
+    const dayIdx=Math.floor(openT/86400000);
+    const astroUp=(astroTone(sign,dayIdx)-0.5)>=0;
+    const mktUp=(close-open)>=0;
+    const ok=astroUp===mktUp; if(ok)agree++; n++;
+    rows.push({date:new Date(openT).toISOString().slice(0,10), astro:astroUp?"+":"-", market:mktUp?"+":"-", aligned:ok});
+  }
+  const pct=n?Math.round(100*agree/n):0;
+  return { sign, coin:id, days:n, alignment_rate_pct:pct,
+    verdict: pct>=60?`The stars matched the market ${pct}% of the last ${n} days — spooky.`:pct<=40?`Only ${pct}% alignment — the market ignores the stars, as it should.`:`${pct}% alignment — pure coin-flip territory.`,
+    series: rows, disclaimer:"Real Binance daily data vs a deterministic astro-tone. Entertainment only." };
+}
+
+function signCoinMatch(sign){
+  const h = horoscope(sign);
+  const map = { aries:"solana", taurus:"bitcoin", gemini:"dogecoin", cancer:"usd-coin", leo:"ethereum",
+    virgo:"chainlink", libra:"cardano", scorpio:"monero", sagittarius:"pepe", capricorn:"bitcoin",
+    aquarius:"polkadot", pisces:"ripple" };
+  return { sign:h.sign, matched_coin: map[h.sign], why:`${h.sign} is ${h.trait} — ${map[h.sign]} suits that energy today.`, tone:h.tone };
+}
+
+// ---------- MCP (Streamable HTTP, JSON-RPC 2.0) ----------
 const TOOLS = [
   { name:"get_horoscope", description:"Daily astrological reading for a zodiac sign (deterministic per UTC day).",
     inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS} }, required:["sign"] } },
@@ -218,8 +256,8 @@ const TOOLS = [
     inputSchema:{ type:"object", properties:{ year:{type:"integer"},month:{type:"integer"},date:{type:"integer"},hours:{type:"integer"},minutes:{type:"integer"},latitude:{type:"number"},longitude:{type:"number"},timezone:{type:"number"} }, required:["year","month","date","latitude","longitude"] } },
   { name:"cosmic_playlist", description:"THIRD dataset (music): fuses a sign's astro-mood + a coin's 24h market direction into a real iTunes playlist (astrology × crypto × music).",
     inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS}, coin:{type:"string"} }, required:["sign","coin"] } },
-  { name:"test_astro_claim", description:"FALSIFICATION TOOL: tests the classic 'the moon moves the market' claim against real daily returns with a permutation test that corrects for multiple comparisons. Returns the cherry-picked headline a believer would quote AND the p-value that kills it. Designed to be able to answer 'no'.",
-    inputSchema:{ type:"object", properties:{ coin:{type:"string", description:"CoinGecko id, e.g. bitcoin"}, days:{type:"integer", description:"history window, 90-365"} }, required:["coin"] } },
+  { name:"test_astro_claim", description:"FALSIFICATION TOOL: tests the classic 'the moon moves the market' claim against real daily returns with a permutation test that corrects for multiple comparisons. Returns the cherry-picked headline a believer would quote AND the p-value that kills it. Built to be able to answer 'no'.",
+    inputSchema:{ type:"object", properties:{ coin:{type:"string", description:"e.g. bitcoin, ethereum, solana"} }, required:["coin"] } },
   { name:"market_astro_backtest", description:"Back-tests how often a sign's daily astro-tone aligned with a coin's REAL daily price move over the last N days (Binance daily klines).",
     inputSchema:{ type:"object", properties:{ sign:{type:"string", enum:SIGNS}, coin:{type:"string"}, days:{type:"integer"} }, required:["sign","coin"] } }
 ];
@@ -232,7 +270,7 @@ async function callTool(env, name, args){
   if (name==="sign_coin_match") return signCoinMatch(args.sign);
   if (name==="cosmic_playlist") return await cosmicPlaylist(args.sign, args.coin);
   if (name==="market_astro_backtest") return await backtest(args.sign, args.coin, args.days);
-  if (name==="test_astro_claim") return await testAstroClaim(args.coin, args.days);
+  if (name==="test_astro_claim") return await testAstroClaim(args.coin);
   if (name==="birth_chart") return await birthChart(env, args);
   throw new Error(`Unknown tool: ${name}`);
 }
@@ -299,7 +337,7 @@ export default {
     if (url.pathname === "/api/crypto") { try { return J(await coinData(url.searchParams.get("coin"))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/compass") { try { return J(compass(url.searchParams.get("sign"), await coinData(url.searchParams.get("coin")))); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/playlist") { try { return J(await cosmicPlaylist(url.searchParams.get("sign"), url.searchParams.get("coin"))); } catch(e){ return J({error:e.message},400);} }
-    if (url.pathname === "/api/astro-claim") { try { return J(await testAstroClaim(url.searchParams.get("coin")||"bitcoin", parseInt(url.searchParams.get("days")||"300"))); } catch(e){ return J({error:e.message},400);} }
+    if (url.pathname === "/api/astro-claim") { try { return J(await testAstroClaim(url.searchParams.get("coin")||"bitcoin")); } catch(e){ return J({error:e.message},400);} }
     if (url.pathname === "/api/backtest") { try { return J(await backtest(url.searchParams.get("sign"), url.searchParams.get("coin"), parseInt(url.searchParams.get("days")||"14"))); } catch(e){ return J({error:e.message},400);} }
 
     if (url.pathname === "/mcp.json") return J({ name:"astromesh", transport:"streamable-http", endpoint: url.origin+"/mcp", tools: TOOLS });
