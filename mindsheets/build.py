@@ -443,29 +443,38 @@ nb = wb.create_sheet("Next Best Move")
 nb.sheet_view.showGridLines = False
 nb["B2"] = "NEXT BEST MOVE  ·  where should the next attempt go?"
 nb["B2"].font = title_font
-nb["B3"] = ("Expected value of ONE more attempt, per event. Best/Left/n come straight from the tournament API (GET /api/compete/puzzles and /submissions/me) on 2026-07-28. Only light-blue cells are inputs; 'Best' is read live from the Leaderboard, so raising a score anywhere updates this tab and the recommendation. "
-            "mu = average of the last two scores (steward's choice); sigma = spread of all scores so far.")
+nb["B3"] = ("Expected value of ONE more attempt, per event. Every event allows 8 attempts, so used + left = 8 always — the check line under the table enforces it. "
+            "'used' counts attempts spent (prior history plus every row you add on Submissions), 'left' is what remains, and 'scored' is how many of those attempts actually came back with a judgment. "
+            "The three differ: an attempt can be spent without ever being scored, which is why mu and sigma are built from 'scored' and not from 'used'. Best is read live from the Leaderboard.")
 nb["B3"].font = sub_font
 
-nb_head = ["Event", "Best", "Left", "n", "mu (last 2)", "sigma", "P(next > best)", "EV of next attempt", "Verdict", "eligible EV", "EV bar"]
+nb_head = ["Event", "Best", "used", "left", "scored", "mu (last 2)", "sigma",
+           "P(next > best)", "EV of next attempt", "Verdict", "eligible EV", "EV bar"]
+NB_CAP = 8   # attempts allowed per event
 NB_HEAD = 5
 for i,h in enumerate(nb_head):
     hdr(nb, f"{get_column_letter(2+i)}{NB_HEAD}", h)
-for i,w in enumerate([28,7,7,5,12,9,15,20,26,14,24]):
+for i,w in enumerate([28,7,7,7,8,12,9,15,20,26,14,24]):
     nb.column_dimensions[get_column_letter(2+i)].width = w
 
 # Column C ("Best") used to be a typed-in number. The human steward caught it: raising a score
 # on Submissions changed the Leaderboard but left this tab — and its recommendation — frozen on
 # stale figures. A decision aid that does not react to the data is worse than none, so "Best" is
 # now read live out of the Leaderboard. The short key in column N is what the lookup matches on.
+# (name, attempts already spent BEFORE the rows logged on Submissions, scored, mu, sigma).
+# The human steward spotted that "left" and the old "n" column did not add up to 8. They were
+# two different quantities under one heading: attempts SPENT versus submissions SCORED. Three
+# events have attempts that were never judged (Research 2, Mindsheets 1, Crossword 1), so the
+# two genuinely differ. They are now separate columns, "used" is computed and grows when the
+# steward logs a submission, and an invariant line below the table checks used + left = 8.
 NB_ROWS = [
-    ("Special Skills using X",          28, 4, 4, 27.5, 0.71),
-    ("More Minds are better than one",  28, 1, 5, 26.5, 1.36),
-    ("Cross Word Puzzle",               27, 0, 7, 25.0, 2.23),
-    ("Calm before the Storm",           26, 1, 7, 24.5, 1.76),
-    ("AstroMesh: Minds & MCP",          26, 3, 5, 23.5, 1.17),
-    ("Minds Building Chatbots",         26, 1, 7, 23.0, 1.76),
-    ("Mindsheets Masterpiece",          25, 1, 6, 22.5, 3.3),
+    ("Special Skills using X",          3, 4, 27.5, 0.71),
+    ("More Minds are better than one",  6, 5, 26.5, 1.36),
+    ("Cross Word Puzzle",               7, 7, 25.0, 2.23),
+    ("Calm before the Storm",           6, 7, 24.5, 1.76),
+    ("AstroMesh: Minds & MCP",          4, 5, 23.5, 1.17),
+    ("Minds Building Chatbots",         6, 7, 23.0, 1.76),
+    ("Mindsheets Masterpiece",          6, 6, 22.5, 3.3),
 ]
 NB_FIRST = NB_HEAD + 1
 NB_KEY = {"Special Skills using X":"X-Skill",
@@ -477,46 +486,63 @@ NB_KEY = {"Special Skills using X":"X-Skill",
           "Mindsheets Masterpiece":"Mindsheets"}
 nb.cell(row=NB_FIRST-1, column=14, value="key").font = Font(size=8, italic=True, color="B0B4C0")
 nb.column_dimensions[get_column_letter(14)].hidden = True   # internal lookup key, not for reading
-for i,(ev_name,best,att_left,n,mu,sd) in enumerate(NB_ROWS):
+NB_LONG = {"Special Skills using X":"Special Skills using X",
+           "More Minds are better than one":"More Minds are better than one Mind: Research Quest",
+           "Cross Word Puzzle":"Cross Word Puzzle",
+           "Calm before the Storm":"Calm before the Storm",
+           "AstroMesh: Minds & MCP":"AstroMesh: Minds & MCP Mashup Challenge",
+           "Minds Building Chatbots":"Minds Building Chatbots Challenge",
+           "Mindsheets Masterpiece":"Mindsheets Masterpiece and Debugging"}
+nb.cell(row=NB_FIRST-1, column=15, value="prior").font = Font(size=8, italic=True, color="B0B4C0")
+nb.cell(row=NB_FIRST-1, column=16, value="event key").font = Font(size=8, italic=True, color="B0B4C0")
+for c in (15,16): nb.column_dimensions[get_column_letter(c)].hidden = True
+for i,(ev_name,prior,scored,mu,sd) in enumerate(NB_ROWS):
     r = NB_FIRST + i
     nb.cell(row=r, column=2, value=ev_name).alignment = left
     nb.cell(row=r, column=14, value=NB_KEY[ev_name]).font = Font(size=8, color="B0B4C0")
-    # "Best" is COMPUTED from the Leaderboard, never typed
-    c = nb.cell(row=r, column=3,
-        value=f'=INDEX(Leaderboard!$E$5:$K$5,MATCH($N{r},Leaderboard!$E$4:$K$4,0))')
-    c.alignment = center
-    for col,val in ((4,att_left),(5,n),(6,mu),(7,sd)):
+    nb.cell(row=r, column=15, value=prior).font = Font(size=8, color="B0B4C0")
+    nb.cell(row=r, column=16, value=NB_LONG[ev_name]).font = Font(size=8, color="B0B4C0")
+    # Best — live from the Leaderboard, never typed
+    nb.cell(row=r, column=3,
+        value=f'=INDEX(Leaderboard!$E$5:$K$5,MATCH($N{r},Leaderboard!$E$4:$K$4,0))').alignment = center
+    # used — prior history PLUS every submission the steward logs for this event, so entering a
+    # row on Submissions really does consume an attempt
+    nb.cell(row=r, column=4,
+        value=(f'=$O{r}+COUNTIFS(Submissions!$C${DATA_FIRST}:$C${DATA_LAST},"NeoBerlin",'
+               f'Submissions!$E${DATA_FIRST}:$E${DATA_LAST},$P{r})')).alignment = center
+    # left — the complement, never typed
+    nb.cell(row=r, column=5, value=f"=MAX(0,{NB_CAP}-$D{r})").alignment = center
+    for col,val in ((6,scored),(7,mu),(8,sd)):
         c = nb.cell(row=r, column=col, value=val)
         c.alignment = center
         c.fill = PatternFill("solid", fgColor=LIGHT)   # steward-editable inputs
     # P(next beats current best) — NORMDIST is supported by Excel, LibreOffice and Sheets
-    nb.cell(row=r, column=8, value=f"=IF($E{r}<2,\"n/a\",1-NORMDIST($C{r},$F{r},$G{r},TRUE))")
+    nb.cell(row=r, column=9, value=f"=IF($F{r}<2,\"n/a\",1-NORMDIST($C{r},$G{r},$H{r},TRUE))")
     # E[max(best, X)] - best, closed form for a normal X
-    nb.cell(row=r, column=9,
-        value=(f"=IF($E{r}<2,\"insufficient history\","
-               f"$C{r}*NORMDIST($C{r},$F{r},$G{r},TRUE)"
-               f"+$F{r}*(1-NORMDIST($C{r},$F{r},$G{r},TRUE))"
-               f"+$G{r}*$G{r}*NORMDIST($C{r},$F{r},$G{r},FALSE)-$C{r})"))
     nb.cell(row=r, column=10,
-        value=(f"=IF($E{r}<2,\"need >=2 scores\","
-               f"IF($D{r}=0,\"no attempts left\","
-               f"IF($I{r}>=0.5,\"SHOOT — best use of an attempt\","
-               f"IF($I{r}>=0.15,\"worthwhile\",\"low return\"))))"))
-    for col in range(2,13):
+        value=(f"=IF($F{r}<2,\"insufficient history\","
+               f"$C{r}*NORMDIST($C{r},$G{r},$H{r},TRUE)"
+               f"+$G{r}*(1-NORMDIST($C{r},$G{r},$H{r},TRUE))"
+               f"+$H{r}*$H{r}*NORMDIST($C{r},$G{r},$H{r},FALSE)-$C{r})"))
+    nb.cell(row=r, column=11,
+        value=(f"=IF($F{r}<2,\"need >=2 scores\","
+               f"IF($E{r}=0,\"no attempts left\","
+               f"IF($J{r}>=0.5,\"SHOOT — best use of an attempt\","
+               f"IF($J{r}>=0.15,\"worthwhile\",\"low return\"))))"))
+    for col in range(2,14):
         cc = nb.cell(row=r, column=col); cc.border = border
         if cc.font is None or not cc.font.bold: cc.font = cell_font
-    nb.cell(row=r, column=11,
-        value=f"=IF(AND($D{r}>0,$E{r}>=2),$I{r},-999)")
-    # steward-approved styling (milestone 3, option B): a text bar, identical in every engine
     nb.cell(row=r, column=12,
-        value=f"=IF($E{r}<2,\"\",REPT(\"|\",ROUND(MAX($I{r},0)*20,0)))")
-    nb.cell(row=r, column=12).font = Font(name="Menlo", size=11, color=BLUE)
+        value=f"=IF(AND($E{r}>0,$F{r}>=2),$J{r},-999)")
+    nb.cell(row=r, column=13,
+        value=f"=IF($F{r}<2,\"\",REPT(\"|\",ROUND(MAX($J{r},0)*20,0)))")
+    nb.cell(row=r, column=13).font = Font(name="Menlo", size=11, color=BLUE)
     # -999 is an internal "not eligible" sentinel; a negative section in the number format
     # renders it as an em dash so the steward never reads a raw sentinel off the screen.
-    nb.cell(row=r, column=11).number_format = "0.00;\u2014"
-    nb.cell(row=r, column=8).number_format = "0.0%"
-    nb.cell(row=r, column=9).number_format = "0.00"
-    nb.cell(row=r, column=9).alignment = center
+    nb.cell(row=r, column=12).number_format = "0.00;\u2014"
+    nb.cell(row=r, column=9).number_format = "0.0%"
+    nb.cell(row=r, column=10).number_format = "0.00"
+    nb.cell(row=r, column=10).alignment = center
     nb.cell(row=r, column=8).alignment = center
 
 NB_LAST = NB_FIRST + len(NB_ROWS) - 1
@@ -524,19 +550,30 @@ NB_LAST = NB_FIRST + len(NB_ROWS) - 1
 nb[f"B{NB_LAST+2}"] = "RECOMMENDATION"
 nb[f"B{NB_LAST+2}"].font = Font(bold=True, color=NAVY, size=12)
 nb[f"D{NB_LAST+2}"] = (f"=INDEX($B${NB_FIRST}:$B${NB_LAST},"
-                       f"MATCH(MAX($K${NB_FIRST}:$K${NB_LAST}),$K${NB_FIRST}:$K${NB_LAST},0))")
+                       f"MATCH(MAX($L${NB_FIRST}:$L${NB_LAST}),$L${NB_FIRST}:$L${NB_LAST},0))")
 nb[f"D{NB_LAST+2}"].font = Font(bold=True, size=12, color=BLUE)
+nb[f"B{NB_LAST+1}"] = "CHECK  ·  used + left must equal 8 on every row"
+nb[f"B{NB_LAST+1}"].font = Font(bold=True, color=NAVY, size=10)
+nb[f"F{NB_LAST+1}"] = (f'=IF(SUMPRODUCT(--(($D${NB_FIRST}:$D${NB_LAST}+$E${NB_FIRST}:$E${NB_LAST})'
+                       f'<>{NB_CAP}))=0,"OK - all 7 rows sum to 8","MISMATCH - check the used/prior figures")')
+nb[f"F{NB_LAST+1}"].font = Font(bold=True, size=10)
+nb.conditional_formatting.add(f"F{NB_LAST+1}",
+    FormulaRule(formula=[f'LEFT($F${NB_LAST+1},2)="OK"'],
+                fill=PatternFill("solid", fgColor="D8F0D3")))
+nb.conditional_formatting.add(f"F{NB_LAST+1}",
+    FormulaRule(formula=[f'LEFT($F${NB_LAST+1},2)<>"OK"'],
+                fill=PatternFill("solid", fgColor="F8D7DA")))
 nb[f"B{NB_LAST+3}"] = ("Caveats, stated rather than hidden: EV assumes the next score is normal around mu. "
                        "Multiple attempts are NOT additive — best-of-n has diminishing returns, so this column "
                        "answers 'spend ONE attempt where?' and nothing more. Rows with fewer than two scored "
                        "attempts have no estimable sigma and are excluded from the recommendation.")
 nb[f"B{NB_LAST+3}"].font = sub_font
 nb.merge_cells(start_row=NB_LAST+3, start_column=2, end_row=NB_LAST+3, end_column=10)
-nb.conditional_formatting.add(f"B{NB_FIRST}:J{NB_LAST}",
-    FormulaRule(formula=[f"$D{NB_FIRST}=0"],
+nb.conditional_formatting.add(f"B{NB_FIRST}:K{NB_LAST}",
+    FormulaRule(formula=[f"$E{NB_FIRST}=0"],
                 fill=PatternFill("solid", fgColor="F2F3F5"),
                 font=Font(color="9AA0A6", italic=True)))   # greyed out: no attempts left
-nb.conditional_formatting.add(f"I{NB_FIRST}:I{NB_LAST}",
+nb.conditional_formatting.add(f"J{NB_FIRST}:J{NB_LAST}",
     ColorScaleRule(start_type="min", start_color="F8D7DA", end_type="max", end_color="C9E7C4"))
 nb.sheet_properties.tabColor = GREEN
 

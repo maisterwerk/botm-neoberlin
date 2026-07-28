@@ -90,6 +90,46 @@ for i in range(4):
 chk("Reward!F12", 1.0, R.cell(12,6).value, "shares sum to 1")
 chk("Reward!G12", float(pool), R.cell(12,7).value, "payouts sum to the pool")
 
+# ---- 6. Next Best Move: attempts arithmetic and the EV closed form ----
+N = wv["Next Best Move"]
+NF = openpyxl.load_workbook(F)["Next Best Move"]
+CAP = 8
+def Phi(z): return 0.5*(1+math.erf(z/math.sqrt(2)))
+def pdf(x,m,s): return math.exp(-((x-m)**2)/(2*s*s))/(s*math.sqrt(2*math.pi))
+SHORT2LONG = {"X-Skill":"Special Skills using X",
+  "Research":"More Minds are better than one Mind: Research Quest",
+  "Crossword":"Cross Word Puzzle", "Calm":"Calm before the Storm",
+  "AstroMesh":"AstroMesh: Minds & MCP Mashup Challenge",
+  "Chatbots":"Minds Building Chatbots Challenge",
+  "Mindsheets":"Mindsheets Masterpiece and Debugging"}
+elig = []
+for r in range(6, 13):
+    key   = N.cell(r,14).value
+    prior = N.cell(r,15).value
+    ev_long = SHORT2LONG[key]
+    logged = sum(1 for (_, mm, ee, *_ ) in raw if mm=="NeoBerlin" and ee==ev_long)
+    used   = prior + logged
+    left   = max(0, CAP-used)
+    chk(f"NBM!D{r}", used, N.cell(r,4).value, f"{key} used = prior+logged")
+    chk(f"NBM!E{r}", left, N.cell(r,5).value, f"{key} left")
+    chk(f"NBM!D{r}+E{r}", CAP, N.cell(r,4).value + N.cell(r,5).value, f"{key} invariant used+left=8")
+    best = tot["NeoBerlin"] and None
+    b  = N.cell(r,3).value           # Best, itself already checked against the Leaderboard below
+    sc = N.cell(r,6).value; mu = N.cell(r,7).value; sd = N.cell(r,8).value
+    P  = Phi((b-mu)/sd)
+    want_ev = b*P + mu*(1-P) + sd*sd*pdf(b,mu,sd) - b
+    chk(f"NBM!J{r}", want_ev, N.cell(r,10).value, f"{key} EV closed form")
+    verdict = ("need >=2 scores" if sc<2 else "no attempts left" if left==0
+               else "SHOOT — best use of an attempt" if want_ev>=0.5
+               else "worthwhile" if want_ev>=0.15 else "low return")
+    chk(f"NBM!K{r}", verdict, N.cell(r,11).value, f"{key} verdict")
+    elig.append((want_ev if (left>0 and sc>=2) else -999, N.cell(r,2).value))
+    # Best must equal the Leaderboard's best-per-event for NeoBerlin
+    lb_best = max([c+k+kr for (_, mm, ee, c, k, kr) in raw if mm=="NeoBerlin" and ee==ev_long] or [0])
+    chk(f"NBM!C{r}", lb_best, b, f"{key} Best mirrors the Leaderboard")
+chk("NBM!D14", max(elig)[1], N.cell(14,4).value, "recommendation = highest eligible EV")
+chk("NBM!F13", "OK - all 7 rows sum to 8", N.cell(13,6).value, "invariant check line")
+
 # ---- report ----
 bad = [c for c in checks if not c[3]]
 print(f"file    : {F}")
