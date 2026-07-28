@@ -174,7 +174,11 @@ async function coinbaseDaily(coinId){
 }
 
 async function testAstroClaim(coin){
-  coin = String(coin||"bitcoin").toLowerCase();
+  // No silent default. An independent Mind testing this server found that falling back to
+  // bitcoin returned a confident report about an asset the caller never asked for.
+  if(coin===undefined || coin===null || typeof coin!=="string" || !coin.trim())
+    throw new Error('argument "coin" is required (e.g. bitcoin, ethereum, solana, cardano) — this tool will not guess which asset you meant');
+  coin = coin.trim().toLowerCase();
   const kl = await coinbaseDaily(coin);
   const byDay = {};
   for(const k of kl) byDay[new Date(k[0]*1000).toISOString().slice(0,10)] = Number(k[4]);
@@ -380,6 +384,7 @@ curl -s -X POST ${origin}/mcp -H 'content-type: application/json' \\
 | sign_coin_match | sign | which coin suits the sign's energy today |
 | birth_chart | year,month,date,hours,minutes,latitude,longitude,timezone | Western planetary positions via Free Astrology API (real key-gated astrology API) |
 | cosmic_playlist | sign, coin | **third dataset (music)** — real iTunes tracks matched to sign-mood × market direction |
+| test_astro_claim | coin | **falsification tool** — tests "the moon moves the market" on real daily returns with a permutation test that corrects for inspecting 8 lunar phases; returns the cherry-picked headline AND the p-value that kills it. Can and usually does answer "no effect". Refuses to guess the asset if the coin argument is missing. |
 | market_astro_backtest | sign, coin, days | how often the astro-tone matched the coin's REAL daily move (Binance klines) |
 
 ## How the two datasets combine
