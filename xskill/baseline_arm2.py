@@ -60,8 +60,18 @@ if __name__ == "__main__":
     print(f"ARM 2 — explicit anti-zero instruction. asked {len(POOL)}, answered {len(out)}\n")
     print(f"{'model':<42}{'number given':>14}   says UNKNOWN")
     for r in out:
-        m = re.search(r"(\d{1,3}(?:\.\d+)?)\s*%", r["answer"])
-        r["stated_probability_pct"] = float(m.group(1)) if m else None
+        # Take the number the model gives for the PROBABILITY, not any percentage in the text —
+        # a naive first-percent regex grabbed the restated "10.1%" required move. Found by a reviewer.
+        seg = r["answer"]
+        for cut in ("2)", "2.", "**2"):
+            j = seg.find(cut)
+            if j > 40:
+                seg = seg[:j]; break
+        cands = [float(x) for x in re.findall(r"(\d{1,3}(?:\.\d+)?)\s*%", seg)]
+        cands = [c for c in cands if abs(c - 10.1) > 0.5]      # drop the restated required move
+        m = None
+        r["all_pcts_in_answer"] = cands
+        r["stated_probability_pct"] = cands[0] if cands else None
         r["said_unknown"] = "unknown" in r["answer"].lower()
         r["gave_zero"] = bool(re.search(r"\b0\s*%|\b0\.0\b|≈\s*0\b", r["answer"]))
         v = f"{r['stated_probability_pct']:.0f}%" if r["stated_probability_pct"] is not None else "—"
