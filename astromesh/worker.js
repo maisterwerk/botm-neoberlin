@@ -1,4 +1,5 @@
 import { CROSSWORD_B64, CROSSWORD_BUILD } from "./crossword_html.js";
+import { STORMLE_B64, STORMLE_BUILD } from "./stormle_html.js";
 /**
  * AstroMesh — Cosmic Market Compass
  * A Cloudflare Worker that:
@@ -402,6 +403,23 @@ export default {
       return new Response(up.body, { status: up.status,
         headers: { "Content-Type": up.headers.get("Content-Type") || "text/event-stream",
                    "Access-Control-Allow-Origin": "*" } });
+    }
+    // Stormle — same honest-versioning contract as /crossword: `immutable` is only granted
+    // when the ?v= token IS the build's content hash, because only then does the URL name
+    // the bytes it promises never to change.
+    if (url.pathname === "/stormle" || url.pathname.startsWith("/stormle/")) {
+      const html = new TextDecoder().decode(
+        Uint8Array.from(atob(STORMLE_B64), ch => ch.charCodeAt(0)));
+      const ver = url.searchParams.get("v");
+      const pinned = ver === STORMLE_BUILD || ver === "sha256-" + STORMLE_BUILD;
+      return new Response(html, { status: 200, headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": pinned ? "public, max-age=31536000, immutable" : "public, max-age=300",
+        "ETag": '"' + STORMLE_BUILD + '"',
+        "X-Stormle-Build": "sha256-" + STORMLE_BUILD,
+        "Link": '<' + url.origin + '/stormle?v=' + STORMLE_BUILD + '>; rel="canonical"',
+        "Access-Control-Allow-Origin": "*"
+      }});
     }
     // Long-lived, immutable, versioned mirror of the crossword (event requires "very long-lived caching").
     if (url.pathname === "/crossword" || url.pathname.startsWith("/crossword/")) {

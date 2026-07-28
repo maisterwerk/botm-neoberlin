@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<title>Stormle — Wordle with a barometer</title>
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--line:#30363d;--ink:#e6edf3;--dim:#8b949e;
+ --g:#3fb950;--y:#d29922;--b:#3d444d;--acc:#58a6ff;--storm:#a371f7;--bad:#f85149}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:18px 14px 50px}
+header{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px;
+ display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+h1{font-size:24px;margin:0;letter-spacing:-.3px}
+h1 span{color:var(--acc)}
+.tag{font-size:13px;color:var(--dim)}
+.modes{margin-left:auto;display:flex;gap:6px}
+.modes button{background:var(--panel);color:var(--dim);border:1px solid var(--line);
+ border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer}
+.modes button.on{color:#fff;border-color:var(--acc);background:#1f6feb}
+.modes button.on.storm{border-color:var(--storm);background:#6e40c9}
+.layout{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.left{flex:0 0 auto}
+.right{flex:1 1 340px;min-width:300px}
+
+#board{display:grid;grid-template-rows:repeat(6,58px);gap:6px}
+.row{display:grid;grid-template-columns:repeat(5,58px);gap:6px}
+.tile{border:2px solid var(--b);border-radius:5px;display:flex;align-items:center;
+ justify-content:center;font-size:28px;font-weight:800;text-transform:uppercase}
+.tile.filled{border-color:#6e7681}
+.tile.G{background:var(--g);border-color:var(--g);color:#fff}
+.tile.Y{background:var(--y);border-color:var(--y);color:#fff}
+.tile.B{background:var(--b);border-color:var(--b);color:#fff}
+.tile.pop{animation:pop .12s ease}
+@keyframes pop{50%{transform:scale(1.1)}}
+.tile.flip{animation:flip .5s ease}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+
+#kb{margin-top:14px;display:flex;flex-direction:column;gap:6px;align-items:center;width:352px}
+#kb .kr{display:flex;gap:5px}
+#kb button{background:#565f7a;color:#fff;border:0;border-radius:4px;min-width:30px;height:46px;
+ font-size:12.5px;font-weight:800;cursor:pointer;padding:0 7px}
+#kb button.wide{min-width:56px;font-size:11px}
+#kb button.G{background:var(--g)} #kb button.Y{background:var(--y)} #kb button.B{background:#2c3038}
+
+#msg{height:22px;margin-top:10px;font-size:14px;font-weight:700;text-align:center;width:352px}
+#msg.ok{color:var(--g)} #msg.no{color:var(--bad)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card h3{margin:0 0 10px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.baro{display:flex;align-items:flex-end;gap:12px;margin-bottom:10px}
+.baro .big{font-size:34px;font-weight:800;line-height:1}
+.baro .unit{font-size:13px;color:var(--dim);padding-bottom:5px}
+.bar{height:9px;border-radius:5px;background:#21262d;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--storm))}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:right;color:var(--dim);font-weight:600;padding:4px 5px;font-size:11.5px;
+ text-transform:uppercase;letter-spacing:.06em}
+th:first-child{text-align:left}
+td{padding:5px;border-top:1px solid #21262d;text-align:right;font-variant-numeric:tabular-nums}
+td:first-child{text-align:left;font-weight:800;letter-spacing:.06em}
+.good{color:var(--g)} .meh{color:var(--y)} .poor{color:var(--bad)}
+#cands{font-size:13px;color:var(--dim);line-height:1.7;word-spacing:3px}
+#cands b{color:var(--ink);font-weight:700}
+.note{font-size:12.5px;color:var(--dim);line-height:1.55}
+footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);
+ font-size:12px;line-height:1.6}
+@media(max-width:560px){
+ .row{grid-template-columns:repeat(5,15vw)} #board{grid-template-rows:repeat(6,15vw)}
+ .tile{font-size:7vw} #kb,#msg{width:min(352px,96vw)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Storm<span>le</span></h1>
+  <span class="tag">Wordle with a barometer — it measures how much you actually learned.</span>
+  <div class="modes">
+    <button id="mCalm" class="on">Calm</button>
+    <button id="mStorm" class="storm">Storm</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="left">
+    <div id="board"></div>
+    <div id="msg"></div>
+    <div id="kb"></div>
+  </div>
+
+  <div class="right">
+    <div class="card">
+      <h3 id="baroTitle">Barometer — uncertainty remaining</h3>
+      <div class="baro">
+        <div class="big" id="bits">10.60</div><div class="unit">bits &nbsp;·&nbsp; <span id="nc">1552</span> words still possible</div>
+      </div>
+      <div class="bar"><i id="barFill" style="width:100%"></i></div>
+      <div class="note" id="baroNote">A guess is worth what it rules out. Every bit you take halves the field.</div>
+    </div>
+
+    <div class="card">
+      <h3>Your guesses, measured</h3>
+      <table id="tbl"><thead><tr>
+        <th>Guess</th><th>Left</th><th>Bits taken</th><th>Best available</th><th>Which</th>
+      </tr></thead><tbody></tbody></table>
+      <div class="note" style="margin-top:9px" id="effNote"></div>
+    </div>
+
+    <div class="card">
+      <h3>Still possible</h3>
+      <div id="cands">1552 words. Make a guess.</div>
+    </div>
+
+    <div class="card" id="rules">
+      <h3>The two modes</h3>
+      <div class="note">
+        <b style="color:var(--acc)">Calm</b> — an answer is fixed before you start, from the day's date. Ordinary Wordle, with the barometer running.<br><br>
+        <b style="color:var(--storm)">Storm</b> — the host never commits to a word. Each time you guess it replies with whichever pattern keeps the <i>most</i> answers alive, so the field shrinks as slowly as the rules allow. It never lies: every reply it gives is consistent with at least one real word, and it must still be beaten in six. Here the barometer stops being decoration — it is the only way to see how badly you are being stalled.
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Type or use the keys · <b>Enter</b> submits · <b>Backspace</b> deletes. Answer pool: <span id="poolN"></span> common five-letter words, embedded — no network calls, no dependencies.<br>
+  Built by NeoBerlin. Scoring, entropy and the adversarial host are all computed in this file.
+</footer>
+</div>
+
+<script>
+/* ================================================================
+   STORMLE
+   Two ideas, both in the mechanics rather than the paintwork:
+
+   1. THE BAROMETER. Wordle never tells you whether a guess was good.
+      After each guess this reports the information you actually
+      extracted, in bits, against the best any word in the list could
+      have extracted. log2(pool) is the starting uncertainty; a guess
+      that halves the candidate set is worth exactly one bit.
+
+   2. STORM MODE. The host holds no secret word. It answers with the
+      pattern that keeps the largest set of candidates alive, so it
+      stalls you as hard as the rules permit while never lying.
+
+   The scoring function is Wordle's real two-pass rule and is verified
+   against an independent Python implementation over all pool^2 pairs.
+   ================================================================ */
+const WORDS = ["ABIDE","ABOVE","ABUSE","ACTOR","ACUTE","ADAPT","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALTER","AMONG","AMPLE","ANGEL","ANGLE","APART","APPLE","APRIL","AREAS","ARENA","ARGUE","ARISE","ARMED","ARRAY","ARROW","ASIAN","ASIDE","ASSET","ATLAS","ATTIC","AUDIO","AUDIT","AUNTS","AVOID","AWAKE","AWARD","AWARE","BACON","BADGE","BADLY","BAKER","BASIC","BASIN","BASIS","BATCH","BEACH","BEARD","BEAST","BEGAN","BEGIN","BEGUN","BEING","BELLY","BELOW","BENCH","BERRY","BIBLE","BIRDS","BIRTH","BITES","BLADE","BLAME","BLANK","BLAST","BLAZE","BLEND","BLESS","BLIND","BLOCK","BLOOD","BLOOM","BLUES","BLUNT","BOARD","BONUS","BOOST","BOOTH","BOOTS","BORED","BOUND","BRAIN","BRAND","BRAVE","BREAD","BREAK","BRICK","BRIDE","BRIEF","BRING","BROAD","BROWN","BRUSH","BUILD","BUNCH","BURNT","BURST","BUYER","CABIN","CABLE","CANAL","CANDY","CANOE","CARDS","CARGO","CARRY","CARVE","CATCH","CAUSE","CEDAR","CHAIN","CHAIR","CHALK","CHARM","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF","CHILD","CHINA","CHOIR","CHORD","CHOSE","CIDER","CIGAR","CIVIL","CLAIM","CLAMP","CLASH","CLASS","CLEAN","CLEAR","CLERK","CLICK","CLIFF","CLIMB","CLOCK","CLOSE","CLOTH","CLOUD","COACH","COAST","COCOA","COLOR","COMET","COMIC","CORAL","COUCH","COUGH","COULD","COUNT","COVER","CRACK","CRAFT","CRANE","CRASH","CRATE","CRAZY","CREAM","CREEK","CREPT","CRIME","CRISP","CROOK","CROSS","CROWD","CROWN","CRUEL","CRUSH","CUBIC","CURLY","CURRY","CURVE","CYCLE","DAILY","DAIRY","DAISY","DANCE","DATED","DEALT","DEATH","DEBUT","DECAY","DECOR","DELAY","DEPOT","DEPTH","DERBY","DIARY","DIRTY","DITCH","DIVER","DOCKS","DODGE","DOING","DONOR","DOUBT","DOUGH","DOZED","DOZEN","DRAFT","DRAIN","DRAMA","DRANK","DRAWN","DREAD","DREAM","DRESS","DRIED","DRILL","DRINK","DRIVE","DROVE","DRUMS","DUSTY","DUTCH","DWELL","EAGER","EAGLE","EARLY","EARNS","EARTH","EASEL","EATEN","EBONY","EDGES","EIGHT","ELBOW","ELDER","ELECT","ELITE","ELVES","EMBER","EMPTY","ENACT","ENDED","ENEMY","ENJOY","ENTER","ENTRY","EPOCH","EQUAL","EQUIP","ERASE","ERROR","ESSAY","ETHIC","EVENT","EVERY","EXACT","EXCEL","EXILE","EXIST","EXPEL","EXTRA","FABLE","FACED","FADED","FAINT","FAITH","FALSE","FANCY","FATAL","FAULT","FAVOR","FEAST","FENCE","FERRY","FETCH","FEVER","FEWER","FIBER","FIELD","FIERY","FIFTH","FIFTY","FIGHT","FILED","FILES","FILMS","FINAL","FINCH","FINDS","FINER","FIRED","FIRST","FLAKE","FLAME","FLANK","FLASH","FLASK","FLEET","FLING","FLINT","FLIRT","FLOAT","FLOCK","FLOOD","FLOOR","FLOUR","FLUID","FLUTE","FOAMY","FOCAL","FOCUS","FOGGY","FOLKS","FONTS","FORCE","FORGE","FORTH","FORTS","FORTY","FORUM","FOUND","FOUNT","FOXES","FRAME","FRANK","FRAUD","FRESH","FRIED","FROGS","FRONT","FROST","FROWN","FRUIT","FUDGE","FULLY","FUMES","FUNDS","FUNGI","FUNNY","FUSED","GAINS","GAMES","GAUGE","GAUZE","GAZED","GEESE","GENIE","GENRE","GHOST","GIANT","GILLS","GIVEN","GLADE","GLARE","GLASS","GLAZE","GLEAM","GLIDE","GLINT","GLOBE","GLOOM","GLORY","GLOVE","GNOME","GOATS","GOING","GOODS","GOOSE","GORGE","GOURD","GRACE","GRADE","GRAIN","GRAND","GRANT","GRAPE","GRAPH","GRASP","GRASS","GRAVE","GRAVY","GRAZE","GREAT","GREED","GREEN","GREET","GRIEF","GRILL","GRIME","GRIND","GRIPS","GROAN","GROIN","GROOM","GROSS","GROUP","GROVE","GROWN","GRUMP","GUARD","GUESS","GUEST","GUIDE","GUILD","GUILT","GUISE","GULLY","GUSTS","HABIT","HAILS","HAIRY","HALLS","HALVE","HANDY","HAPPY","HARSH","HASTE","HATCH","HAVEN","HAZEL","HEADS","HEAPS","HEARD","HEART","HEATH","HEAVY","HEDGE","HEELS","HEFTY","HEIRS","HELIX","HENCE","HERBS","HILLS","HINGE","HIPPO","HOARD","HOBBY","HOLES","HOLLY","HONEY","HONOR","HOOKS","HORNS","HORSE","HOTEL","HOTLY","HOUND","HOURS","HOUSE","HOVER","HUMAN","HUMID","HUMOR","HURRY","HUSKY","HYENA","ICING","IDEAL","IDEAS","IDIOM","IDLED","IGLOO","IMAGE","IMPLY","INBOX","INCUR","INDEX","INFER","INGOT","INLET","INNER","INPUT","IRATE","IRONS","ISSUE","IVORY","JEANS","JELLY","JEWEL","JOINS","JOINT","JOKES","JOLLY","JOUST","JUDGE","JUICE","JUMBO","KAYAK","KEEPS","KHAKI","KIOSK","KNACK","KNEAD","KNEEL","KNELT","KNIFE","KNOCK","KNOTS","KNOWN","LABEL","LACED","LADEN","LAKES","LAMPS","LANDS","LANES","LAPSE","LARGE","LARVA","LASER","LASTS","LATCH","LATER","LATHE","LAUGH","LAWNS","LAYER","LEAFY","LEAKS","LEAPS","LEARN","LEASE","LEASH","LEAST","LEAVE","LEDGE","LEGAL","LEGGY","LEMON","LENDS","LENSE","LEVEE","LEVEL","LEVER","LIBEL","LIGHT","LILAC","LIMBS","LIMES","LIMIT","LINEN","LINER","LINKS","LIONS","LISTS","LIVED","LIVER","LIVES","LOAFS","LOANS","LOBBY","LOCAL","LOCKS","LODGE","LOFTY","LOGIC","LOOMS","LOOPS","LOOSE","LORDS","LOTUS","LOUSE","LOVED","LOWER","LOWLY","LOYAL","LUCID","LUCKY","LUMPY","LUNAR","LUNCH","LUNGS","LURCH","LYING","LYRIC","MACRO","MAGIC","MAIZE","MAJOR","MAKER","MAKES","MALLS","MANGO","MANOR","MAPLE","MARCH","MARSH","MASKS","MASON","MATCH","MATES","MAUVE","MAYBE","MAYOR","MEANS","MEANT","MEDAL","MEDIA","MELON","MERCY","MERGE","MERIT","MERRY","MESSY","METAL","METER","MIDST","MIGHT","MILES","MILKY","MIMIC","MINDS","MINER","MINOR","MINTS","MINUS","MIRTH","MISTS","MIXED","MOATS","MOCHA","MODEL","MODES","MOIST","MOLAR","MOLDS","MONEY","MONKS","MONTH","MOODS","MOONS","MOOSE","MOPED","MORAL","MOSSY","MOTEL","MOTHS","MOTOR","MOULD","MOUND","MOUNT","MOURN","MOUSE","MOUTH","MOVES","MOVIE","MOWER","MUDDY","MULCH","MUMMY","MURAL","MURKY","MUSHY","MUSIC","MYRRH","NAILS","NAKED","NAMES","NAPPY","NASAL","NASTY","NAVAL","NEEDS","NEEDY","NERVE","NERVY","NESTS","NEVER","NEWER","NEWLY","NICHE","NIECE","NIGHT","NINTH","NOBLE","NODES","NOISE","NOISY","NOMAD","NOOKS","NORMS","NORTH","NOTCH","NOTED","NOTES","NOUNS","NOVEL","NUDGE","NURSE","NUTTY","OASIS","OATHS","OBESE","OCCUR","OCEAN","OCHRE","ODORS","OFFER","OFTEN","OLDEN","OLIVE","OMEGA","OMITS","ONION","OPENS","OPERA","OPTED","ORBIT","ORDER","ORGAN","OTHER","OTTER","OUGHT","OUNCE","OUTER","OVALS","OVENS","OWING","OWNER","OXIDE","OZONE","PACES","PACKS","PADDY","PAGES","PAINS","PAINT","PALES","PALMS","PANEL","PANIC","PANTS","PAPER","PARKS","PARTY","PASTA","PASTE","PATCH","PATHS","PATIO","PAUSE","PAVED","PEACE","PEACH","PEARL","PEDAL","PEERS","PENNY","PERCH","PERIL","PESTS","PETAL","PETTY","PHASE","PHONE","PHOTO","PIANO","PICKS","PIECE","PIERS","PILES","PILOT","PINCH","PINES","PIPES","PITCH","PIVOT","PIXEL","PIZZA","PLACE","PLAID","PLAIN","PLAIT","PLANE","PLANK","PLANS","PLANT","PLATE","PLAZA","PLEAD","PLEAT","PLIER","PLUMB","PLUME","PLUMP","PLUSH","POACH","PODIA","POEMS","POETS","POINT","POKER","POLAR","POLES","POLLS","PONDS","POOLS","PORCH","PORES","PORTS","POSED","POSTS","POUCH","POUND","POWER","PRANK","PRAWN","PRAYS","PRESS","PRICE","PRIED","PRIME","PRINT","PRIOR","PRISM","PRIZE","PROBE","PRONE","PRONG","PROOF","PROPS","PROSE","PROUD","PROVE","PRUNE","PULSE","PUNCH","PUPIL","PUPPY","PUREE","PURGE","PURSE","QUACK","QUAIL","QUAKE","QUART","QUEEN","QUEST","QUEUE","QUICK","QUIET","QUILT","QUIRK","QUITE","QUOTA","QUOTE","RACED","RACES","RADAR","RADIO","RAFTS","RAGED","RAILS","RAINY","RAISE","RAKES","RALLY","RANCH","RANGE","RANKS","RAPID","RATIO","RAVEN","RAYON","REACH","REACT","READY","REALM","REAPS","REBEL","RECAP","REEDS","REEFS","REFER","REFIT","REIGN","REINS","RELAX","RELAY","REMIT","RENEW","RENTS","REPAY","REPLY","RESIN","RESTS","RIDER","RIDGE","RIFLE","RIGHT","RIGID","RINGS","RINSE","RIOTS","RIPEN","RISEN","RISKY","RIVAL","RIVER","ROADS","ROAST","ROBES","ROBIN","ROBOT","ROCKS","ROCKY","RODEO","ROLES","ROLLS","ROMAN","ROOFS","ROOMS","ROOST","ROOTS","ROPES","ROSES","ROTOR","ROUGE","ROUGH","ROUND","ROUSE","ROUTE","ROWDY","ROYAL","RUINS","RULED","RULER","RUMOR","RUNGS","RUNNY","RURAL","RUSTY","SABLE","SADLY","SAFER","SAILS","SAINT","SALAD","SALES","SALON","SALTY","SANDS","SANDY","SAUCE","SAUNA","SAVED","SAVOR","SCALE","SCALP","SCANS","SCARF","SCARY","SCENE","SCENT","SCOLD","SCOOP","SCOPE","SCORE","SCOUT","SCRAP","SCREW","SCRUB","SEALS","SEAMS","SEATS","SEEDS","SEEKS","SEEMS","SEIZE","SENSE","SERUM","SERVE","SETUP","SEVEN","SEWER","SHACK","SHADE","SHAFT","SHAKE","SHALE","SHALL","SHAME","SHANK","SHAPE","SHARD","SHARE","SHARK","SHARP","SHAVE","SHAWL","SHEAR","SHEDS","SHEEP","SHEER","SHEET","SHELF","SHELL","SHIFT","SHINE","SHINY","SHIPS","SHIRT","SHOAL","SHOCK","SHOES","SHONE","SHOOK","SHOOT","SHOPS","SHORE","SHORT","SHOTS","SHOUT","SHOVE","SHOWN","SHOWS","SHRUB","SHRUG","SHUNT","SIDES","SIEGE","SIGHS","SIGHT","SIGNS","SILKY","SILLY","SILOS","SINCE","SINEW","SINGE","SIREN","SITES","SIXTH","SIXTY","SIZED","SIZES","SKATE","SKIES","SKIFF","SKILL","SKIRT","SKULL","SKUNK","SLABS","SLACK","SLAIN","SLANG","SLANT","SLASH","SLATE","SLAVE","SLEDS","SLEEK","SLEEP","SLEET","SLICE","SLICK","SLIDE","SLIME","SLING","SLOPE","SLOTH","SLOTS","SLUMP","SMACK","SMALL","SMART","SMASH","SMEAR","SMELL","SMILE","SMIRK","SMOKE","SMOKY","SNACK","SNAIL","SNAKE","SNAPS","SNARE","SNARL","SNEAK","SNIFF","SNIPE","SNORE","SNOUT","SNOWY","SOAPY","SOBER","SOCKS","SOGGY","SOILS","SOLAR","SOLES","SOLID","SOLVE","SONGS","SONIC","SORRY","SORTS","SOUND","SOUPS","SOURS","SOUTH","SOWED","SPACE","SPADE","SPANS","SPARE","SPARK","SPASM","SPEAK","SPEAR","SPECK","SPEED","SPELL","SPEND","SPENT","SPICE","SPICY","SPIED","SPIES","SPIKE","SPILL","SPINE","SPIRE","SPITE","SPLIT","SPOIL","SPOKE","SPOOL","SPOON","SPORE","SPORT","SPOTS","SPOUT","SPRAY","SPUNK","SPURN","SQUAD","SQUAT","STACK","STAFF","STAGE","STAID","STAIN","STAIR","STAKE","STALE","STALK","STALL","STAMP","STAND","STARE","STARK","STARS","START","STASH","STATE","STAVE","STAYS","STEAD","STEAK","STEAL","STEAM","STEED","STEEL","STEEP","STEER","STEMS","STEPS","STERN","STICK","STIFF","STILL","STILT","STING","STINK","STINT","STIRS","STOCK","STOIC","STOKE","STOLE","STOMP","STONE","STOOD","STOOL","STOOP","STOPS","STORE","STORK","STORM","STORY","STOUT","STOVE","STRAP","STRAW","STRAY","STRIP","STRUT","STUCK","STUDS","STUDY","STUFF","STUMP","STUNG","STUNT","STYLE","SUEDE","SUGAR","SUITE","SUITS","SULKY","SUNNY","SUPER","SURGE","SWAMP","SWANS","SWARM","SWATH","SWEAR","SWEAT","SWEEP","SWEET","SWELL","SWEPT","SWIFT","SWINE","SWING","SWIPE","SWIRL","SWISS","SWORD","SWORE","SWORN","SYRUP","TABLE","TABOO","TACIT","TACKS","TAILS","TAKEN","TAKES","TALES","TALKS","TALLY","TAMED","TANGO","TANKS","TAPER","TAPES","TARDY","TARTS","TASKS","TASTE","TAUNT","TAWNY","TAXES","TEACH","TEAMS","TEARS","TEASE","TEETH","TEMPO","TEMPT","TENDS","TENOR","TENSE","TENTH","TENTS","TERMS","TERRY","TESTS","TEXAS","TEXTS","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK","THIEF","THIGH","THINE","THING","THINK","THIRD","THORN","THOSE","THREE","THREW","THROB","THROW","THUMB","THUMP","TIARA","TIDAL","TIDES","TIGER","TIGHT","TILES","TIMER","TIMES","TIMID","TINGE","TIRED","TITLE","TOADS","TOAST","TODAY","TOKEN","TOMBS","TONES","TONGS","TOOLS","TOOTH","TOPIC","TORCH","TOTAL","TOTEM","TOUCH","TOUGH","TOURS","TOWEL","TOWER","TOWNS","TOXIC","TRACE","TRACK","TRACT","TRADE","TRAIL","TRAIN","TRAIT","TRAMP","TRAPS","TRASH","TRAWL","TREAD","TREAT","TREES","TREND","TRIAL","TRIBE","TRICK","TRIED","TRIES","TRIMS","TRIPS","TROLL","TROOP","TROUT","TRUCE","TRUCK","TRULY","TRUMP","TRUNK","TRUST","TRUTH","TUBES","TULIP","TUMOR","TUNED","TUNES","TUNIC","TURBO","TURFS","TWEAK","TWEED","TWICE","TWIGS","TWINE","TWINS","TWIST","TYPES","ULCER","UNCLE","UNDER","UNDID","UNDUE","UNFIT","UNION","UNITE","UNITS","UNITY","UNTIE","UNTIL","UPPER","UPSET","URBAN","URGED","URINE","USAGE","USHER","USING","USUAL","UTTER","VAGUE","VALID","VALUE","VALVE","VAPOR","VAULT","VEINS","VENOM","VENTS","VENUE","VERBS","VERGE","VERSE","VESTS","VIALS","VICAR","VIDEO","VIEWS","VIGIL","VILLA","VINES","VINYL","VIOLA","VIPER","VIRUS","VISIT","VISOR","VISTA","VITAL","VIVID","VOCAL","VODKA","VOGUE","VOICE","VOILE","VOTED","VOTER","VOTES","VOWEL","WAGER","WAGES","WAGON","WAIST","WAITS","WAIVE","WAKEN","WALLS","WALTZ","WANDS","WANED","WANTS","WARDS","WARES","WARMS","WARNS","WARTS","WASTE","WATCH","WATER","WAVED","WAVES","WAXES","WEARY","WEAVE","WEDGE","WEEDS","WEEKS","WEEPS","WEIGH","WEIRD","WELDS","WELLS","WHALE","WHARF","WHEAT","WHEEL","WHELP","WHERE","WHICH","WHIFF","WHILE","WHINE","WHIRL","WHISK","WHITE","WHOLE","WHOSE","WIDEN","WIDER","WIDOW","WIDTH","WIELD","WILDS","WILLS","WINCE","WINDS","WINDY","WINES","WINGS","WIPED","WIPES","WIRED","WIRES","WISER","WISPS","WITCH","WITTY","WIVES","WOKEN","WOMAN","WOMEN","WOODS","WOODY","WOOLY","WORDS","WORKS","WORLD","WORMS","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WOVEN","WRACK","WRATH","WREAK","WRECK","WRIST","WRITE","WRONG","WROTE","YACHT","YARDS","YARNS","YEARN","YEARS","YEAST","YIELD","YOKED","YOUNG","YOURS","YOUTH","ZEBRA","ZESTY","ZONES"];
+const N = WORDS.length;
+const SET = new Set(WORDS);
+const LOG2 = Math.log2;
+
+/* --- Wordle's scoring rule: greens claimed first, then yellows draw
+       from what is left, so a repeated letter cannot over-claim. --- */
+function score(guess, answer){
+  const res = ["B","B","B","B","B"];
+  const pool = {};
+  for(let i=0;i<5;i++){
+    if(guess[i]===answer[i]) res[i]="G";
+    else pool[answer[i]] = (pool[answer[i]]||0)+1;
+  }
+  for(let i=0;i<5;i++){
+    if(guess[i]!==answer[i] && pool[guess[i]]>0){ res[i]="Y"; pool[guess[i]]--; }
+  }
+  return res.join("");
+}
+
+function filterCands(cands, guess, pat){
+  const out=[]; for(const w of cands) if(score(guess,w)===pat) out.push(w); return out;
+}
+
+/* expected information of a guess against the live candidate set */
+function entropy(guess, cands){
+  const b = new Map();
+  for(const a of cands){ const p=score(guess,a); b.set(p,(b.get(p)||0)+1); }
+  const n=cands.length; let h=0;
+  for(const c of b.values()){ const p=c/n; h -= p*LOG2(p); }
+  return h;
+}
+
+/* The first move is the same for everyone, so it is precomputed rather
+   than costing 1552x1552 score() calls in the browser. Verified in the
+   write-up against the reference implementation. */
+const OPENER = {word:"TEARS", bits:6.2589};
+
+function bestGuess(cands){
+  if(cands.length===N) return OPENER;
+  let bw=null, bh=-1;
+  for(const g of WORDS){
+    const h=entropy(g,cands);
+    if(h>bh+1e-12){ bh=h; bw=g; }
+  }
+  return {word:bw, bits:bh};
+}
+
+/* Storm mode. Deterministic and auditable: most survivors wins; ties go
+   to the pattern with fewest greens, then lexicographic order. */
+function adversarialReply(guess, cands){
+  const b = new Map();
+  for(const a of cands){ const p=score(guess,a); if(!b.has(p)) b.set(p,[]); b.get(p).push(a); }
+  let best=null;
+  for(const [pat,ws] of b){
+    if(best===null) { best=[pat,ws]; continue; }
+    const [bp,bws]=best;
+    const greens = s => (s.match(/G/g)||[]).length;
+    if(ws.length>bws.length) best=[pat,ws];
+    else if(ws.length===bws.length){
+      if(greens(pat)<greens(bp)) best=[pat,ws];
+      else if(greens(pat)===greens(bp) && pat<bp) best=[pat,ws];
+    }
+  }
+  return {pattern:best[0], survivors:best[1]};
+}
+
+/* --- daily answer, from the UTC date: same word for everyone, no server --- */
+function dailyIndex(){
+  const d = new Date();
+  const days = Math.floor(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())/86400000);
+  let h = 2166136261 >>> 0;
+  const s = String(days);
+  for(const ch of s){ h ^= ch.charCodeAt(0); h = Math.imul(h,16777619) >>> 0; }
+  return h % N;
+}
+
+/* ---------------- state ---------------- */
+let mode="calm", answer="", cands=WORDS.slice(), rows=[], cur="", over=false, history=[];
+
+function reset(m){
+  mode=m; cands=WORDS.slice(); rows=[]; cur=""; over=false; history=[];
+  answer = (m==="calm") ? WORDS[dailyIndex()] : "";
+  document.getElementById("mCalm").classList.toggle("on", m==="calm");
+  document.getElementById("mStorm").classList.toggle("on", m==="storm");
+  document.getElementById("baroTitle").textContent =
+    m==="calm" ? "Barometer — uncertainty remaining" : "Barometer — how hard you are being stalled";
+  buildBoard(); buildKb(); render(); setMsg("");
+}
+
+function buildBoard(){
+  const b=document.getElementById("board"); b.innerHTML="";
+  for(let r=0;r<6;r++){
+    const row=document.createElement("div"); row.className="row"; row.dataset.r=r;
+    for(let c=0;c<5;c++){
+      const t=document.createElement("div"); t.className="tile"; t.dataset.r=r; t.dataset.c=c;
+      row.appendChild(t);
+    }
+    b.appendChild(row);
+  }
+}
+const KB=["QWERTYUIOP","ASDFGHJKL","↵ZXCVBNM⌫"];
+function buildKb(){
+  const k=document.getElementById("kb"); k.innerHTML="";
+  for(const r of KB){
+    const d=document.createElement("div"); d.className="kr";
+    for(const ch of r){
+      const btn=document.createElement("button");
+      btn.textContent = ch==="↵" ? "ENTER" : ch==="⌫" ? "DEL" : ch;
+      if(ch==="↵"||ch==="⌫") btn.className="wide";
+      btn.dataset.k = ch==="↵" ? "Enter" : ch==="⌫" ? "Backspace" : ch;
+      btn.addEventListener("click",()=>press(btn.dataset.k));
+      d.appendChild(btn);
+    }
+    k.appendChild(d);
+  }
+}
+function setMsg(t,cls){ const m=document.getElementById("msg"); m.textContent=t; m.className=cls||""; }
+
+function render(){
+  for(let r=0;r<6;r++) for(let c=0;c<5;c++){
+    const t=document.querySelector(`.tile[data-r="${r}"][data-c="${c}"]`);
+    t.className="tile";
+    if(r<rows.length){ t.textContent=rows[r].g[c]; t.classList.add(rows[r].p[c]); }
+    else if(r===rows.length){ t.textContent=cur[c]||""; if(cur[c]) t.classList.add("filled"); }
+    else t.textContent="";
+  }
+  // keyboard colouring: best known state per letter
+  const rank={B:0,Y:1,G:2}; const st={};
+  for(const row of rows) for(let i=0;i<5;i++){
+    const ch=row.g[i], s=row.p[i];
+    if(st[ch]===undefined || rank[s]>rank[st[ch]]) st[ch]=s;
+  }
+  document.querySelectorAll("#kb button").forEach(b=>{
+    const k=b.dataset.k; b.className = b.classList.contains("wide")?"wide":"";
+    if(st[k]) b.classList.add(st[k]);
+  });
+  // barometer
+  const bits = cands.length>0 ? LOG2(cands.length) : 0;
+  document.getElementById("bits").textContent = bits.toFixed(2);
+  document.getElementById("nc").textContent = cands.length;
+  document.getElementById("barFill").style.width = (100*bits/LOG2(N)).toFixed(1)+"%";
+  // table
+  const tb=document.querySelector("#tbl tbody"); tb.innerHTML="";
+  for(const h of history){
+    const tr=document.createElement("tr");
+    const eff = h.best>0 ? h.got/h.best : 1;
+    const cls = eff>=0.9?"good":eff>=0.6?"meh":"poor";
+    tr.innerHTML = `<td>${h.guess}</td><td>${h.left}</td>`+
+      `<td class="${cls}">${h.got.toFixed(2)}</td><td>${h.best.toFixed(2)}</td><td>${h.bestWord}</td>`;
+    tb.appendChild(tr);
+  }
+  const note=document.getElementById("effNote");
+  if(history.length){
+    const tot=history.reduce((s,h)=>s+h.got,0), pos=history.reduce((s,h)=>s+h.best,0);
+    note.innerHTML = `You have taken <b>${tot.toFixed(2)}</b> bits of the <b>${LOG2(N).toFixed(2)}</b> on the table; `+
+      `perfect play to this point was worth <b>${pos.toFixed(2)}</b>.`;
+  } else note.textContent="";
+  // candidates
+  const cd=document.getElementById("cands");
+  if(cands.length===N) cd.textContent = `${N} words. Make a guess.`;
+  else if(cands.length<=40) cd.innerHTML = cands.map(w=>"<b>"+w+"</b>").join(" ");
+  else cd.textContent = `${cands.length} words still fit — too many to list.`;
+  document.getElementById("poolN").textContent = N;
+}
+
+function press(k){
+  if(over) return;
+  if(k==="Enter") return submit();
+  if(k==="Backspace"){ cur=cur.slice(0,-1); setMsg(""); return render(); }
+  if(/^[A-Za-z]$/.test(k) && cur.length<5){ cur+=k.toUpperCase(); setMsg(""); render(); }
+}
+
+function submit(){
+  if(cur.length<5) return setMsg("Five letters.","no");
+  if(!SET.has(cur)) return setMsg(cur+" is not in the word list.","no");
+  const before = cands.length;
+  const bestNow = bestGuess(cands);
+  let pat;
+  if(mode==="calm"){ pat = score(cur,answer); cands = filterCands(cands,cur,pat); }
+  else { const r = adversarialReply(cur,cands); pat = r.pattern; cands = r.survivors; }
+  const got = LOG2(before) - LOG2(Math.max(1,cands.length));
+  history.push({guess:cur, left:cands.length, got, best:bestNow.bits, bestWord:bestNow.word});
+  rows.push({g:cur,p:pat});
+  const won = pat==="GGGGG";
+  cur=""; render();
+  document.querySelectorAll(`.tile[data-r="${rows.length-1}"]`).forEach((t,i)=>{
+    setTimeout(()=>{ t.classList.add("flip"); setTimeout(()=>t.classList.remove("flip"),500); }, i*90);
+  });
+  if(won){
+    over=true;
+    setMsg(`Solved in ${rows.length}. ${history.reduce((s,h)=>s+h.got,0).toFixed(2)} bits taken.`,"ok");
+  } else if(rows.length===6){
+    over=true;
+    if(mode==="storm"){
+      answer = cands[0];
+      setMsg(`Out of guesses — the storm held ${cands.length} word(s). It settles on ${answer}.`,"no");
+    } else setMsg(`Out of guesses. The word was ${answer}.`,"no");
+  }
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key==="Enter"||e.key==="Backspace"){ e.preventDefault(); press(e.key); }
+  else if(/^[a-zA-Z]$/.test(e.key)) press(e.key);
+});
+document.getElementById("mCalm").addEventListener("click",()=>reset("calm"));
+document.getElementById("mStorm").addEventListener("click",()=>reset("storm"));
+
+/* ---- hooks for automated verification ---- */
+window.__score = score;
+window.__entropy = entropy;
+window.__adversarial = adversarialReply;
+window.__words = WORDS;
+window.__state = ()=>({mode, answer, left:cands.length, rows:rows.map(r=>r.g+":"+r.p),
+                       history, over, msg:document.getElementById("msg").textContent});
+window.__play = (word)=>{ cur=word.toUpperCase(); submit(); return window.__state(); };
+window.__reset = reset;
+window.__crosscheckHash = null;   // filled by the test harness
+
+reset("calm");
+</script>
+</body>
+</html>

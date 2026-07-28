@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<title>Stormle — Wordle with a barometer</title>
+<style>
+:root{--bg:#0e1116;--panel:#161b22;--line:#30363d;--ink:#e6edf3;--dim:#8b949e;
+ --g:#3fb950;--y:#d29922;--b:#3d444d;--acc:#58a6ff;--storm:#a371f7;--bad:#f85149}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:18px 14px 50px}
+header{border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px;
+ display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+h1{font-size:24px;margin:0;letter-spacing:-.3px}
+h1 span{color:var(--acc)}
+.tag{font-size:13px;color:var(--dim)}
+.modes{margin-left:auto;display:flex;gap:6px}
+.modes button{background:var(--panel);color:var(--dim);border:1px solid var(--line);
+ border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;cursor:pointer}
+.modes button.on{color:#fff;border-color:var(--acc);background:#1f6feb}
+.modes button.on.storm{border-color:var(--storm);background:#6e40c9}
+.layout{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+.left{flex:0 0 auto}
+.right{flex:1 1 340px;min-width:300px}
+
+#board{display:grid;grid-template-rows:repeat(6,58px);gap:6px}
+.row{display:grid;grid-template-columns:repeat(5,58px);gap:6px}
+.tile{border:2px solid var(--b);border-radius:5px;display:flex;align-items:center;
+ justify-content:center;font-size:28px;font-weight:800;text-transform:uppercase}
+.tile.filled{border-color:#6e7681}
+.tile.G{background:var(--g);border-color:var(--g);color:#fff}
+.tile.Y{background:var(--y);border-color:var(--y);color:#fff}
+.tile.B{background:var(--b);border-color:var(--b);color:#fff}
+.tile.pop{animation:pop .12s ease}
+@keyframes pop{50%{transform:scale(1.1)}}
+.tile.flip{animation:flip .5s ease}
+@keyframes flip{0%{transform:rotateX(0)}50%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}
+
+#kb{margin-top:14px;display:flex;flex-direction:column;gap:6px;align-items:center;width:352px}
+#kb .kr{display:flex;gap:5px}
+#kb button{background:#565f7a;color:#fff;border:0;border-radius:4px;min-width:30px;height:46px;
+ font-size:12.5px;font-weight:800;cursor:pointer;padding:0 7px}
+#kb button.wide{min-width:56px;font-size:11px}
+#kb button.G{background:var(--g)} #kb button.Y{background:var(--y)} #kb button.B{background:#2c3038}
+
+#msg{height:22px;margin-top:10px;font-size:14px;font-weight:700;text-align:center;width:352px}
+#msg.ok{color:var(--g)} #msg.no{color:var(--bad)}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card h3{margin:0 0 10px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.baro{display:flex;align-items:flex-end;gap:12px;margin-bottom:10px}
+.baro .big{font-size:34px;font-weight:800;line-height:1}
+.baro .unit{font-size:13px;color:var(--dim);padding-bottom:5px}
+.bar{height:9px;border-radius:5px;background:#21262d;overflow:hidden;margin:8px 0 4px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--storm))}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:right;color:var(--dim);font-weight:600;padding:4px 5px;font-size:11.5px;
+ text-transform:uppercase;letter-spacing:.06em}
+th:first-child{text-align:left}
+td{padding:5px;border-top:1px solid #21262d;text-align:right;font-variant-numeric:tabular-nums}
+td:first-child{text-align:left;font-weight:800;letter-spacing:.06em}
+.good{color:var(--g)} .meh{color:var(--y)} .poor{color:var(--bad)}
+#cands{font-size:13px;color:var(--dim);line-height:1.7;word-spacing:3px}
+#cands b{color:var(--ink);font-weight:700}
+.note{font-size:12.5px;color:var(--dim);line-height:1.55}
+footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:var(--dim);
+ font-size:12px;line-height:1.6}
+@media(max-width:560px){
+ .row{grid-template-columns:repeat(5,15vw)} #board{grid-template-rows:repeat(6,15vw)}
+ .tile{font-size:7vw} #kb,#msg{width:min(352px,96vw)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Storm<span>le</span></h1>
+  <span class="tag">Wordle with a barometer — it measures how much you actually learned.</span>
+  <div class="modes">
+    <button id="mCalm" class="on">Calm</button>
+    <button id="mStorm" class="storm">Storm</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="left">
+    <div id="board"></div>
+    <div id="msg"></div>
+    <div id="kb"></div>
+  </div>
+
+  <div class="right">
+    <div class="card">
+      <h3 id="baroTitle">Barometer — uncertainty remaining</h3>
+      <div class="baro">
+        <div class="big" id="bits">10.60</div><div class="unit">bits &nbsp;·&nbsp; <span id="nc">1552</span> words still possible</div>
+      </div>
+      <div class="bar"><i id="barFill" style="width:100%"></i></div>
+      <div class="note" id="baroNote">A guess is worth what it rules out. Every bit you take halves the field.</div>
+    </div>
+
+    <div class="card">
+      <h3>Your guesses, measured</h3>
+      <table id="tbl"><thead><tr>
+        <th>Guess</th><th>Left</th><th>Bits taken</th><th>Best available</th><th>Which</th>
+      </tr></thead><tbody></tbody></table>
+      <div class="note" style="margin-top:9px" id="effNote"></div>
+    </div>
+
+    <div class="card">
+      <h3>Still possible</h3>
+      <div id="cands">1552 words. Make a guess.</div>
+    </div>
+
+    <div class="card" id="rules">
+      <h3>The two modes</h3>
+      <div class="note">
+        <b style="color:var(--acc)">Calm</b> — an answer is fixed before you start, from the day's date. Ordinary Wordle, with the barometer running.<br><br>
+        <b style="color:var(--storm)">Storm</b> — the host never commits to a word. Each time you guess it replies with whichever pattern keeps the <i>most</i> answers alive, so the field shrinks as slowly as the rules allow. It never lies: every reply it gives is consistent with at least one real word, and it must still be beaten in six. Here the barometer stops being decoration — it is the only way to see how badly you are being stalled.
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Type or use the keys · <b>Enter</b> submits · <b>Backspace</b> deletes. Answer pool: <span id="poolN"></span> common five-letter words, embedded — no network calls, no dependencies.<br>
+  Built by NeoBerlin. Scoring, entropy and the adversarial host are all computed in this file.
+</footer>
+</div>
+
+<script>
+/* ================================================================
+   STORMLE
+   Two ideas, both in the mechanics rather than the paintwork:
+
+   1. THE BAROMETER. Wordle never tells you whether a guess was good.
+      After each guess this reports the information you actually
+      extracted, in bits, against the best any word in the list could
+      have extracted. log2(pool) is the starting uncertainty; a guess
+      that halves the candidate set is worth exactly one bit.
+
+   2. STORM MODE. The host holds no secret word. It answers with the
+      pattern that keeps the largest set of candidates alive, so it
+      stalls you as hard as the rules permit while never lying.
+
+   The scoring function is Wordle's real two-pass rule and is verified
+   against an independent Python implementation over all pool^2 pairs.
+   ================================================================ */
+const WORDS = [__WORDS__];
+const N = WORDS.length;
+const SET = new Set(WORDS);
+const LOG2 = Math.log2;
+
+/* --- Wordle's scoring rule: greens claimed first, then yellows draw
+       from what is left, so a repeated letter cannot over-claim. --- */
+function score(guess, answer){
+  const res = ["B","B","B","B","B"];
+  const pool = {};
+  for(let i=0;i<5;i++){
+    if(guess[i]===answer[i]) res[i]="G";
+    else pool[answer[i]] = (pool[answer[i]]||0)+1;
+  }
+  for(let i=0;i<5;i++){
+    if(guess[i]!==answer[i] && pool[guess[i]]>0){ res[i]="Y"; pool[guess[i]]--; }
+  }
+  return res.join("");
+}
+
+function filterCands(cands, guess, pat){
+  const out=[]; for(const w of cands) if(score(guess,w)===pat) out.push(w); return out;
+}
+
+/* expected information of a guess against the live candidate set */
+function entropy(guess, cands){
+  const b = new Map();
+  for(const a of cands){ const p=score(guess,a); b.set(p,(b.get(p)||0)+1); }
+  const n=cands.length; let h=0;
+  for(const c of b.values()){ const p=c/n; h -= p*LOG2(p); }
+  return h;
+}
+
+/* The first move is the same for everyone, so it is precomputed rather
+   than costing 1552x1552 score() calls in the browser. Verified in the
+   write-up against the reference implementation. */
+const OPENER = {word:"__OPENER__", bits:__OPENERBITS__};
+
+function bestGuess(cands){
+  if(cands.length===N) return OPENER;
+  let bw=null, bh=-1;
+  for(const g of WORDS){
+    const h=entropy(g,cands);
+    if(h>bh+1e-12){ bh=h; bw=g; }
+  }
+  return {word:bw, bits:bh};
+}
+
+/* Storm mode. Deterministic and auditable: most survivors wins; ties go
+   to the pattern with fewest greens, then lexicographic order. */
+function adversarialReply(guess, cands){
+  const b = new Map();
+  for(const a of cands){ const p=score(guess,a); (b.get(p) || b.set(p,[]).get(p)).push(a); }
+  let best=null;
+  for(const [pat,ws] of b){
+    if(best===null) { best=[pat,ws]; continue; }
+    const [bp,bws]=best;
+    const greens = s => (s.match(/G/g)||[]).length;
+    if(ws.length>bws.length) best=[pat,ws];
+    else if(ws.length===bws.length){
+      if(greens(pat)<greens(bp)) best=[pat,ws];
+      else if(greens(pat)===greens(bp) && pat<bp) best=[pat,ws];
+    }
+  }
+  return {pattern:best[0], survivors:best[1]};
+}
+
+/* --- daily answer, from the UTC date: same word for everyone, no server --- */
+function dailyIndex(){
+  const d = new Date();
+  const days = Math.floor(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())/86400000);
+  let h = 2166136261 >>> 0;
+  const s = String(days);
+  for(const ch of s){ h ^= ch.charCodeAt(0); h = Math.imul(h,16777619) >>> 0; }
+  return h % N;
+}
+
+/* ---------------- state ---------------- */
+let mode="calm", answer="", cands=WORDS.slice(), rows=[], cur="", over=false, history=[];
+
+function reset(m){
+  mode=m; cands=WORDS.slice(); rows=[]; cur=""; over=false; history=[];
+  answer = (m==="calm") ? WORDS[dailyIndex()] : "";
+  document.getElementById("mCalm").classList.toggle("on", m==="calm");
+  document.getElementById("mStorm").classList.toggle("on", m==="storm");
+  document.getElementById("baroTitle").textContent =
+    m==="calm" ? "Barometer — uncertainty remaining" : "Barometer — how hard you are being stalled";
+  buildBoard(); buildKb(); render(); setMsg("");
+}
+
+function buildBoard(){
+  const b=document.getElementById("board"); b.innerHTML="";
+  for(let r=0;r<6;r++){
+    const row=document.createElement("div"); row.className="row"; row.dataset.r=r;
+    for(let c=0;c<5;c++){
+      const t=document.createElement("div"); t.className="tile"; t.dataset.r=r; t.dataset.c=c;
+      row.appendChild(t);
+    }
+    b.appendChild(row);
+  }
+}
+const KB=["QWERTYUIOP","ASDFGHJKL","↵ZXCVBNM⌫"];
+function buildKb(){
+  const k=document.getElementById("kb"); k.innerHTML="";
+  for(const r of KB){
+    const d=document.createElement("div"); d.className="kr";
+    for(const ch of r){
+      const btn=document.createElement("button");
+      btn.textContent = ch==="↵" ? "ENTER" : ch==="⌫" ? "DEL" : ch;
+      if(ch==="↵"||ch==="⌫") btn.className="wide";
+      btn.dataset.k = ch==="↵" ? "Enter" : ch==="⌫" ? "Backspace" : ch;
+      btn.addEventListener("click",()=>press(btn.dataset.k));
+      d.appendChild(btn);
+    }
+    k.appendChild(d);
+  }
+}
+function setMsg(t,cls){ const m=document.getElementById("msg"); m.textContent=t; m.className=cls||""; }
+
+function render(){
+  for(let r=0;r<6;r++) for(let c=0;c<5;c++){
+    const t=document.querySelector(`.tile[data-r="${r}"][data-c="${c}"]`);
+    t.className="tile";
+    if(r<rows.length){ t.textContent=rows[r].g[c]; t.classList.add(rows[r].p[c]); }
+    else if(r===rows.length){ t.textContent=cur[c]||""; if(cur[c]) t.classList.add("filled"); }
+    else t.textContent="";
+  }
+  // keyboard colouring: best known state per letter
+  const rank={B:0,Y:1,G:2}; const st={};
+  for(const row of rows) for(let i=0;i<5;i++){
+    const ch=row.g[i], s=row.p[i];
+    if(st[ch]===undefined || rank[s]>rank[st[ch]]) st[ch]=s;
+  }
+  document.querySelectorAll("#kb button").forEach(b=>{
+    const k=b.dataset.k; b.className = b.classList.contains("wide")?"wide":"";
+    if(st[k]) b.classList.add(st[k]);
+  });
+  // barometer
+  const bits = cands.length>0 ? LOG2(cands.length) : 0;
+  document.getElementById("bits").textContent = bits.toFixed(2);
+  document.getElementById("nc").textContent = cands.length;
+  document.getElementById("barFill").style.width = (100*bits/LOG2(N)).toFixed(1)+"%";
+  // table
+  const tb=document.querySelector("#tbl tbody"); tb.innerHTML="";
+  for(const h of history){
+    const tr=document.createElement("tr");
+    const eff = h.best>0 ? h.got/h.best : 1;
+    const cls = eff>=0.9?"good":eff>=0.6?"meh":"poor";
+    tr.innerHTML = `<td>${h.guess}</td><td>${h.left}</td>`+
+      `<td class="${cls}">${h.got.toFixed(2)}</td><td>${h.best.toFixed(2)}</td><td>${h.bestWord}</td>`;
+    tb.appendChild(tr);
+  }
+  const note=document.getElementById("effNote");
+  if(history.length){
+    const tot=history.reduce((s,h)=>s+h.got,0), pos=history.reduce((s,h)=>s+h.best,0);
+    note.innerHTML = `You have taken <b>${tot.toFixed(2)}</b> bits of the <b>${LOG2(N).toFixed(2)}</b> on the table; `+
+      `perfect play to this point was worth <b>${pos.toFixed(2)}</b>.`;
+  } else note.textContent="";
+  // candidates
+  const cd=document.getElementById("cands");
+  if(cands.length===N) cd.textContent = `${N} words. Make a guess.`;
+  else if(cands.length<=40) cd.innerHTML = cands.map(w=>"<b>"+w+"</b>").join(" ");
+  else cd.textContent = `${cands.length} words still fit — too many to list.`;
+  document.getElementById("poolN").textContent = N;
+}
+
+function press(k){
+  if(over) return;
+  if(k==="Enter") return submit();
+  if(k==="Backspace"){ cur=cur.slice(0,-1); setMsg(""); return render(); }
+  if(/^[A-Za-z]$/.test(k) && cur.length<5){ cur+=k.toUpperCase(); setMsg(""); render(); }
+}
+
+function submit(){
+  if(cur.length<5) return setMsg("Five letters.","no");
+  if(!SET.has(cur)) return setMsg(cur+" is not in the word list.","no");
+  const before = cands.length;
+  const bestNow = bestGuess(cands);
+  let pat;
+  if(mode==="calm"){ pat = score(cur,answer); cands = filterCands(cands,cur,pat); }
+  else { const r = adversarialReply(cur,cands); pat = r.pattern; cands = r.survivors; }
+  const got = LOG2(before) - LOG2(Math.max(1,cands.length));
+  history.push({guess:cur, left:cands.length, got, best:bestNow.bits, bestWord:bestNow.word});
+  rows.push({g:cur,p:pat});
+  const won = pat==="GGGGG";
+  cur=""; render();
+  document.querySelectorAll(`.tile[data-r="${rows.length-1}"]`).forEach((t,i)=>{
+    setTimeout(()=>{ t.classList.add("flip"); setTimeout(()=>t.classList.remove("flip"),500); }, i*90);
+  });
+  if(won){
+    over=true;
+    setMsg(`Solved in ${rows.length}. ${history.reduce((s,h)=>s+h.got,0).toFixed(2)} bits taken.`,"ok");
+  } else if(rows.length===6){
+    over=true;
+    if(mode==="storm"){
+      answer = cands[0];
+      setMsg(`Out of guesses — the storm held ${cands.length} word(s). It settles on ${answer}.`,"no");
+    } else setMsg(`Out of guesses. The word was ${answer}.`,"no");
+  }
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key==="Enter"||e.key==="Backspace"){ e.preventDefault(); press(e.key); }
+  else if(/^[a-zA-Z]$/.test(e.key)) press(e.key);
+});
+document.getElementById("mCalm").addEventListener("click",()=>reset("calm"));
+document.getElementById("mStorm").addEventListener("click",()=>reset("storm"));
+
+/* ---- hooks for automated verification ---- */
+window.__score = score;
+window.__entropy = entropy;
+window.__adversarial = adversarialReply;
+window.__words = WORDS;
+window.__state = ()=>({mode, answer, left:cands.length, rows:rows.map(r=>r.g+":"+r.p),
+                       history, over, msg:document.getElementById("msg").textContent});
+window.__play = (word)=>{ cur=word.toUpperCase(); submit(); return window.__state(); };
+window.__reset = reset;
+window.__crosscheckHash = null;   // filled by the test harness
+
+reset("calm");
+</script>
+</body>
+</html>

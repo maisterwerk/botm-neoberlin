@@ -1,0 +1,54 @@
+{
+ "total": 2766,
+ "distinct": 2379,
+ "themed": [
+  {
+   "across": [
+    "TOP",
+    "EARNS",
+    "STOOL",
+    "THOSE",
+    "FEW"
+   ],
+   "down": [
+    "TEST",
+    "OATH",
+    "PROOF",
+    "NOSE",
+    "SLEW"
+   ]
+  },
+  {
+   "across": [
+    "TOP",
+    "EARNS",
+    "STOOL",
+    "THOSE",
+    "FED"
+   ],
+   "down": [
+    "TEST",
+    "OATH",
+    "PROOF",
+    "NOSE",
+    "SLED"
+   ]
+  },
+  {
+   "across": [
+    "TOP",
+    "EARNS",
+    "STOOP",
+    "THOSE",
+    "FED"
+   ],
+   "down": [
+    "TEST",
+    "OATH",
+    "PROOF",
+    "NOSE",
+    "SPED"
+   ]
+  }
+ ]
+}
