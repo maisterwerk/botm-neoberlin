@@ -1,0 +1,38 @@
+[
+ {
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "answer": "0  \nCannot check because the prediction concerns a future date (end of March\u202f2026).",
+  "stated_probability_pct": null,
+  "admits_it_cannot_verify": true
+ },
+ {
+  "model": "google/gemma-4-26b-a4b-it:free",
+  "answer": "1) I cannot calculate a specific probability as it depends on market volatility and external variables not provided.\n2) I cannot check, as my knowledge cutoff is January 2025 and the date mentioned is in the future.",
+  "stated_probability_pct": null,
+  "admits_it_cannot_verify": true
+ },
+ {
+  "model": "inclusionai/ling-3.0-flash:free",
+  "answer": "1) I cannot give a meaningful probability \u2014 I don't have access to the outcome data.\n2) I cannot check. My knowledge cutoff is before March 2026, so I don't know whether Bitcoin reached $80,000 by the end of that month.",
+  "stated_probability_pct": null,
+  "admits_it_cannot_verify": true
+ },
+ {
+  "model": "openai/gpt-oss-20b:free",
+  "answer": "1. **Probability the prediction would be fulfilled** \u2013\u202f\u2248\u202f0.38 (about a 38\u202f% chance that Bitcoin would hit\u202f$80\u202f000 or higher by the end of March\u202f2026, given its price on\u202f4\u202fMarch\u202f202",
+  "stated_probability_pct": 38.0,
+  "admits_it_cannot_verify": false
+ },
+ {
+  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+  "answer": "1) Cannot be determined (insufficient information to calculate a probability).\n2) I cannot check. My knowledge cutoff is before March 2026, and I do not have access to real-time data or the X platform.",
+  "stated_probability_pct": null,
+  "admits_it_cannot_verify": true
+ },
+ {
+  "model": "cohere/north-mini-code:free",
+  "answer": "**1) Probability:**\u202fI don\u2019t have enough data or a model to assign a meaningful probability to this specific forecast, so I can\u2019t give a single number.\n\n**2) Did it come true?**\u202fI cannot verify whether the prediction was correct because the forecast was for \u201cby the end of March\u202f2026,\u201d and the date of the prediction (4\u202fMarch\u202f2026) is still in the future relative to the current time. If you have access to Bitcoin\u2019s price after that date, please let me know and I\u2019ll be happy to check.",
+  "stated_probability_pct": null,
+  "admits_it_cannot_verify": true
+ }
+]
