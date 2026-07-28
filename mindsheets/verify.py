@@ -102,26 +102,32 @@ for i, m in enumerate(MINDS):
 # and it is checked here rather than assumed from a fixed row reference.
 pool = R.cell(5,4).value
 stew_of = {}
-for (_, m, _, *_ ) in raw: pass
-for (row, m, ev, c, k, kr) in raw: stew_of.setdefault(m, S.cell(row,4).value)
-merits = []
-r_i = 8
-while R.cell(r_i,2).value and R.cell(r_i,2).value != "TOTAL":
-    name = R.cell(r_i,2).value
-    if name.startswith("SybilFarm"):
-        merits.append(R.cell(r_i,3).value*2)
-    else:
-        merits.append(sum(t for mm,t in tot.items() if stew_of.get(mm)==name))
-    r_i += 1
+for (row, m, ev, c, k, kr) in raw: stew_of.setdefault(m, S.cell(row,4).value or "(no steward)")
+# stewards DERIVED in first-seen order, exactly as the workbook resolves them — the previous
+# version read the names off fixed rows, so it shared the tab's hardcoded-roster blind spot and
+# would have reported a clean run while a whole Mind's merit vanished from the split.
+lb_stew = [L.cell(5+i,4).value for i in range(LB_SLOTS)]
+want_stew = []
+for st in lb_stew:
+    if st and st not in want_stew: want_stew.append(st)
+got_stew = [R.cell(8+i,2).value for i in range(6)]
+chk("Reward!B (steward list)", want_stew, [x for x in got_stew if x],
+    "every steward on the Leaderboard has a bucket")
+merits = [sum(t for mm,t in tot.items() if stew_of.get(mm)==st) for st in want_stew]
+SYB_ROW = 8+6
+merits.append(R.cell(SYB_ROW,3).value*2)
 w = [math.sqrt(m) for m in merits]
 tw = sum(w)
-for i in range(len(merits)):
-    rr = 8+i
+rows_r = [8+i for i in range(len(want_stew))] + [SYB_ROW]
+for i, rr in enumerate(rows_r):
     chk(f"Reward!D{rr}", merits[i], R.cell(rr,4).value, "merit")
     chk(f"Reward!E{rr}", w[i], R.cell(rr,5).value, "sqrt weight")
     chk(f"Reward!F{rr}", w[i]/tw, R.cell(rr,6).value, "share")
     chk(f"Reward!G{rr}", pool*w[i]/tw, R.cell(rr,7).value, "payout ETH")
-TOT_R = 8+len(merits)
+# no Leaderboard point may fall outside a bucket
+chk("Reward merit conservation", sum(tot.values()), sum(merits[:-1]),
+    "every Mind's overall lands in some steward bucket")
+TOT_R = SYB_ROW+1
 chk(f"Reward!F{TOT_R}", 1.0, R.cell(TOT_R,6).value, "shares sum to 1")
 chk(f"Reward!G{TOT_R}", float(pool), R.cell(TOT_R,7).value, "payouts sum to the pool")
 

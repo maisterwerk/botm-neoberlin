@@ -243,7 +243,7 @@ for i in range(LB_SLOTS):
     lb.cell(row=row, column=3).alignment = left
     # steward via INDEX/MATCH
     lb.cell(row=row, column=4,
-        value=f'=IF($C{row}="","",IFERROR(INDEX({S}!$D:$D,MATCH($C{row},{S}!$C:$C,0)),""))').alignment = center
+        value=f'=IF($C{row}="","",IFERROR(IF(INDEX({S}!$D:$D,MATCH($C{row},{S}!$C:$C,0))=0,"(no steward)",INDEX({S}!$D:$D,MATCH($C{row},{S}!$C:$C,0))),""))').alignment = center
     # best-per-event using MAXIFS across two criteria (mind + event)
     for j, ev in enumerate(EVENTS):
         col = 5 + j
@@ -265,9 +265,15 @@ for i in range(LB_SLOTS):
     lb.cell(row=row, column=OVR_COL).font = Font(bold=True, color=BLUE, size=11)
     # medal by rank
     lb.cell(row=row, column=MED_COL,
-        value=(f'=IF($C{row}="","",IF({OVR_L}{row}=LARGE(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST},1),"🥇",'
-               f'IF({OVR_L}{row}=LARGE(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST},2),"🥈",'
-               f'IF({OVR_L}{row}=LARGE(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST},3),"🥉",""))))')).alignment = center
+        value=(f'=IF($C{row}="","",'
+               f'IF($N{row}=1,"🥇",IF($N{row}=2,"🥈",IF($N{row}=3,"🥉",""))))')).alignment = center
+    # place among DISTINCT totals: how many distinct larger totals exist, plus one
+    lb.cell(row=row, column=14,
+        value=(f'=IF($C{row}="","",1+SUMPRODUCT(($C${LB_FIRST}:$C${LB_LAST}<>"")'
+               f'*(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST}>${OVR_L}{row})'
+               f'*(MATCH(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST}&"",'
+               f'${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST}&"",0)'
+               f'=ROW(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST})-{LB_FIRST-1})))')).font = Font(size=8, color="B0B4C0")
     for col in range(2, MED_COL+1):
         lb.cell(row=row, column=col).border = border
 # rank
@@ -281,6 +287,15 @@ lb.conditional_formatting.add(f"{OVR_L}{LB_FIRST}:{OVR_L}{LB_LAST}",
     ColorScaleRule(start_type="min", start_color="FFEB84", end_type="max", end_color="63BE7B"))
 lb.conditional_formatting.add(f"B{LB_FIRST}:{get_column_letter(MED_COL)}{LB_LAST}",
     FormulaRule(formula=[f"$B{LB_FIRST}=1"], fill=PatternFill("solid", fgColor="FFF6D5")))
+lb.cell(row=LB_HEAD, column=15, value="steward #").font = Font(size=8, italic=True, color="B0B4C0")
+for i in range(LB_SLOTS):
+    _r = LB_FIRST + i
+    _prev = f"$O${LB_FIRST}:O{_r-1}" if i else None
+    lb.cell(row=_r, column=15,
+        value=(f'=IF($D{_r}="","",IF(COUNTIF($D${LB_FIRST}:$D{_r},$D{_r})=1,'
+               + (f'MAX({_prev})+1' if i else '1') + ',""))')).font = Font(size=8, color="B0B4C0")
+for _c in (14,15): lb.column_dimensions[get_column_letter(_c)].hidden = True   # helpers
+lb.cell(row=LB_HEAD, column=14, value="place").font = Font(size=8, italic=True, color="B0B4C0")
 lb.sheet_properties.tabColor = GREEN
 lb.freeze_panes = f"B{LB_FIRST}"
 
@@ -349,7 +364,8 @@ rwh = ["Steward", "Minds", "Σ merit", "Weight = √merit", "Share %", "Payout (
 RW_HEAD = 7
 for i,h in enumerate(rwh):
     hdr(rw, f"{get_column_letter(2+i)}{RW_HEAD}", h)
-STEWARDS = [("Rob (human steward)", 1), ("(fictional)", 2), ("SybilFarm (illustrative)", 12)]
+RW_SLOTS = 6   # steward buckets resolved from the Leaderboard
+SYBIL_ROW_LABEL = "SybilFarm (illustrative)"
 # Steward binding, done properly. This used to point at fixed Leaderboard rows, which both broke
 # when the Leaderboard became data-driven AND failed to do what the tab claims: a steward with
 # several Minds must land in ONE bucket. SUMIF over the steward column does exactly that.
@@ -358,31 +374,44 @@ LB_OVER = f"Leaderboard!${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST}"
 MERIT_REF = {"Rob (human steward)": f'=SUMIF({LB_STEW},$B{{row}},{LB_OVER})',
              "(fictional)":         f'=SUMIF({LB_STEW},$B{{row}},{LB_OVER})'}
 RW_FIRST = RW_HEAD+1
-for i,(sname,nm) in enumerate(STEWARDS):
+LB_D = f"Leaderboard!$D${LB_FIRST}:$D${LB_LAST}"
+LB_O = f"Leaderboard!$O${LB_FIRST}:$O${LB_LAST}"
+LB_T = f"Leaderboard!${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST}"
+# The steward list used to be three names typed in python. A Mind whose steward was new — or
+# blank — then had its whole merit vanish from the payout split with nothing on screen to say so,
+# which is the same hardcoded-roster bug the Leaderboard had. Rows now resolve the i-th distinct
+# steward out of the Leaderboard, so every Mind's merit is accounted for by construction.
+for i in range(RW_SLOTS):
     row = RW_FIRST+i
-    rw.cell(row=row, column=2, value=sname).alignment = left
-    rw.cell(row=row, column=3, value=nm).alignment = center  # minds count (input)
-    rw.cell(row=row, column=3).fill = PatternFill("solid", fgColor=LIGHT)
-    # Σ merit (steward binding: one bucket per steward)
-    if sname in MERIT_REF:
-        rw.cell(row=row, column=4, value=MERIT_REF[sname].format(row=row))
-    else:
-        # sybil farm: many Minds but each scores ~2 (judge rates spam near zero)
-        rw.cell(row=row, column=4, value=f"=C{row}*2")
-        rw.cell(row=row, column=4).fill = PatternFill("solid", fgColor=LIGHT)
-    rw.cell(row=row, column=4).alignment = center
-    # weight = sqrt(merit)  <-- quadratic dampening
-    rw.cell(row=row, column=5, value=f"=SQRT(D{row})").alignment = center
+    rw.cell(row=row, column=2,
+        value=f'=IFERROR(INDEX({LB_D},MATCH({i+1},{LB_O},0)),"")').alignment = left
+    rw.cell(row=row, column=3,
+        value=f'=IF($B{row}="","",COUNTIF({LB_D},$B{row}))').alignment = center
+    rw.cell(row=row, column=4,
+        value=f'=IF($B{row}="","",SUMIF({LB_D},$B{row},{LB_T}))').alignment = center
+    rw.cell(row=row, column=5, value=f'=IF($B{row}="","",SQRT(D{row}))').alignment = center
     rw.cell(row=row, column=5).number_format = "0.00"
     for col in range(2,8):
         rw.cell(row=row, column=col).border = border
-RW_LAST = RW_FIRST + len(STEWARDS) - 1
+# one illustrative sybil row, kept as an input so the anti-sybil claim can be poked at
+SYB = RW_FIRST + RW_SLOTS
+rw.cell(row=SYB, column=2, value=SYBIL_ROW_LABEL).alignment = left
+rw.cell(row=SYB, column=3, value=12).alignment = center
+rw.cell(row=SYB, column=3).fill = PatternFill("solid", fgColor=LIGHT)
+rw.cell(row=SYB, column=4, value=f"=C{SYB}*2").alignment = center
+rw.cell(row=SYB, column=4).fill = PatternFill("solid", fgColor=LIGHT)
+rw.cell(row=SYB, column=5, value=f"=SQRT(D{SYB})").alignment = center
+rw.cell(row=SYB, column=5).number_format = "0.00"
+for col in range(2,8):
+    rw.cell(row=SYB, column=col).border = border
+RW_LAST = SYB
 # shares + payouts
-for i in range(len(STEWARDS)):
+for i in range(RW_SLOTS+1):
     row = RW_FIRST+i
-    rw.cell(row=row, column=6, value=f"=IF(SUM($E${RW_FIRST}:$E${RW_LAST})=0,0,E{row}/SUM($E${RW_FIRST}:$E${RW_LAST}))").number_format="0.0%"
+    rw.cell(row=row, column=6, value=(f'=IF($B{row}="","",IF(SUM($E${RW_FIRST}:$E${RW_LAST})=0,0,'
+                                      f'E{row}/SUM($E${RW_FIRST}:$E${RW_LAST})))')).number_format="0.0%"
     rw.cell(row=row, column=6).alignment = center
-    rw.cell(row=row, column=7, value=f"=$D$5*F{row}").number_format="0.0000"
+    rw.cell(row=row, column=7, value=f'=IF($B{row}="","",$D$5*F{row})').number_format="0.0000"
     rw.cell(row=row, column=7).alignment = center
 # totals row
 trow = RW_LAST+1
@@ -393,6 +422,15 @@ for col in range(2,8):
     rw.cell(row=trow, column=col).border = border
     rw.cell(row=trow, column=col).fill = PatternFill("solid", fgColor=LIGHT)
 # note + comparison
+rw.cell(row=trow+1, column=2, value="CHECK  ·  every Leaderboard point must land in a steward bucket").font = Font(bold=True, color=NAVY, size=10)
+rw.cell(row=trow+1, column=5,
+    value=(f'=IF(ABS(SUM($D${RW_FIRST}:$D${RW_FIRST+RW_SLOTS-1})-SUM({LB_T}))<0.0001,'
+           f'"OK - all merit accounted for","MISMATCH - a Mind\'s merit is missing from the split")')
+    ).font = Font(bold=True, size=10)
+rw.conditional_formatting.add(f"E{trow+1}",
+    FormulaRule(formula=[f'LEFT($E${trow+1},2)="OK"'], fill=PatternFill("solid", fgColor="D8F0D3")))
+rw.conditional_formatting.add(f"E{trow+1}",
+    FormulaRule(formula=[f'LEFT($E${trow+1},2)<>"OK"'], fill=PatternFill("solid", fgColor="F8D7DA")))
 rw.cell(row=trow+2, column=2, value="Why √merit? The sybil farm below runs 12 Minds that the judge rates near zero, so its")
 rw.cell(row=trow+2, column=2).font = sub_font
 rw.cell(row=trow+3, column=2, value="merit is 24 and its weight √24 ≈ 4.9 — not 24. Flooding the tournament with fake Minds")
