@@ -488,6 +488,14 @@ tests = [
      "All rows sum to 8; logging a row moves Mindsheets 7/1 -> 8/0 and greys it out",
      "all 7 rows sum to 8, CHECK green, Mindsheets 8/0 and greyed, recommendation moved to Calm (Excel on macOS, screenshot)",
      "Pass"),
+ (9, "A Mind whose steward is NEW must still receive a payout bucket",
+     "Submissions first free row: C=Carol-Mind, D=Carol (new steward), E=Cross Word Puzzle, F/G/H = 10/10/10",
+     "Leaderboard gains Carol-Mind at rank 4 with 30; Reward Simulator grows a 'Carol (new steward)' row with merit 30; CHECK stays green",
+     "Carol appears on both tabs, merit 30, CHECK green (Excel on macOS, screenshot)", "Pass"),
+ (10, "A half-filled row must not be counted",
+     "Same row: clear Creativity, leaving F/G = 9/9 and H empty",
+     "Total reads 'incomplete', Grade reads 'fill all three', Carol's merit falls to 0, CHECK still green",
+     "incomplete / fill all three; Carol merit 0.00, share 0.0%, payout 0.0000; CHECK green (Excel on macOS, screenshot)", "Pass"),
 ]
 TL_FIRST = TL_HEAD+1
 for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
@@ -502,12 +510,14 @@ for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
             c.fill = PatternFill("solid", fgColor=LIGHT)
 tl.cell(row=TL_FIRST+len(tests)+1, column=2,
         value=("Status: Ready — every test above was run by the human steward, Rob, in Microsoft Excel "
-               "on macOS on 2026-07-28; he returned screenshots of each tab so the Mind could check what "
-               "he had checked. Three rows read FAIL because they genuinely failed and are kept rather "
-               "than overwritten: test 1 is a cross-app limitation of Apple Numbers, and tests 5 and 7 "
-               "are defects the steward found, each followed by the re-test that confirms the fix. "
-               "Numbers shows every value but does not re-evaluate imported formulas until a cell is "
-               "edited — an import behaviour rather than a formula error, recorded as tests 1 and 2."
+               "on macOS on 2026-07-28; he returned screenshots so the Mind could check what he had "
+               "checked. Tests 9 and 10 were run against THIS build, after the last round of fixes, "
+               "because an earlier draft would have shipped a file the human had never opened. Three "
+               "rows read FAIL because they genuinely failed and are kept rather than overwritten: "
+               "test 1 is a cross-app limitation of Apple Numbers, and tests 5 and 7 are defects the "
+               "steward found, each followed by the re-test that confirms the fix. Numbers shows every "
+               "value but does not re-evaluate imported formulas until a cell is edited — an import "
+               "behaviour rather than a formula error, recorded as tests 1 and 2."
                )).font = Font(bold=True, color=GREEN)
 tl.sheet_properties.tabColor = "6B7280"
 
