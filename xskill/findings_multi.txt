@@ -1,0 +1,58 @@
+MULTI-REGIME LEDGER — 41 first-party falsifiable claims, 2024-07-30 to 2026-03-31
+
+posted     regime     90d  account           asset      needed   moved  result
+2024-07-30 FLAT     13.4%  @JBTradeJournal   bitcoin     36.0%   41.4%  HIT 
+2024-09-06 BEAR    -22.1%  @alphawifhat      bitcoin     -7.3%   17.4%  MISS
+2024-11-01 FLAT     14.5%  @cryptorover      bitcoin     43.9%   34.6%  MISS
+2024-11-06 BULL     22.5%  @poe_real69       bitcoin     32.3%   27.6%  MISS
+2024-11-06 BULL     22.5%  @cryptojourneyrs  bitcoin     32.3%   27.6%  MISS
+2024-11-30 BULL     68.2%  @CarlBMenger      bitcoin     28.6%   -2.9%  MISS
+2024-12-01 BULL     64.4%  @AshCrypto        bitcoin    105.8%   -9.8%  MISS
+2024-12-04 BULL     62.0%  @venturefounder   ethereum   315.3%  -34.1%  MISS
+2024-12-18 BULL     44.5%  @tokenomicsguy    solana     142.1%  -39.6%  MISS
+2024-12-18 BULL     47.1%  @venturefounder   ethereum   339.4%  -30.3%  MISS
+2024-12-31 BULL     54.3%  @AshCrypto        bitcoin     60.3%   -6.3%  MISS
+2025-01-02 BULL     56.2%  @stilltweets07    bitcoin      3.1%    1.4%  MISS
+2025-01-31 BULL     47.6%  @GordonGekko      bitcoin     46.4%  -14.4%  MISS
+2025-02-25 BEAR    -40.3%  @KAIZ3NS          solana     246.4%  -13.6%  MISS
+2025-02-28 FLAT    -12.5%  @Rally__vincent   bitcoin     36.3%   -2.1%  MISS
+2025-03-20 FLAT    -13.9%  @Blockchainwork5  bitcoin     12.8%    2.2%  MISS
+2025-03-25 BEAR    -40.9%  @deg_ape          ethereum   384.0%   43.8%  MISS
+2025-03-26 BEAR    -39.7%  @nehalzzzz1       ethereum   397.6%   47.9%  MISS
+2025-03-27 FLAT     -7.5%  @0xHedCrypto      bitcoin    129.3%    0.5%  MISS
+2025-03-31 BEAR    -45.4%  @Zubby_Zubem      ethereum   448.7%   63.1%  MISS
+2025-04-01 FLAT    -10.0%  @CryptelligenceX  bitcoin   1074.3%    2.9%  MISS
+2025-04-10 FLAT    -16.0%  @MelMattison1     bitcoin     25.6%   18.3%  MISS
+2025-04-20 BEAR    -43.1%  @RealJackPoor     solana     262.7%   -9.6%  MISS
+2025-05-01 FLAT     -5.8%  @ToolySOL         bitcoin    107.3%   -9.2%  MISS
+2025-05-19 FLAT     10.3%  @X_Four_iv        bitcoin     18.4%   -0.9%  MISS
+2025-05-29 BULL     25.2%  @CryptoHitmann    bitcoin    131.1%  -17.0%  MISS
+2025-06-01 FLAT     18.2%  @KamilShaheen19   ethereum   293.8%   17.0%  MISS
+2025-06-10 BULL     31.8%  @brometheuscrypt  bitcoin      8.8%   -2.8%  MISS
+2025-06-24 BULL     21.8%  @BandzMcBagz      ethereum   308.4%   21.4%  MISS
+2025-06-29 BULL     37.2%  @ProTheDoge       ethereum    20.0%   47.9%  HIT 
+2025-07-01 BULL     34.0%  @CryptofyHub      ethereum    87.1%   53.8%  MISS
+2025-08-29 BULL     72.5%  @samuelKenny01    ethereum   129.3%  -31.8%  MISS
+2025-09-28 FLAT      4.7%  @TheBTCTherapist  bitcoin     60.5%  -21.9%  MISS
+2025-10-01 FLAT      8.2%  @integral_crypto  bitcoin     68.6%  -26.1%  MISS
+2025-10-30 FLAT     -4.4%  @ACInvestorBlog   bitcoin     38.5%  -19.1%  MISS
+2025-11-03 FLAT     -6.6%  @TheAwfulTrader   bitcoin     17.3%  -15.2%  MISS
+2025-11-07 FLAT    -11.3%  @0xklarck         bitcoin     64.5%  -12.6%  MISS
+2025-12-01 BEAR    -22.4%  @fomocapdao       bitcoin     85.4%    1.6%  MISS
+2026-03-04 BEAR    -21.1%  @DavidFBailey     bitcoin     10.1%   -6.0%  MISS
+2026-03-15 BEAR    -26.5%  @EthereanVibin    ethereum    37.7%   -3.3%  MISS
+2026-03-31 BEAR    -22.1%  @rektober         bitcoin     15.7%    7.9%  MISS
+
+OVERALL  2/41 = 5% hit rate   (DRIFT baseline 0/41 = 0%)
+
+BY MARKET REGIME AT THE MOMENT OF POSTING — the criticism this answers
+regime     n  hits    rate  drift  bull claims  bear claims
+BULL      16     1      6%      0           16            0
+FLAT      15     1      7%      0           15            0
+BEAR      10     0      0%      0            9            1
+
+BY DIRECTION
+  above  n=40   hits=2  (5%)
+  below  n=1    hits=0  (0%)
+
+Median |required move| across the ledger: 60.5%

@@ -1,0 +1,56 @@
+CALIBRATION — 41 claims with >=30 prior windows of history
+
+posted     regime account             needed days  ex-ante p  outcome
+2025-04-01 FLAT   @CryptelligenceX   1074.3%  274       0.0%  MISS
+2025-12-01 BEAR   @fomocapdao          85.4%   30       0.3%  MISS
+2025-11-07 FLAT   @0xklarck            64.5%   23       0.4%  MISS
+2025-07-01 BULL   @CryptofyHub         87.1%   30       0.9%  MISS
+2025-03-20 FLAT   @Blockchainwork5     12.8%    3       2.6%  MISS
+2024-12-18 BULL   @venturefounder     339.4%  164       4.2%  MISS
+2026-03-15 BEAR   @EthereanVibin       37.7%   16       4.3%  MISS
+2024-12-04 BULL   @venturefounder     315.3%  178       5.7%  MISS
+2025-06-24 BULL   @BandzMcBagz        308.4%  190       6.3%  MISS
+2025-06-01 FLAT   @KamilShaheen19     293.8%  213       7.1%  MISS
+2024-11-06 BULL   @poe_real69          32.3%   24       7.3%  MISS
+2024-11-06 BULL   @cryptojourneyrs     32.3%   24       7.3%  MISS
+2025-08-29 BULL   @samuelKenny01      129.3%  124       7.9%  MISS
+2025-02-28 FLAT   @Rally__vincent      36.3%   31       8.4%  MISS
+2025-05-19 FLAT   @X_Four_iv           18.4%   12       9.2%  MISS
+2025-04-10 FLAT   @MelMattison1        25.6%   20       9.5%  MISS
+2025-10-01 FLAT   @integral_crypto     68.6%   91      10.9%  MISS
+2025-03-31 BEAR   @Zubby_Zubem        448.7%  275      10.9%  MISS
+2025-03-26 BEAR   @nehalzzzz1         397.6%  280      12.2%  MISS
+2025-03-25 BEAR   @deg_ape            384.0%  281      12.6%  MISS
+2024-11-01 FLAT   @cryptorover         43.9%   60      14.5%  MISS
+2024-11-30 BULL   @CarlBMenger         28.6%   31      14.8%  MISS
+2025-09-28 FLAT   @TheBTCTherapist     60.5%   94      14.9%  MISS
+2025-05-29 BULL   @CryptoHitmann      131.1%  216      15.1%  MISS
+2025-03-27 FLAT   @0xHedCrypto        129.3%  279      18.5%  MISS
+2025-10-30 FLAT   @ACInvestorBlog      38.5%   62      18.7%  MISS
+2025-11-03 FLAT   @TheAwfulTrader      17.3%   27      21.0%  MISS
+2025-05-01 FLAT   @ToolySOL           107.3%  244      21.5%  MISS
+2024-09-06 BEAR   @alphawifhat         -7.3%   24      25.5%  MISS
+2025-06-29 BULL   @ProTheDoge          20.0%   32      26.2%  HIT
+2025-01-02 BULL   @stilltweets07        3.1%    3      26.7%  MISS
+2025-06-10 BULL   @brometheuscrypt      8.8%   20      30.0%  MISS
+2026-03-04 BEAR   @DavidFBailey        10.1%   27      30.5%  MISS
+2025-04-20 BEAR   @RealJackPoor       262.7%  255      34.0%  MISS
+2026-03-31 BEAR   @rektober            15.7%   61      35.0%  MISS
+2024-07-30 FLAT   @JBTradeJournal      36.0%  154      39.2%  HIT
+2025-02-25 BEAR   @KAIZ3NS            246.4%  309      39.9%  MISS
+2024-12-01 BULL   @AshCrypto          105.8%  395      40.2%  MISS
+2024-12-31 BULL   @AshCrypto           60.3%  365      49.8%  MISS
+2025-01-31 BULL   @GordonGekko         46.4%  334      53.3%  MISS
+2024-12-18 BULL   @tokenomicsguy      142.1%  378      53.3%  MISS
+
+Expected hits from our own ex-ante base rates : 7.51
+Actually observed                             : 2
+Observed rate 2/41 = 4.9%   95% CI [1.3%, 16.1%]
+Mean predicted probability                    : 18.3%
+
+Predicted mean lies inside the observed CI: NO
+
+RELIABILITY (predicted vs observed, by band)
+  p in [0%,5%)  n=7   mean predicted 1.8%  observed 0.0%
+  p in [5%,15%)  n=16  mean predicted 10.0%  observed 0.0%
+  p in [15%,101%)  n=18  mean predicted 32.1%  observed 11.1%
