@@ -16,7 +16,11 @@ instrument.
 import json, sys
 from datetime import datetime
 
-prices = json.load(open("prices.json"))
+import os
+# Use the long series when it is present — the short 299-day file was the prototype-era input
+# and a reviewer correctly noted it no longer reproduces the figures this project quotes.
+_PF = "prices_long.json" if os.path.exists("prices_long.json") else "prices.json"
+prices = json.load(open(_PF))
 
 
 def series(asset, before=None):

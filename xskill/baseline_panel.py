@@ -64,7 +64,7 @@ if __name__ == "__main__":
         m = re.search(r"(\d{1,3}(?:\.\d+)?)\s*%", r["answer"]) or re.search(
             r"[≈~]\s*0?\.(\d+)\b", r["answer"])
         r["stated_probability_pct"] = float(m.group(1)) if m else None
-        low = r["answer"].lower()
+        low = r["answer"].lower().replace("\u2019", "'")   # curly apostrophes broke the matcher
         r["truncated"] = not r["answer"].rstrip().endswith((".", "!", "?", ")", "%", "\u201d"))
         r["admits_it_cannot_verify"] = any(
             k in low for k in ("cannot verify", "can't verify", "no access", "cannot check",

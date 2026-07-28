@@ -25,19 +25,19 @@
   "answer": "1. **Probability that the prediction would come true:**\u202f\u2248\u202f0.35 (about a 35\u202f% chance).  \n2. **Did it actually come true?**\u202fI don\u2019t have the price data for the end of March\u202f2026, so I can\u2019t confirm whether Bitcoin hit $80,000 by that date.",
   "stated_probability_pct": 35.0,
   "truncated": false,
-  "admits_it_cannot_verify": false
+  "admits_it_cannot_verify": true
  },
  {
   "model": "poolside/laguna-xs-2.1:free",
   "answer": "1) The probability is unknown because the prediction's outcome depends on Bitcoin's price at the end of March 2026, which is not provided.  \n2) The prediction did not come true because the given closing price on March 4, 2026 ($72,666.77) is not the end-of-month price. The actual end-of-March 2026 price is unknown, so verification is impossible with the provided data.",
   "stated_probability_pct": null,
   "truncated": false,
-  "admits_it_cannot_verify": false
+  "admits_it_cannot_verify": true
  },
  {
   "model": "cohere/north-mini-code:free",
   "answer": "**1)**\u202f\u2248\u202f0.0\u202f(probability essentially zero \u2013 without a model we can\u2019t assign a non\u2011trivial chance).  \n\n**2)**\u202fWe cannot check whether Bitcoin actually reached\u202f$80\u202f000 by the end of March\u202f2026, so we cannot confirm that the prediction came true.",
-  "stated_probability_pct": null,
+  "stated_probability_pct": 0.0,
   "truncated": false,
   "admits_it_cannot_verify": true
  },
