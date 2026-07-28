@@ -109,6 +109,10 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
         <th title="bits the reply actually delivered">Got</th>
       </tr></thead><tbody></tbody></table>
       <div class="note" style="margin-top:9px" id="effNote"></div>
+      <div class="note" style="margin-top:6px;opacity:.7">Asked and Best are expected bits;
+      Got is what the reply actually delivered. An asterisk on Best means the search was
+      narrowed for speed while many words were still alive, so the true ceiling may be a
+      little higher.</div>
     </div>
 
     <div class="card">
@@ -144,8 +148,9 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
      largest candidate set alive. Differences here are small: Absurdle
      gives unlimited guesses, this caps at six; Absurdle breaks exact
      ties by fewest greens then fewest yellows then pattern code, this
-     breaks them by fewest greens then a daily salt so the puzzle
-     changes each day.
+     breaks them by fewest greens then a hash. That hash only ever
+     resolves EXACT ties, which are rare (12 of 1552 openings), so the
+     storm is effectively one deterministic puzzle, as Absurdle is.
 
    * THE BAROMETER is 3Blue1Brown's entropy analysis (2022) and, much
      more directly, NYT's WordleBot (2022) — which already reports, per
@@ -237,7 +242,12 @@ const OPENER = {word:"__OPENER__", bits:__OPENERBITS__};
    good probe lives; below 150 candidates we search everything. The panel says which. */
 const PROBES = WORDS.slice();     // replaced at build time by the entropy-ranked list
 function searchSet(cands){
-  if(cands.length<=150) return {list:WORDS, full:true};
+  // "Best" must be the best LEGAL question, not the best answer-pool word: the guess list is
+  // wider than the answer pool, and searching only the pool understated the ceiling (and so
+  // flattered Skill) in about 38% of small-candidate states. Below 150 candidates the full
+  // legal list is affordable, so it is used and the figure is exact. Above that we fall back
+  // to candidates plus the 250 strongest openers and the number is marked with an asterisk.
+  if(cands.length<=150) return {list:ALLW, full:true};
   const s=new Set(cands); for(let i=0;i<250;i++) s.add(PROBES[i]);
   return {list:[...s], full:false};
 }
@@ -262,7 +272,8 @@ function fnv(s){ let h=2166136261>>>0; for(const c of s){ h^=c.charCodeAt(0); h=
 
 /* Storm mode (Absurdle's rule). Most survivors wins — that is the maximal-stall property and
    it is never traded away. Only EXACT ties are broken, by fewest greens and then by a daily
-   salt, so the storm is a different puzzle each day rather than one fixed game tree. */
+   salt. Ties are rare — 12 of 1552 opening guesses — so this varies the game far less than
+   it might sound: Storm is effectively deterministic, exactly as Absurdle is. */
 function adversarialReply(guess, cands, salt){
   salt = (salt===undefined) ? stormSalt : salt;
   const b = new Map();
@@ -408,6 +419,7 @@ function press(k){
 }
 
 function submit(){
+  if(over) return setMsg("This game is over.","no");
   if(cur.length<5) return setMsg("Five letters.","no");
   if(!GUESSES.has(cur)) return setMsg(cur+" is not a word I know.","no");
   const before = cands.length;

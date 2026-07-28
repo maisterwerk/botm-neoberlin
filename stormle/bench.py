@@ -33,8 +33,8 @@ def solve(ans):
     return 7
 t=time.time(); res=[solve(a) for a in W]
 d=dict(sorted(Counter(res).items())); ok=sum(1 for x in res if x<=6)
-print(f"VOLLER POOL ({time.time()-t:.0f}s): gelöst {ok}/{len(W)} ({100*ok/len(W):.1f}%)  "
-      f"Schnitt {sum(res)/len(res):.3f}  max {max(res)}")
-print("Verteilung:", d)
+print(f"FULL POOL ({time.time()-t:.0f}s): solved {ok}/{len(W)} ({100*ok/len(W):.1f}%)  "
+      f"mean {sum(res)/len(res):.3f}  max {max(res)}")
+print("distribution:", d)
 json.dump({"dist":{str(k):v for k,v in d.items()},"mean":sum(res)/len(res),
            "solved":ok,"n":len(W),"max":max(res)}, open('benchmark.json','w'),indent=1)

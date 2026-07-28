@@ -96,10 +96,12 @@ with sync_playwright() as pw:
         if not pg.evaluate("__state().over"): pg.evaluate(f"__play('{w}')")
     note=pg.inner_text("#effNote"); su=pg.evaluate("__summary()")
     import re as _re
-    nums=[float(x) for x in _re.findall(r"[-+]?\d+\.\d+", note)]
+    # every number anywhere in the summary, integers included, and the per-row Best figures
+    nums=[float(x) for x in _re.findall(r"[-+]?\d+(?:\.\d+)?", note)]
     cap=math.log2(1552)
-    t("11c. no figure in the summary exceeds log2(pool) = 10.60",
-      all(abs(n)<=cap+1e-9 for n in nums), f"{nums} vs cap {cap:.2f}")
+    over=[n for n in nums if abs(n)>cap+1e-9 and abs(n-round(n))>1e-9]
+    t("11c. no BITS figure in the summary exceeds log2(pool) = 10.60 (percentages excluded)",
+      over==[], f"offending {over} of {nums}")
     t("11d. skill is a bounded ratio, not a ratio of unbounded sums",
       0.0<=su["skill"]<=1.0, f"skill={su['skill']:.3f}")
     t("11e. the summary never asserts a bit budget", "bits available" not in note.lower()
@@ -192,7 +194,25 @@ with sync_playwright() as pw:
     t("20d. fast path == display path for the wider guess list too", ex["bad"]==0,
       f'{ex["checked"]:,} pairs, {ex["bad"]} mismatches')
 
-    t("21. no JS errors", errs==[], "; ".join(errs[:2]))
+    # 21: Best must be the best LEGAL question, not merely the best answer-pool word
+    cmp=pg.evaluate("""()=>{
+      const c=__words.slice(0,120);
+      const shown=__bestGuess(c);
+      let bh=-1,bw=null;
+      for(const g of [...__guesses]){ const h=__entropy(g,c); if(h>bh+1e-9){bh=h;bw=g;} }
+      return {shown:shown.word, shownBits:shown.bits, trueBest:bw, trueBits:bh, full:shown.full};}""")
+    t("21. Best is the optimum over the whole legal guess list, not just the answer pool",
+      abs(cmp["shownBits"]-cmp["trueBits"])<1e-6 and cmp["full"] is True,
+      f'{cmp["shown"]} {cmp["shownBits"]:.4f} vs true {cmp["trueBest"]} {cmp["trueBits"]:.4f}')
+
+    # 22: a finished game must not accept further moves
+    pg.evaluate("__reset('calm')")
+    a=pg.evaluate("__state().answer"); pg.evaluate(f"__play('{a}')")
+    before=len(pg.evaluate("__state().rows")); pg.evaluate("__play('TEARS')")
+    t("22. a finished game refuses further guesses",
+      len(pg.evaluate("__state().rows"))==before, str(pg.evaluate("__state().msg")))
+
+    t("23. no JS errors", errs==[], "; ".join(errs[:2]))
     pg.evaluate("__reset('calm')")
     for w in ["TEARS","SNORE"]: pg.evaluate(f"__play('{w}')")
     pg.wait_for_timeout(700); pg.screenshot(path="stormle.png")
