@@ -1,0 +1,1802 @@
+[
+ {
+  "grid": [
+   "MAP##",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "MAP",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "MESS",
+   "ARCH",
+   "PROOF",
+   "ORAL",
+   "RELY"
+  ],
+  "tscore": 3
+ },
+ {
+  "grid": [
+   "LAP##",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "LAP",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "LESS",
+   "ARCH",
+   "PROOF",
+   "ORAL",
+   "RELY"
+  ],
+  "tscore": 3
+ },
+ {
+  "grid": [
+   "MAT##",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "##PLY"
+  ],
+  "across": [
+   "MAT",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "PLY"
+  ],
+  "down": [
+   "MESS",
+   "ARCH",
+   "TROOP",
+   "ORAL",
+   "RELY"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "FOR##",
+   "UNITS",
+   "SCORE",
+   "SETUP",
+   "##SET"
+  ],
+  "across": [
+   "FOR",
+   "UNITS",
+   "SCORE",
+   "SETUP",
+   "SET"
+  ],
+  "down": [
+   "FUSS",
+   "ONCE",
+   "RIOTS",
+   "TRUE",
+   "SEPT"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "WAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "WAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "WELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "BAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "BAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "BELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "TAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "TAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "TELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "SAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "SAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "SELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "MAP##",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "MAP",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "MESS",
+   "ARCH",
+   "PROOF",
+   "OPAL",
+   "RELY"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "LAP##",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "LAP",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "LESS",
+   "ARCH",
+   "PROOF",
+   "OPAL",
+   "RELY"
+  ],
+  "tscore": 2
+ },
+ {
+  "grid": [
+   "PIG##",
+   "ATLAS",
+   "SCORE",
+   "THREE",
+   "##YAK"
+  ],
+  "across": [
+   "PIG",
+   "ATLAS",
+   "SCORE",
+   "THREE",
+   "YAK"
+  ],
+  "down": [
+   "PAST",
+   "ITCH",
+   "GLORY",
+   "AREA",
+   "SEEK"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "PIG##",
+   "ATLAS",
+   "SCORE",
+   "THREE",
+   "##YAM"
+  ],
+  "across": [
+   "PIG",
+   "ATLAS",
+   "SCORE",
+   "THREE",
+   "YAM"
+  ],
+  "down": [
+   "PAST",
+   "ITCH",
+   "GLORY",
+   "AREA",
+   "SEEM"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "MOM##",
+   "ABOVE",
+   "TOTAL",
+   "HEELS",
+   "##LEE"
+  ],
+  "across": [
+   "MOM",
+   "ABOVE",
+   "TOTAL",
+   "HEELS",
+   "LEE"
+  ],
+  "down": [
+   "MATH",
+   "OBOE",
+   "MOTEL",
+   "VALE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ALE##",
+   "LOAFS",
+   "TOTAL",
+   "OPERA",
+   "##NET"
+  ],
+  "across": [
+   "ALE",
+   "LOAFS",
+   "TOTAL",
+   "OPERA",
+   "NET"
+  ],
+  "down": [
+   "ALTO",
+   "LOOP",
+   "EATEN",
+   "FARE",
+   "SLAT"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ARM##",
+   "LOOMS",
+   "TOTAL",
+   "OMEGA",
+   "##LIT"
+  ],
+  "across": [
+   "ARM",
+   "LOOMS",
+   "TOTAL",
+   "OMEGA",
+   "LIT"
+  ],
+  "down": [
+   "ALTO",
+   "ROOM",
+   "MOTEL",
+   "MAGI",
+   "SLAT"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ARM##",
+   "LOOMS",
+   "TOTAL",
+   "OMEGA",
+   "##LIP"
+  ],
+  "across": [
+   "ARM",
+   "LOOMS",
+   "TOTAL",
+   "OMEGA",
+   "LIP"
+  ],
+  "down": [
+   "ALTO",
+   "ROOM",
+   "MOTEL",
+   "MAGI",
+   "SLAP"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ART##",
+   "LOOPS",
+   "TOTAL",
+   "OMEGA",
+   "##MET"
+  ],
+  "across": [
+   "ART",
+   "LOOPS",
+   "TOTAL",
+   "OMEGA",
+   "MET"
+  ],
+  "down": [
+   "ALTO",
+   "ROOM",
+   "TOTEM",
+   "PAGE",
+   "SLAT"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ARM##",
+   "LOOPS",
+   "TOTAL",
+   "OMEGA",
+   "##LET"
+  ],
+  "across": [
+   "ARM",
+   "LOOPS",
+   "TOTAL",
+   "OMEGA",
+   "LET"
+  ],
+  "down": [
+   "ALTO",
+   "ROOM",
+   "MOTEL",
+   "PAGE",
+   "SLAT"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ALP##",
+   "NIECE",
+   "TOTAL",
+   "SNAPS",
+   "##LEE"
+  ],
+  "across": [
+   "ALP",
+   "NIECE",
+   "TOTAL",
+   "SNAPS",
+   "LEE"
+  ],
+  "down": [
+   "ANTS",
+   "LION",
+   "PETAL",
+   "CAPE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ARM##",
+   "NIECE",
+   "TOTAL",
+   "STARS",
+   "##LEE"
+  ],
+  "across": [
+   "ARM",
+   "NIECE",
+   "TOTAL",
+   "STARS",
+   "LEE"
+  ],
+  "down": [
+   "ANTS",
+   "RIOT",
+   "METAL",
+   "CARE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ARM##",
+   "NOOKS",
+   "TOTAL",
+   "STOLE",
+   "##RED"
+  ],
+  "across": [
+   "ARM",
+   "NOOKS",
+   "TOTAL",
+   "STOLE",
+   "RED"
+  ],
+  "down": [
+   "ANTS",
+   "ROOT",
+   "MOTOR",
+   "KALE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "POP##",
+   "OBESE",
+   "TOTAL",
+   "SEALS",
+   "##LEE"
+  ],
+  "across": [
+   "POP",
+   "OBESE",
+   "TOTAL",
+   "SEALS",
+   "LEE"
+  ],
+  "down": [
+   "POTS",
+   "OBOE",
+   "PETAL",
+   "SALE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "OBESE",
+   "TOTAL",
+   "SEALS",
+   "##LEE"
+  ],
+  "across": [
+   "COP",
+   "OBESE",
+   "TOTAL",
+   "SEALS",
+   "LEE"
+  ],
+  "down": [
+   "COTS",
+   "OBOE",
+   "PETAL",
+   "SALE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "OBESE",
+   "TOTAL",
+   "SEALS",
+   "##LEE"
+  ],
+  "across": [
+   "LOP",
+   "OBESE",
+   "TOTAL",
+   "SEALS",
+   "LEE"
+  ],
+  "down": [
+   "LOTS",
+   "OBOE",
+   "PETAL",
+   "SALE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "POP##",
+   "OBESE",
+   "TOTAL",
+   "SEAMS",
+   "##LEE"
+  ],
+  "across": [
+   "POP",
+   "OBESE",
+   "TOTAL",
+   "SEAMS",
+   "LEE"
+  ],
+  "down": [
+   "POTS",
+   "OBOE",
+   "PETAL",
+   "SAME",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "OBESE",
+   "TOTAL",
+   "SEAMS",
+   "##LEE"
+  ],
+  "across": [
+   "COP",
+   "OBESE",
+   "TOTAL",
+   "SEAMS",
+   "LEE"
+  ],
+  "down": [
+   "COTS",
+   "OBOE",
+   "PETAL",
+   "SAME",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "OBESE",
+   "TOTAL",
+   "SEAMS",
+   "##LEE"
+  ],
+  "across": [
+   "LOP",
+   "OBESE",
+   "TOTAL",
+   "SEAMS",
+   "LEE"
+  ],
+  "down": [
+   "LOTS",
+   "OBOE",
+   "PETAL",
+   "SAME",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OFF##",
+   "PLACE",
+   "TOTAL",
+   "SPANS",
+   "##LEE"
+  ],
+  "across": [
+   "OFF",
+   "PLACE",
+   "TOTAL",
+   "SPANS",
+   "LEE"
+  ],
+  "down": [
+   "OPTS",
+   "FLOP",
+   "FATAL",
+   "CANE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OFF##",
+   "PLACE",
+   "TOTAL",
+   "SWANS",
+   "##LEE"
+  ],
+  "across": [
+   "OFF",
+   "PLACE",
+   "TOTAL",
+   "SWANS",
+   "LEE"
+  ],
+  "down": [
+   "OPTS",
+   "FLOW",
+   "FATAL",
+   "CANE",
+   "ELSE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POEMS",
+   "TOTAL",
+   "SPACE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POEMS",
+   "TOTAL",
+   "SPACE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOP",
+   "METAL",
+   "MACE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POEMS",
+   "TOTAL",
+   "SPARE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POEMS",
+   "TOTAL",
+   "SPARE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOP",
+   "METAL",
+   "MARE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POEMS",
+   "TOTAL",
+   "STAGE",
+   "##LID"
+  ],
+  "across": [
+   "OHM",
+   "POEMS",
+   "TOTAL",
+   "STAGE",
+   "LID"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "MAGI",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POEMS",
+   "TOTAL",
+   "STAKE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POEMS",
+   "TOTAL",
+   "STAKE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "MAKE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POEMS",
+   "TOTAL",
+   "STALE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POEMS",
+   "TOTAL",
+   "STALE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "MALE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POEMS",
+   "TOTAL",
+   "STARE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POEMS",
+   "TOTAL",
+   "STARE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "MARE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POEMS",
+   "TOTAL",
+   "STATE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POEMS",
+   "TOTAL",
+   "STATE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "MATE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POETS",
+   "TOTAL",
+   "SPARE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POETS",
+   "TOTAL",
+   "SPARE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOP",
+   "METAL",
+   "TARE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POETS",
+   "TOTAL",
+   "STAKE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POETS",
+   "TOTAL",
+   "STAKE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "TAKE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POETS",
+   "TOTAL",
+   "STALE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POETS",
+   "TOTAL",
+   "STALE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "TALE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POETS",
+   "TOTAL",
+   "STARE",
+   "##LED"
+  ],
+  "across": [
+   "OHM",
+   "POETS",
+   "TOTAL",
+   "STARE",
+   "LED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "METAL",
+   "TARE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POOLS",
+   "TOTAL",
+   "SPOKE",
+   "##RED"
+  ],
+  "across": [
+   "OHM",
+   "POOLS",
+   "TOTAL",
+   "SPOKE",
+   "RED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOP",
+   "MOTOR",
+   "LAKE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POOLS",
+   "TOTAL",
+   "STOKE",
+   "##RED"
+  ],
+  "across": [
+   "OHM",
+   "POOLS",
+   "TOTAL",
+   "STOKE",
+   "RED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "MOTOR",
+   "LAKE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POOLS",
+   "TOTAL",
+   "STONE",
+   "##RED"
+  ],
+  "across": [
+   "OHM",
+   "POOLS",
+   "TOTAL",
+   "STONE",
+   "RED"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "MOTOR",
+   "LANE",
+   "SLED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "POOLS",
+   "TOTAL",
+   "STOVE",
+   "##RAW"
+  ],
+  "across": [
+   "OHM",
+   "POOLS",
+   "TOTAL",
+   "STOVE",
+   "RAW"
+  ],
+  "down": [
+   "OPTS",
+   "HOOT",
+   "MOTOR",
+   "LAVA",
+   "SLEW"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "CHI##",
+   "AUDIT",
+   "BRIDE",
+   "STOLE",
+   "##MEN"
+  ],
+  "across": [
+   "CHI",
+   "AUDIT",
+   "BRIDE",
+   "STOLE",
+   "MEN"
+  ],
+  "down": [
+   "CABS",
+   "HURT",
+   "IDIOM",
+   "IDLE",
+   "TEEN"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ODD##",
+   "PROOF",
+   "TANGO",
+   "SWORN",
+   "##RED"
+  ],
+  "across": [
+   "ODD",
+   "PROOF",
+   "TANGO",
+   "SWORN",
+   "RED"
+  ],
+  "down": [
+   "OPTS",
+   "DRAW",
+   "DONOR",
+   "OGRE",
+   "FOND"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ODD##",
+   "PROOF",
+   "TINGE",
+   "SPORE",
+   "##RED"
+  ],
+  "across": [
+   "ODD",
+   "PROOF",
+   "TINGE",
+   "SPORE",
+   "RED"
+  ],
+  "down": [
+   "OPTS",
+   "DRIP",
+   "DONOR",
+   "OGRE",
+   "FEED"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "BAT##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "BAT",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "BELL",
+   "AREA",
+   "TRADE",
+   "OVEN",
+   "REND"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "SAT##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "SAT",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "SELL",
+   "AREA",
+   "TRADE",
+   "OVEN",
+   "REND"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "HAG##",
+   "ERROR",
+   "LEAVE",
+   "PANEL",
+   "##DRY"
+  ],
+  "across": [
+   "HAG",
+   "ERROR",
+   "LEAVE",
+   "PANEL",
+   "DRY"
+  ],
+  "down": [
+   "HELP",
+   "AREA",
+   "GRAND",
+   "OVER",
+   "RELY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "HAG##",
+   "ERROR",
+   "LEAVE",
+   "PANEL",
+   "##TRY"
+  ],
+  "across": [
+   "HAG",
+   "ERROR",
+   "LEAVE",
+   "PANEL",
+   "TRY"
+  ],
+  "down": [
+   "HELP",
+   "AREA",
+   "GRANT",
+   "OVER",
+   "RELY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "MAT##",
+   "ERROR",
+   "LEAVE",
+   "TAMED",
+   "##PRO"
+  ],
+  "across": [
+   "MAT",
+   "ERROR",
+   "LEAVE",
+   "TAMED",
+   "PRO"
+  ],
+  "down": [
+   "MELT",
+   "AREA",
+   "TRAMP",
+   "OVER",
+   "REDO"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "BAT##",
+   "ERROR",
+   "LEAVE",
+   "TAMED",
+   "##PRO"
+  ],
+  "across": [
+   "BAT",
+   "ERROR",
+   "LEAVE",
+   "TAMED",
+   "PRO"
+  ],
+  "down": [
+   "BELT",
+   "AREA",
+   "TRAMP",
+   "OVER",
+   "REDO"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "PAT##",
+   "ERROR",
+   "LEAVE",
+   "TAMED",
+   "##PRO"
+  ],
+  "across": [
+   "PAT",
+   "ERROR",
+   "LEAVE",
+   "TAMED",
+   "PRO"
+  ],
+  "down": [
+   "PELT",
+   "AREA",
+   "TRAMP",
+   "OVER",
+   "REDO"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "MAT##",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "##PLY"
+  ],
+  "across": [
+   "MAT",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "PLY"
+  ],
+  "down": [
+   "MESS",
+   "ARCH",
+   "TROOP",
+   "OPAL",
+   "RELY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "HAD##",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "##ART"
+  ],
+  "across": [
+   "HAD",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "ART"
+  ],
+  "down": [
+   "HEWN",
+   "AREA",
+   "DRAMA",
+   "OVER",
+   "REST"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "HAD##",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "##ANT"
+  ],
+  "across": [
+   "HAD",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "ANT"
+  ],
+  "down": [
+   "HEWN",
+   "AREA",
+   "DRAMA",
+   "OVEN",
+   "REST"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "SAD##",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "##ART"
+  ],
+  "across": [
+   "SAD",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "ART"
+  ],
+  "down": [
+   "SEWN",
+   "AREA",
+   "DRAMA",
+   "OVER",
+   "REST"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "SAD##",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "##ANT"
+  ],
+  "across": [
+   "SAD",
+   "ERROR",
+   "WEAVE",
+   "NAMES",
+   "ANT"
+  ],
+  "down": [
+   "SEWN",
+   "AREA",
+   "DRAMA",
+   "OVEN",
+   "REST"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "HAG##",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "##SLY"
+  ],
+  "across": [
+   "HAG",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "SLY"
+  ],
+  "down": [
+   "HEWN",
+   "AREA",
+   "GRASS",
+   "OVAL",
+   "RELY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "SAG##",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "##SLY"
+  ],
+  "across": [
+   "SAG",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "SLY"
+  ],
+  "down": [
+   "SEWN",
+   "AREA",
+   "GRASS",
+   "OVAL",
+   "RELY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "HAG##",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "##PLY"
+  ],
+  "across": [
+   "HAG",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "PLY"
+  ],
+  "down": [
+   "HEWN",
+   "AREA",
+   "GRASP",
+   "OVAL",
+   "RELY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "SAG##",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "##PLY"
+  ],
+  "across": [
+   "SAG",
+   "ERROR",
+   "WEAVE",
+   "NASAL",
+   "PLY"
+  ],
+  "down": [
+   "SEWN",
+   "AREA",
+   "GRASP",
+   "OVAL",
+   "RELY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OWE##",
+   "DEALT",
+   "ERROR",
+   "SENSE",
+   "##SEE"
+  ],
+  "across": [
+   "OWE",
+   "DEALT",
+   "ERROR",
+   "SENSE",
+   "SEE"
+  ],
+  "down": [
+   "ODES",
+   "WERE",
+   "EARNS",
+   "LOSE",
+   "TREE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "DOUBT",
+   "ERROR",
+   "SNARE",
+   "##LEE"
+  ],
+  "across": [
+   "OHM",
+   "DOUBT",
+   "ERROR",
+   "SNARE",
+   "LEE"
+  ],
+  "down": [
+   "ODES",
+   "HORN",
+   "MURAL",
+   "BORE",
+   "TREE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "WHY##",
+   "HEARD",
+   "ERROR",
+   "TENSE",
+   "##SEW"
+  ],
+  "across": [
+   "WHY",
+   "HEARD",
+   "ERROR",
+   "TENSE",
+   "SEW"
+  ],
+  "down": [
+   "WHET",
+   "HERE",
+   "YARNS",
+   "ROSE",
+   "DREW"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "THY##",
+   "HEART",
+   "ERROR",
+   "MEDIA",
+   "##SLY"
+  ],
+  "across": [
+   "THY",
+   "HEART",
+   "ERROR",
+   "MEDIA",
+   "SLY"
+  ],
+  "down": [
+   "THEM",
+   "HERE",
+   "YARDS",
+   "ROIL",
+   "TRAY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "WHY##",
+   "HEART",
+   "ERROR",
+   "TENSE",
+   "##SEE"
+  ],
+  "across": [
+   "WHY",
+   "HEART",
+   "ERROR",
+   "TENSE",
+   "SEE"
+  ],
+  "down": [
+   "WHET",
+   "HERE",
+   "YARNS",
+   "ROSE",
+   "TREE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "ROOST",
+   "ERROR",
+   "SNARE",
+   "##LEE"
+  ],
+  "across": [
+   "OHM",
+   "ROOST",
+   "ERROR",
+   "SNARE",
+   "LEE"
+  ],
+  "down": [
+   "ORES",
+   "HORN",
+   "MORAL",
+   "SORE",
+   "TREE"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "ICY##",
+   "TOAST",
+   "ERROR",
+   "MEDIA",
+   "##SLY"
+  ],
+  "across": [
+   "ICY",
+   "TOAST",
+   "ERROR",
+   "MEDIA",
+   "SLY"
+  ],
+  "down": [
+   "ITEM",
+   "CORE",
+   "YARDS",
+   "SOIL",
+   "TRAY"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "TURBO",
+   "ERROR",
+   "PLANE",
+   "##YES"
+  ],
+  "across": [
+   "SPA",
+   "TURBO",
+   "ERROR",
+   "PLANE",
+   "YES"
+  ],
+  "down": [
+   "STEP",
+   "PURL",
+   "ARRAY",
+   "BONE",
+   "ORES"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OHM##",
+   "WIELD",
+   "ERROR",
+   "SERVE",
+   "##YEW"
+  ],
+  "across": [
+   "OHM",
+   "WIELD",
+   "ERROR",
+   "SERVE",
+   "YEW"
+  ],
+  "down": [
+   "OWES",
+   "HIRE",
+   "MERRY",
+   "LOVE",
+   "DREW"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OFT##",
+   "WIELD",
+   "ERROR",
+   "SERVE",
+   "##YEW"
+  ],
+  "across": [
+   "OFT",
+   "WIELD",
+   "ERROR",
+   "SERVE",
+   "YEW"
+  ],
+  "down": [
+   "OWES",
+   "FIRE",
+   "TERRY",
+   "LOVE",
+   "DREW"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "OFF##",
+   "WIELD",
+   "ERROR",
+   "SERVE",
+   "##YEW"
+  ],
+  "across": [
+   "OFF",
+   "WIELD",
+   "ERROR",
+   "SERVE",
+   "YEW"
+  ],
+  "down": [
+   "OWES",
+   "FIRE",
+   "FERRY",
+   "LOVE",
+   "DREW"
+  ],
+  "tscore": 1
+ },
+ {
+  "grid": [
+   "MOM##",
+   "ADAPT",
+   "COCOA",
+   "ERROR",
+   "##ORE"
+  ],
+  "across": [
+   "MOM",
+   "ADAPT",
+   "COCOA",
+   "ERROR",
+   "ORE"
+  ],
+  "down": [
+   "MACE",
+   "ODOR",
+   "MACRO",
+   "POOR",
+   "TARE"
+  ],
+  "tscore": 1
+ }
+]

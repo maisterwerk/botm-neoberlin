@@ -1,226 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mind Grid — A Mini Crossword · Battle of the Minds</title>
-<meta name="description" content="Mind Grid: a symmetric 5x5 word-square mini crossword built by the Mind 'NeoBerlin' for the Battle of the Minds. Every row AND column is a word. Zero dependencies." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23111'/%3E%3Crect x='18' y='18' width='26' height='26' fill='%23fff'/%3E%3Crect x='56' y='56' width='26' height='26' fill='%23fff'/%3E%3C/svg%3E" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Show Your Work — a 5×5 Mini Crossword</title>
 <style>
-  :root{--bg:#0f1015;--panel:#15171f;--border:#33384a;--text:#e9ecf3;--muted:#8b90a0;--accent:#6aaa64;--hi:#3a4a6b;--hiword:#233350;--err:#c9534f}
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{margin:0;min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,#1a1d2b,var(--bg));color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column;align-items:center}
-  header{text-align:center;padding:16px}
-  h1{margin:0;font-size:24px;letter-spacing:3px}h1 span{color:var(--accent)}
-  .sub{color:var(--muted);font-size:12px;letter-spacing:1px;margin-top:2px}
-  .wrap{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;padding:0 16px 24px;max-width:840px}
-  #grid{display:grid;grid-template-columns:repeat(5,58px);grid-template-rows:repeat(5,58px);gap:3px;background:var(--border);padding:3px;border-radius:6px}
-  .cell{position:relative;background:var(--panel)}
-  .cell input{width:100%;height:100%;border:0;background:transparent;color:var(--text);text-align:center;
-    font-size:27px;font-weight:700;text-transform:uppercase;caret-color:var(--accent);outline:none;cursor:pointer}
-  .cell.hl{background:var(--hiword)} .cell.active{background:var(--hi)}
-  .cell.good input{color:var(--accent)} .cell.bad input{color:var(--err)}
-  .cell.diag{box-shadow:inset 0 0 0 2px #8b5cf6}
-  .cell.diag .num{color:#a78bfa}
-  @keyframes diagpulse{0%{transform:scale(1);box-shadow:inset 0 0 0 2px #8b5cf6}40%{transform:scale(1.16);box-shadow:inset 0 0 0 3px #c4b5fd,0 0 22px #8b5cf6}100%{transform:scale(1);box-shadow:inset 0 0 0 2px #8b5cf6}}
-  .cell.diag.reveal{animation:diagpulse .7s ease}
-  .cell.diag.reveal input{color:#c4b5fd!important;font-weight:800}
-  #reveal-banner{margin-top:12px;display:none;background:linear-gradient(135deg,#2a1e5c,#1b2b4d);border:1px solid #5b4bb0;border-radius:12px;padding:14px 16px;font-size:15px}
-  #reveal-banner b{color:#c4b5fd;letter-spacing:3px;font-size:18px}
-  .num{position:absolute;top:2px;left:4px;font-size:10px;color:var(--muted);font-weight:600;pointer-events:none}
-  .clues{min-width:280px;max-width:360px}
-  .clues h3{margin:8px 0 4px;color:var(--accent);font-size:13px;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:4px}
-  .clue{padding:7px 9px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1.35;color:#d4d8e2}
-  .clue:hover{background:var(--panel)} .clue.sel{background:var(--hiword);color:#fff}
-  .clue b{color:var(--muted);margin-right:6px}
-  .bar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-  button{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px}
-  button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-  button:hover{filter:brightness(1.12)}
-  #status{min-height:20px;margin-top:10px;font-size:14px;color:var(--muted)}
-  #status.win{color:var(--accent);font-weight:700}
-  footer{color:var(--muted);font-size:11px;padding:8px 16px 22px;text-align:center;max-width:660px;line-height:1.5}
-  footer b{color:var(--accent)}
+:root{
+  --bg:#0e1116; --panel:#161b22; --line:#30363d; --ink:#e6edf3; --dim:#8b949e;
+  --cell:#f6f8fa; --cellink:#0d1117; --sel:#ffda6b; --word:#cfe3ff; --good:#3fb950; --bad:#f85149;
+  --theme:#a371f7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif}
+.wrap{max-width:940px;margin:0 auto;padding:22px 16px 60px}
+header{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:20px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:-.3px}
+h1 span{color:var(--theme)}
+.sub{color:var(--dim);font-size:14px;margin:0}
+.layout{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.left{flex:0 0 auto}
+.right{flex:1 1 300px;min-width:260px}
+
+#grid{display:grid;grid-template-columns:repeat(5,64px);grid-template-rows:repeat(5,64px);
+  gap:0;border:3px solid var(--ink);background:var(--ink);width:max-content}
+.cell{position:relative;background:var(--cell);border:1px solid #b9c1c9;display:flex;
+  align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.cell.block{background:#0d1117;border-color:#0d1117;cursor:default}
+.cell .num{position:absolute;top:2px;left:4px;font-size:11px;font-weight:700;color:#57606a;line-height:1}
+.cell .ltr{font-size:32px;font-weight:600;color:var(--cellink);line-height:1;margin-top:4px;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.cell.inword{background:var(--word)}
+.cell.active{background:var(--sel)}
+.cell.wrong .ltr{color:var(--bad)}
+.cell.revealed .ltr{color:#0969da}
+.cell.themer::after{content:"";position:absolute;right:3px;bottom:3px;width:6px;height:6px;
+  border-radius:50%;background:var(--theme);opacity:.6}
+.cell.solved{animation:pop .5s ease}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.14);background:#d7f7dd}100%{transform:scale(1)}}
+
+#cluebar{margin-top:14px;width:326px;background:var(--panel);border:1px solid var(--line);
+  border-radius:8px;padding:11px 13px;min-height:62px;font-size:15px;line-height:1.4}
+#cluebar b{color:var(--theme)}
+.controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;width:326px}
+button{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:7px;
+  padding:9px 13px;font-size:13px;font-weight:600;cursor:pointer}
+button:hover{border-color:var(--dim)}
+button.primary{background:#1f6feb;border-color:#1f6feb}
+#status{margin-top:12px;font-size:14px;min-height:22px;font-weight:600;width:326px}
+#status.ok{color:var(--good)} #status.no{color:var(--bad)}
+
+.cluecol h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  margin:0 0 8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.cluecol{margin-bottom:22px}
+ol{list-style:none;margin:0;padding:0}
+li{display:flex;gap:9px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:14.5px;line-height:1.35}
+li:hover{background:#1c2128}
+li.sel{background:#1f2f4d}
+li.done{color:var(--dim)}
+li .n{font-weight:800;min-width:19px;text-align:right;color:var(--dim)}
+li.themeclue .n{color:var(--theme)}
+
+#reveal{display:none;margin-top:18px;padding:14px 16px;border-radius:9px;
+  background:linear-gradient(90deg,#1f2937,#312244);border:1px solid var(--theme);font-size:15px;line-height:1.5}
+#reveal b{color:var(--theme)}
+footer{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;color:var(--dim);font-size:12.5px;line-height:1.6}
+@media(max-width:560px){
+  #grid{grid-template-columns:repeat(5,17vw);grid-template-rows:repeat(5,17vw)}
+  .cell .ltr{font-size:8vw} #cluebar,.controls,#status{width:min(326px,85vw)}
+}
 </style>
 </head>
 <body>
-<header>
-  <h1>MIND <span>GRID</span></h1>
-  <div class="sub">A SYMMETRIC WORD SQUARE WITH A SECRET ON ITS DIAGONAL · BY THE MIND "NEOBERLIN"</div>
-</header>
 <div class="wrap">
-  <div>
-    <div id="grid" aria-label="crossword grid"></div>
-    <div class="bar">
-      <button class="primary" id="check">Check</button>
-      <button id="reveal">Reveal letter</button>
-      <button id="clear">Clear</button>
+<header>
+  <h1>Show Your <span>Work</span></h1>
+  <p class="sub">A 5×5 mini. Three of the answers are ways of finding out whether a claim holds up — and one of them runs down the spine of the grid.</p>
+</header>
+
+<div class="layout">
+  <div class="left">
+    <div id="grid" role="application" aria-label="Crossword grid"></div>
+    <div id="cluebar">Click a square to begin.</div>
+    <div class="controls">
+      <button class="primary" id="bCheck">Check</button>
+      <button id="bLetter">Reveal letter</button>
+      <button id="bWord">Reveal word</button>
+      <button id="bClear">Clear</button>
     </div>
-    <div id="status">Click a clue or a square to begin. Type letters; arrows to move.</div>
-    <div id="reveal-banner"></div>
+    <div id="status"></div>
   </div>
-  <div class="clues">
-    <h3>ACROSS</h3><div id="across"></div>
-    <h3>DOWN</h3><div id="down"></div>
+
+  <div class="right">
+    <div class="cluecol"><h3>Across</h3><ol id="listA"></ol></div>
+    <div class="cluecol"><h3>Down</h3><ol id="listD"></ol></div>
+    <div id="reveal"></div>
   </div>
 </div>
+
 <footer>
-  This is a <b>word square</b> with a twist: the five ACROSS answers are identical to the five DOWN answers
-  (MOULD · OILER · ULNAE · LEADS · DRESS), AND the purple main diagonal secretly spells <b>MINDS</b> — the
-  name of this tournament. Solve it to reveal the hidden acrostic. Self-contained, zero dependencies, long-cache static asset; solution verified in code.
+  Type to fill · <b>Tab</b> next clue · <b>Space</b> switches Across/Down · arrow keys move ·
+  <b>Backspace</b> deletes and steps back. Purple dots mark the themed answers.<br>
+  Built by NeoBerlin. One self-contained file — no external assets, no dependencies, no network calls.
 </footer>
+</div>
 
 <script>
-/* ---- Authoritative verified grid: a symmetric 5x5 word square ----
-   Rows AND columns are all valid words: HEART, EMBER, ABUSE, RESIN, TREND.
-   Because it's symmetric, Across #k and Down #k share the same solution word
-   but get distinct clues. */
-const SOLUTION=[
-  ["M","O","U","L","D"],
-  ["O","I","L","E","R"],
-  ["U","L","N","A","E"],
-  ["L","E","A","D","S"],
-  ["D","R","E","S","S"]
-];
-const N=5;
-// The hidden hook: the main diagonal (top-left → bottom-right) secretly spells MINDS.
-const HIDDEN="MINDS";
-const ACROSS={
-  1:"Fuzzy growth on old bread (British spelling)",
-  6:"Rig worker on a derrick",
-  7:"Forearm bones (plural of ulna)",
-  8:"Front-runners; also what a detective follows",
-  9:"What you wear to the gala"
+/* ============================================================
+   GRID  ( # = black square )
+     M A P # #
+     E R R O R
+     S C O R E
+     S H O A L
+     # # F L Y
+   Across: MAP ERROR SCORE SHOAL FLY
+   Down  : MESS ARCH PROOF ORAL RELY
+   All ten entries are distinct words. PROOF is the vertical
+   spine and crosses ERROR, SCORE and SHOAL.
+   ============================================================ */
+const SOL = ["MAP##","ERROR","SCORE","SHOAL","##FLY"];
+const N = 5;
+const isBlock = (r,c) => SOL[r][c] === "#";
+
+const CLUES = {
+  "1A":"Legend holder",
+  "4A":"Fielder's flub, on a scoreboard",
+  "7A":"Twenty, to Lincoln",
+  "8A":"School of fish, or the shallows it may be hiding over",
+  "9A":"High one to left field, or a feature of trousers",
+  "1D":"Where soldiers eat",
+  "2D":"Sly, as a grin",
+  "3D":"What Q.E.D. marks the end of — and what a whiskey label puts a number on",
+  "5D":"Kind of exam you can't slip notes into",
+  "6D":"Lean (on)"
 };
-const DOWN={
-  1:"Fuzzy growth on old bread (British spelling)",
-  2:"Rig worker on a derrick",
-  3:"Forearm bones (plural of ulna)",
-  4:"Front-runners; a detective's clues",
-  5:"Gala attire"
-};
+const THEME_KEYS = ["4A","7A","3D"];        // ERROR, SCORE, PROOF
 
-const gridEl=document.getElementById('grid');
-const acrossEl=document.getElementById('across');
-const downEl=document.getElementById('down');
-const statusEl=document.getElementById('status');
-
-// numbering: a cell is numbered if it starts an across (leftmost of a row here) or a down (top of a col)
-let numAt={}, n=1;
-for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-  const startA=(c===0);   // no blocks => across starts at col 0
-  const startD=(r===0);   // down starts at row 0
-  if(startA||startD){numAt[r+"_"+c]=n++;}
-}
-// Build across/down entry metadata
-const entries={across:[],down:[]};
-for(let r=0;r<N;r++){entries.across.push({num:numAt[r+"_0"],row:r,col:0,dir:"across",len:N});}
-for(let c=0;c<N;c++){entries.down.push({num:numAt["0_"+c],row:0,col:c,dir:"down",len:N});}
-
-const inputs={}; // r_c -> input
-let sel={dir:"across",row:0,col:0};
-
-function cellsOfEntry(e){const arr=[];for(let i=0;i<e.len;i++){arr.push(e.dir==="across"?[e.row,e.col+i]:[e.row+i,e.col]);}return arr;}
-function entryAt(dir,r,c){return dir==="across"?entries.across.find(e=>e.row===r):entries.down.find(e=>e.col===c);}
-
-function build(){
-  gridEl.innerHTML="";
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-    const cell=document.createElement('div');cell.className='cell';cell.dataset.r=r;cell.dataset.c=c;
-    const num=numAt[r+"_"+c];
-    if(num){const s=document.createElement('span');s.className='num';s.textContent=num;cell.appendChild(s);}
-    const inp=document.createElement('input');inp.maxLength=1;inp.dataset.r=r;inp.dataset.c=c;
-    inp.addEventListener('focus',()=>{sel.row=r;sel.col=c;highlight();});
-    inp.addEventListener('click',()=>{if(sel.row===r&&sel.col===c)toggleDir();sel.row=r;sel.col=c;highlight();});
-    inp.addEventListener('keydown',onKey);
-    inp.addEventListener('input',onInput);
-    if(r===c) cell.classList.add('diag'); // hidden diagonal (spells MINDS)
-    cell.appendChild(inp);inputs[r+"_"+c]=inp;gridEl.appendChild(cell);
+/* ---------- numbering (standard crossword rules) ---------- */
+const num = Array.from({length:N},()=>Array(N).fill(0));
+const entries = {};
+let counter = 0;
+for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+  if(isBlock(r,c)) continue;
+  const startA = (c===0||isBlock(r,c-1)) && (c+1<N && !isBlock(r,c+1));
+  const startD = (r===0||isBlock(r-1,c)) && (r+1<N && !isBlock(r+1,c));
+  if(startA||startD){
+    num[r][c] = ++counter;
+    if(startA){
+      const cells=[]; let x=c; while(x<N && !isBlock(r,x)){cells.push([r,x]);x++;}
+      entries[counter+"A"]={cells,dir:"A",n:counter,answer:cells.map(([a,b])=>SOL[a][b]).join("")};
+    }
+    if(startD){
+      const cells=[]; let y=r; while(y<N && !isBlock(y,c)){cells.push([y,c]);y++;}
+      entries[counter+"D"]={cells,dir:"D",n:counter,answer:cells.map(([a,b])=>SOL[a][b]).join("")};
+    }
   }
 }
-function toggleDir(){sel.dir=sel.dir==="across"?"down":"across";}
-function highlight(){
-  document.querySelectorAll('.cell').forEach(c=>c.classList.remove('hl','active'));
-  const e=entryAt(sel.dir,sel.row,sel.col);
-  cellsOfEntry(e).forEach(([r,c])=>gridEl.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).classList.add('hl'));
-  const a=gridEl.querySelector(`.cell[data-r="${sel.row}"][data-c="${sel.col}"]`);a.classList.add('active');
-  syncClueSel();
+const THEME_CELLS = new Set();
+THEME_KEYS.forEach(k=>entries[k].cells.forEach(x=>THEME_CELLS.add(x.join(","))));
+
+/* ---------- state ---------- */
+const user = Array.from({length:N},()=>Array(N).fill(""));
+const revealedCell = Array.from({length:N},()=>Array(N).fill(false));
+let cur = {r:0,c:0,dir:"A"};
+let done = false;
+
+/* ---------- DOM ---------- */
+const gridEl = document.getElementById("grid");
+const cellEl = Array.from({length:N},()=>Array(N).fill(null));
+for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+  const d = document.createElement("div");
+  d.className = "cell" + (isBlock(r,c) ? " block" : "");
+  d.dataset.r=r; d.dataset.c=c;
+  if(!isBlock(r,c)){
+    if(num[r][c]) d.innerHTML = '<span class="num">'+num[r][c]+'</span>';
+    const s=document.createElement("span"); s.className="ltr"; d.appendChild(s);
+    d.addEventListener("mousedown",e=>{
+      e.preventDefault();
+      if(cur.r===r && cur.c===c){ const o=cur.dir==="A"?"D":"A"; if(entryAt(r,c,o)) cur.dir=o; }
+      else { cur.r=r; cur.c=c; if(!entryAt(r,c,cur.dir)) cur.dir = cur.dir==="A"?"D":"A"; }
+      draw();
+    });
+  }
+  gridEl.appendChild(d); cellEl[r][c]=d;
 }
-function focusCell(r,c){const inp=inputs[r+"_"+c];if(inp){inp.focus();}}
-function onInput(ev){
-  const inp=ev.target;inp.value=inp.value.replace(/[^a-zA-Z]/,'').toUpperCase();
-  clearMarks();
-  if(inp.value){advance();}
+
+function entryAt(r,c,dir){
+  for(const k in entries){
+    const e=entries[k];
+    if(e.dir!==dir) continue;
+    if(e.cells.some(([a,b])=>a===r&&b===c)) return k;
+  }
+  return null;
+}
+function curKey(){ return entryAt(cur.r,cur.c,cur.dir); }
+
+/* ---------- clue lists ---------- */
+function buildList(dir,el){
+  el.innerHTML="";
+  Object.keys(entries).filter(k=>entries[k].dir===dir)
+    .sort((a,b)=>entries[a].n-entries[b].n)
+    .forEach(k=>{
+      const li=document.createElement("li"); li.dataset.k=k;
+      if(THEME_KEYS.indexOf(k)>=0) li.classList.add("themeclue");
+      li.innerHTML='<span class="n">'+entries[k].n+'</span><span>'+CLUES[k]+'</span>';
+      li.addEventListener("click",()=>{
+        const e=entries[k]; cur={r:e.cells[0][0],c:e.cells[0][1],dir:dir}; draw();
+      });
+      el.appendChild(li);
+    });
+}
+buildList("A",document.getElementById("listA"));
+buildList("D",document.getElementById("listD"));
+
+/* ---------- render ---------- */
+function entryFilled(k){ return entries[k].cells.every(([r,c])=>user[r][c]); }
+function draw(){
+  const key = curKey();
+  const inw = key ? new Set(entries[key].cells.map(x=>x.join(","))) : new Set();
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    if(isBlock(r,c)) continue;
+    const d=cellEl[r][c];
+    d.classList.toggle("inword", inw.has(r+","+c));
+    d.classList.toggle("active", r===cur.r&&c===cur.c);
+    d.classList.toggle("revealed", revealedCell[r][c]);
+    d.classList.toggle("themer", THEME_CELLS.has(r+","+c));
+    d.classList.remove("wrong");
+    d.querySelector(".ltr").textContent = user[r][c];
+  }
+  document.querySelectorAll("li").forEach(li=>{
+    li.classList.toggle("sel", li.dataset.k===key);
+    li.classList.toggle("done", entryFilled(li.dataset.k));
+  });
+  const bar=document.getElementById("cluebar");
+  bar.innerHTML = key ? '<b>'+entries[key].n+(cur.dir==="A"?" Across":" Down")+'</b> &nbsp;'+CLUES[key]
+                      : "Click a square to begin.";
+}
+
+/* ---------- movement ---------- */
+function step(dr,dc){
+  let r=cur.r+dr, c=cur.c+dc;
+  while(r>=0&&r<N&&c>=0&&c<N&&isBlock(r,c)){ r+=dr; c+=dc; }
+  if(r>=0&&r<N&&c>=0&&c<N){ cur.r=r; cur.c=c; }
 }
 function advance(){
-  if(sel.dir==="across"&&sel.col<N-1)focusCell(sel.row,sel.col+1);
-  else if(sel.dir==="down"&&sel.row<N-1)focusCell(sel.row+1,sel.col);
+  const k=curKey(); if(!k) return;
+  const cells=entries[k].cells;
+  const i=cells.findIndex(([r,c])=>r===cur.r&&c===cur.c);
+  if(i>=0 && i<cells.length-1){ cur.r=cells[i+1][0]; cur.c=cells[i+1][1]; }
 }
-function retreat(){
-  if(sel.dir==="across"&&sel.col>0)focusCell(sel.row,sel.col-1);
-  else if(sel.dir==="down"&&sel.row>0)focusCell(sel.row-1,sel.col);
+function nextClue(back){
+  const order=Object.keys(entries).sort((a,b)=>
+    (entries[a].dir===entries[b].dir) ? entries[a].n-entries[b].n
+                                      : (entries[a].dir==="A"?-1:1));
+  let i=order.indexOf(curKey());
+  i=(i+(back?-1:1)+order.length)%order.length;
+  const e=entries[order[i]];
+  cur={r:e.cells[0][0],c:e.cells[0][1],dir:e.dir};
 }
-function onKey(ev){
-  const k=ev.key;
-  if(k==="Backspace"){if(!ev.target.value){retreat();ev.preventDefault();}return;}
-  if(k==="ArrowRight"){sel.dir="across";focusCell(sel.row,Math.min(N-1,sel.col+1));ev.preventDefault();}
-  else if(k==="ArrowLeft"){sel.dir="across";focusCell(sel.row,Math.max(0,sel.col-1));ev.preventDefault();}
-  else if(k==="ArrowDown"){sel.dir="down";focusCell(Math.min(N-1,sel.row+1),sel.col);ev.preventDefault();}
-  else if(k==="ArrowUp"){sel.dir="down";focusCell(Math.max(0,sel.row-1),sel.col);ev.preventDefault();}
-  else if(k===" "){toggleDir();highlight();ev.preventDefault();}
-  else if(k==="Enter"){check();ev.preventDefault();}
-}
-function renderClues(){
-  const mk=(dir,map)=>entries[dir].map(e=>`<div class="clue" data-dir="${dir}" data-num="${e.num}"><b>${e.num}</b>${map[e.num]}</div>`).join('');
-  acrossEl.innerHTML=mk('across',ACROSS);
-  downEl.innerHTML=mk('down',DOWN);
-  document.querySelectorAll('.clue').forEach(cl=>cl.onclick=()=>{
-    const dir=cl.dataset.dir,num=+cl.dataset.num;const e=entries[dir].find(x=>x.num===num);
-    sel.dir=dir;sel.row=e.row;sel.col=e.col;focusCell(e.row,e.col);highlight();
-  });
-}
-function syncClueSel(){
-  document.querySelectorAll('.clue').forEach(c=>c.classList.remove('sel'));
-  const e=entryAt(sel.dir,sel.row,sel.col);
-  const cl=document.querySelector(`.clue[data-dir="${sel.dir}"][data-num="${e.num}"]`);
-  if(cl)cl.classList.add('sel');
-}
-function clearMarks(){document.querySelectorAll('.cell').forEach(c=>c.classList.remove('good','bad'));}
-function check(){
-  let all=true,any=false;
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
-    const inp=inputs[r+"_"+c];const cell=inp.parentElement;cell.classList.remove('good','bad');
-    if(!inp.value){all=false;continue;}
-    any=true;
-    if(inp.value===SOLUTION[r][c])cell.classList.add('good');
-    else{cell.classList.add('bad');all=false;}
-  }
-  if(all){statusEl.textContent="Solved! Every row and column is a word. 🟩";statusEl.className="win";
-    // animate the hidden diagonal, staggered, then reveal the banner
-    for(let k=0;k<N;k++){
-      const cell=gridEl.querySelector(`.cell[data-r="${k}"][data-c="${k}"]`);
-      if(cell) setTimeout(()=>cell.classList.add('reveal'), k*220);
-    }
-    const rb=document.getElementById('reveal-banner');
-    setTimeout(()=>{
-      rb.style.display="block";
-      rb.innerHTML='🧠 <b>M · I · N · D · S</b><br>Look at the pulsing purple diagonal — the five corner-to-corner letters secretly spell <b style="font-size:15px">MINDS</b>, the name of this tournament. A word square that hides a themed acrostic on its diagonal.';
-    }, N*220);
-  }
-  else if(any){statusEl.textContent="Green = correct, red = fix these.";statusEl.className="";}
-  else{statusEl.textContent="Grid is empty — start typing.";statusEl.className="";}
-}
-function reveal(){
-  const inp=inputs[sel.row+"_"+sel.col];inp.value=SOLUTION[sel.row][sel.col];
-  inp.parentElement.classList.remove('bad');inp.parentElement.classList.add('good');advance();
-}
-function clearGrid(){Object.values(inputs).forEach(i=>{i.value="";i.parentElement.classList.remove('good','bad');});statusEl.textContent="Cleared.";statusEl.className="";focusCell(0,0);}
-document.getElementById('check').onclick=check;
-document.getElementById('reveal').onclick=reveal;
-document.getElementById('clear').onclick=clearGrid;
 
-build();renderClues();focusCell(0,0);highlight();
+document.addEventListener("keydown",e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  const k=e.key;
+  if(k==="Tab"){ e.preventDefault(); nextClue(e.shiftKey); draw(); return; }
+  if(k===" "){ e.preventDefault(); const o=cur.dir==="A"?"D":"A";
+               if(entryAt(cur.r,cur.c,o)) cur.dir=o; draw(); return; }
+  if(k==="ArrowUp"){e.preventDefault();cur.dir="D";step(-1,0);draw();return;}
+  if(k==="ArrowDown"){e.preventDefault();cur.dir="D";step(1,0);draw();return;}
+  if(k==="ArrowLeft"){e.preventDefault();cur.dir="A";step(0,-1);draw();return;}
+  if(k==="ArrowRight"){e.preventDefault();cur.dir="A";step(0,1);draw();return;}
+  if(k==="Backspace"){
+    e.preventDefault();
+    if(user[cur.r][cur.c]){ user[cur.r][cur.c]=""; revealedCell[cur.r][cur.c]=false; }
+    else{
+      const key=curKey();
+      if(key){
+        const cells=entries[key].cells;
+        const i=cells.findIndex(([r,c])=>r===cur.r&&c===cur.c);
+        if(i>0){ cur.r=cells[i-1][0]; cur.c=cells[i-1][1];
+                 user[cur.r][cur.c]=""; revealedCell[cur.r][cur.c]=false; }
+      }
+    }
+    setStatus(""); draw(); return;
+  }
+  if(/^[a-zA-Z]$/.test(k)){
+    e.preventDefault();
+    user[cur.r][cur.c]=k.toUpperCase(); revealedCell[cur.r][cur.c]=false;
+    advance(); setStatus(""); draw();
+    if(isComplete()) check();
+  }
+});
+
+/* ---------- actions ---------- */
+function setStatus(t,cls){ const s=document.getElementById("status");
+  s.textContent=t; s.className=cls||""; }
+function isComplete(){
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++)
+    if(!isBlock(r,c) && !user[r][c]) return false;
+  return true;
+}
+function check(){
+  if(!isComplete()){ setStatus("Not finished yet — keep going.","no"); return false; }
+  let bad=0;
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    if(isBlock(r,c)) continue;
+    if(user[r][c]!==SOL[r][c]){ cellEl[r][c].classList.add("wrong"); bad++; }
+  }
+  if(bad){ setStatus(bad+" square"+(bad>1?"s are":" is")+" wrong (shown in red).","no"); return false; }
+  setStatus("Solved — every across and down answer checks out.","ok");
+  if(!done){
+    done=true;
+    let i=0;
+    for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+      if(isBlock(r,c)) continue;
+      const d=cellEl[r][c]; const delay=(i++)*45;
+      setTimeout(()=>{ d.classList.add("solved");
+                       setTimeout(()=>d.classList.remove("solved"),520); },delay);
+    }
+    const rv=document.getElementById("reveal");
+    rv.innerHTML='<b>The theme — Show Your Work.</b> <b>ERROR</b> (4A), <b>SCORE</b> (7A) and '+
+      '<b>PROOF</b> (3D) are three ways of finding out whether a claim holds up. PROOF runs down '+
+      'the spine of the grid and crosses both of the others: you cannot reach it except through them.';
+    rv.style.display="block";
+  }
+  return true;
+}
+document.getElementById("bCheck").addEventListener("click",()=>check());
+document.getElementById("bLetter").addEventListener("click",()=>{
+  if(isBlock(cur.r,cur.c)) return;
+  user[cur.r][cur.c]=SOL[cur.r][cur.c]; revealedCell[cur.r][cur.c]=true;
+  advance(); draw(); if(isComplete()) check();
+});
+document.getElementById("bWord").addEventListener("click",()=>{
+  const k=curKey(); if(!k) return;
+  entries[k].cells.forEach(([r,c])=>{ user[r][c]=SOL[r][c]; revealedCell[r][c]=true; });
+  draw(); if(isComplete()) check();
+});
+document.getElementById("bClear").addEventListener("click",()=>{
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){ user[r][c]=""; revealedCell[r][c]=false; }
+  done=false; document.getElementById("reveal").style.display="none";
+  setStatus(""); draw();
+});
+
+/* ---------- self-test hooks, for automated verification ---------- */
+window.__selftest = function(){
+  const res={grid:SOL,entries:{},distinct:null,unchecked:[],errors:[]};
+  for(const k in entries) res.entries[k]={answer:entries[k].answer,clue:CLUES[k]};
+  const all=Object.values(entries).map(e=>e.answer);
+  res.distinct = new Set(all).size===all.length;
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
+    if(isBlock(r,c)) continue;
+    if(!entryAt(r,c,"A")||!entryAt(r,c,"D")) res.unchecked.push([r,c]);
+  }
+  if(Object.keys(CLUES).length!==Object.keys(entries).length) res.errors.push("clue count mismatch");
+  for(const k in entries) if(!CLUES[k]) res.errors.push("missing clue "+k);
+  for(const k in CLUES) if(!entries[k]) res.errors.push("orphan clue "+k);
+  return res;
+};
+window.__autofill = function(breakCell){
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){ if(!isBlock(r,c)) user[r][c]=SOL[r][c]; }
+  if(breakCell) user[breakCell[0]][breakCell[1]] = (SOL[breakCell[0]][breakCell[1]]==="X")?"Q":"X";
+  draw(); return check();
+};
+/* position-preserving dump: '#' = black square, '.' = empty white square */
+window.__state = function(){ return {
+  user:user.map((row,r)=>row.map((v,c)=>isBlock(r,c)?"#":(v||".")).join("")), done:done,
+  status:document.getElementById("status").textContent,
+  reveal:document.getElementById("reveal").style.display}; };
+
+draw();
 </script>
 </body>
 </html>

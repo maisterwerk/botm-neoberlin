@@ -404,11 +404,18 @@ export default {
     }
     // Long-lived, immutable, versioned mirror of the crossword (event requires "very long-lived caching").
     if (url.pathname === "/crossword" || url.pathname.startsWith("/crossword/")) {
-      const upstream = await fetch("https://maisterwerk.github.io/botm-neoberlin/crossword/index.html", { cf: { cacheTtl: 3600 } });
+      // The response is served immutable for a year, so the ?v= token MUST also key the
+      // upstream fetch — otherwise bumping the version could still hand back the previous
+      // build from edge cache for up to an hour, which would make the versioning a lie.
+      const ver = url.searchParams.get("v") || "0";
+      const upstream = await fetch(
+        "https://maisterwerk.github.io/botm-neoberlin/crossword/index.html?v=" + encodeURIComponent(ver),
+        { cf: { cacheTtl: 3600, cacheKey: "crossword-" + ver } });
       const html = await upstream.text();
       return new Response(html, { status: 200, headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": "public, max-age=31536000, immutable",  // 1 year, versioned via ?v=
+        "X-Crossword-Version": ver,
         "Access-Control-Allow-Origin": "*"
       }});
     }

@@ -1,0 +1,2906 @@
+[
+ {
+  "grid": [
+   "MAP##",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "MAP",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "MESS",
+   "ARCH",
+   "PROOF",
+   "ORAL",
+   "RELY"
+  ],
+  "t": 3
+ },
+ {
+  "grid": [
+   "LAP##",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "LAP",
+   "ERROR",
+   "SCORE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "LESS",
+   "ARCH",
+   "PROOF",
+   "ORAL",
+   "RELY"
+  ],
+  "t": 3
+ },
+ {
+  "grid": [
+   "MAP##",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "MAP",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "MESS",
+   "ARCH",
+   "PROOF",
+   "OPAL",
+   "RELY"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "LAP##",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "##FLY"
+  ],
+  "across": [
+   "LAP",
+   "ERROR",
+   "SCOPE",
+   "SHOAL",
+   "FLY"
+  ],
+  "down": [
+   "LESS",
+   "ARCH",
+   "PROOF",
+   "OPAL",
+   "RELY"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "TOP##",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "TOP",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "TEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SPED"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "TOP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FEW"
+  ],
+  "across": [
+   "TOP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FEW"
+  ],
+  "down": [
+   "TEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLEW"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "TOP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "TOP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "TEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLED"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "TAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "TAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "TELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "WAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "WAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "WELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "HAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "HAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "HELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "SAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "SAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "SELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "BAG##",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "BAG",
+   "ERROR",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "BELL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "REND"
+  ],
+  "t": 2
+ },
+ {
+  "grid": [
+   "SAT##",
+   "WIRES",
+   "ADULT",
+   "MESSY",
+   "##TEE"
+  ],
+  "across": [
+   "SAT",
+   "WIRES",
+   "ADULT",
+   "MESSY",
+   "TEE"
+  ],
+  "down": [
+   "SWAM",
+   "AIDE",
+   "TRUST",
+   "ELSE",
+   "STYE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "BET##",
+   "LARGE",
+   "USUAL",
+   "RESTS",
+   "##TEE"
+  ],
+  "across": [
+   "BET",
+   "LARGE",
+   "USUAL",
+   "RESTS",
+   "TEE"
+  ],
+  "down": [
+   "BLUR",
+   "EASE",
+   "TRUST",
+   "GATE",
+   "ELSE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SET##",
+   "LARGE",
+   "USUAL",
+   "RESTS",
+   "##TEE"
+  ],
+  "across": [
+   "SET",
+   "LARGE",
+   "USUAL",
+   "RESTS",
+   "TEE"
+  ],
+  "down": [
+   "SLUR",
+   "EASE",
+   "TRUST",
+   "GATE",
+   "ELSE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "WAS##",
+   "ALLOW",
+   "STAVE",
+   "HOTEL",
+   "##END"
+  ],
+  "across": [
+   "WAS",
+   "ALLOW",
+   "STAVE",
+   "HOTEL",
+   "END"
+  ],
+  "down": [
+   "WASH",
+   "ALTO",
+   "SLATE",
+   "OVEN",
+   "WELD"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "HAS##",
+   "ALLOW",
+   "STAVE",
+   "HOTEL",
+   "##END"
+  ],
+  "across": [
+   "HAS",
+   "ALLOW",
+   "STAVE",
+   "HOTEL",
+   "END"
+  ],
+  "down": [
+   "HASH",
+   "ALTO",
+   "SLATE",
+   "OVEN",
+   "WELD"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "GAS##",
+   "ALLOW",
+   "STAVE",
+   "HOTEL",
+   "##END"
+  ],
+  "across": [
+   "GAS",
+   "ALLOW",
+   "STAVE",
+   "HOTEL",
+   "END"
+  ],
+  "down": [
+   "GASH",
+   "ALTO",
+   "SLATE",
+   "OVEN",
+   "WELD"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ACT##",
+   "CLOCK",
+   "EATEN",
+   "SPADE",
+   "##LEE"
+  ],
+  "across": [
+   "ACT",
+   "CLOCK",
+   "EATEN",
+   "SPADE",
+   "LEE"
+  ],
+  "down": [
+   "ACES",
+   "CLAP",
+   "TOTAL",
+   "CEDE",
+   "KNEE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "AFT##",
+   "CLOCK",
+   "EATEN",
+   "SPADE",
+   "##LEE"
+  ],
+  "across": [
+   "AFT",
+   "CLOCK",
+   "EATEN",
+   "SPADE",
+   "LEE"
+  ],
+  "down": [
+   "ACES",
+   "FLAP",
+   "TOTAL",
+   "CEDE",
+   "KNEE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "NOT##",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "##LEE"
+  ],
+  "across": [
+   "NOT",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "LEE"
+  ],
+  "down": [
+   "NIPS",
+   "OVAL",
+   "TOTAL",
+   "RICE",
+   "YOKE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "DOT##",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "##LEE"
+  ],
+  "across": [
+   "DOT",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "LEE"
+  ],
+  "down": [
+   "DIPS",
+   "OVAL",
+   "TOTAL",
+   "RICE",
+   "YOKE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SOT##",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "##LEE"
+  ],
+  "across": [
+   "SOT",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "LEE"
+  ],
+  "down": [
+   "SIPS",
+   "OVAL",
+   "TOTAL",
+   "RICE",
+   "YOKE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "TOT##",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "##LEE"
+  ],
+  "across": [
+   "TOT",
+   "IVORY",
+   "PATIO",
+   "SLACK",
+   "LEE"
+  ],
+  "down": [
+   "TIPS",
+   "OVAL",
+   "TOTAL",
+   "RICE",
+   "YOKE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOTS",
+   "METAL",
+   "STARE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOTS",
+   "METAL",
+   "STARE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "TARE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOTS",
+   "METAL",
+   "STAKE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOTS",
+   "METAL",
+   "STAKE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "TAKE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOTS",
+   "METAL",
+   "STALE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOTS",
+   "METAL",
+   "STALE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "TALE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ROT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "ROT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "RARE",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ROT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "ROT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "RARE",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "COT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "CARE",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "COT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "CARE",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "HOT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "HOT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "HARE",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "HOT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "HOT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "HARE",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "TOT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "TOT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "TARE",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "TOT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "TOT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "TARE",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "DOT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "DOT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "DARE",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "DOT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "DOT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "DARE",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "POT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "POT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "PARE",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "POT##",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "POT",
+   "ADOPT",
+   "ROTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "PARE",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "WIT##",
+   "ADOPT",
+   "ROTOR",
+   "PLANE",
+   "##LYE"
+  ],
+  "across": [
+   "WIT",
+   "ADOPT",
+   "ROTOR",
+   "PLANE",
+   "LYE"
+  ],
+  "down": [
+   "WARP",
+   "IDOL",
+   "TOTAL",
+   "PONY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "HIT##",
+   "ADOPT",
+   "ROTOR",
+   "PLANE",
+   "##LYE"
+  ],
+  "across": [
+   "HIT",
+   "ADOPT",
+   "ROTOR",
+   "PLANE",
+   "LYE"
+  ],
+  "down": [
+   "HARP",
+   "IDOL",
+   "TOTAL",
+   "PONY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "TOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "TOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "TAME",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "TOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "TOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "TAME",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "COT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "CAME",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "COT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "CAME",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "GOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "GOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "GAME",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "GOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "GOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "GAME",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "NOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "NOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "NAME",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "NOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "NOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "NAME",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "LOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "LAME",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "LOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "LAME",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LEE"
+  ],
+  "across": [
+   "SOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LEE"
+  ],
+  "down": [
+   "SAME",
+   "ODOR",
+   "TOTAL",
+   "POSE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SOT##",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "##LYE"
+  ],
+  "across": [
+   "SOT",
+   "ADOPT",
+   "MOTOR",
+   "ERASE",
+   "LYE"
+  ],
+  "down": [
+   "SAME",
+   "ODOR",
+   "TOTAL",
+   "POSY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LIT##",
+   "ADOPT",
+   "MOTOR",
+   "PLANE",
+   "##LYE"
+  ],
+  "across": [
+   "LIT",
+   "ADOPT",
+   "MOTOR",
+   "PLANE",
+   "LYE"
+  ],
+  "down": [
+   "LAMP",
+   "IDOL",
+   "TOTAL",
+   "PONY",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "AFT##",
+   "ROOST",
+   "MOTOR",
+   "STARE",
+   "##LEE"
+  ],
+  "across": [
+   "AFT",
+   "ROOST",
+   "MOTOR",
+   "STARE",
+   "LEE"
+  ],
+  "down": [
+   "ARMS",
+   "FOOT",
+   "TOTAL",
+   "SORE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ART##",
+   "ROOST",
+   "MOTOR",
+   "STARE",
+   "##LEE"
+  ],
+  "across": [
+   "ART",
+   "ROOST",
+   "MOTOR",
+   "STARE",
+   "LEE"
+  ],
+  "down": [
+   "ARMS",
+   "ROOT",
+   "TOTAL",
+   "SORE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ANT##",
+   "ROOST",
+   "MOTOR",
+   "SNARE",
+   "##LEE"
+  ],
+  "across": [
+   "ANT",
+   "ROOST",
+   "MOTOR",
+   "SNARE",
+   "LEE"
+  ],
+  "down": [
+   "ARMS",
+   "NOON",
+   "TOTAL",
+   "SORE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "AFT##",
+   "ROOST",
+   "MOTOR",
+   "STALE",
+   "##LEE"
+  ],
+  "across": [
+   "AFT",
+   "ROOST",
+   "MOTOR",
+   "STALE",
+   "LEE"
+  ],
+  "down": [
+   "ARMS",
+   "FOOT",
+   "TOTAL",
+   "SOLE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ART##",
+   "ROOST",
+   "MOTOR",
+   "STALE",
+   "##LEE"
+  ],
+  "across": [
+   "ART",
+   "ROOST",
+   "MOTOR",
+   "STALE",
+   "LEE"
+  ],
+  "down": [
+   "ARMS",
+   "ROOT",
+   "TOTAL",
+   "SOLE",
+   "TREE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "OFT##",
+   "NOOKS",
+   "UNTIL",
+   "STATE",
+   "##LED"
+  ],
+  "across": [
+   "OFT",
+   "NOOKS",
+   "UNTIL",
+   "STATE",
+   "LED"
+  ],
+  "down": [
+   "ONUS",
+   "FONT",
+   "TOTAL",
+   "KITE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "OFT##",
+   "NOOKS",
+   "UNTIE",
+   "STATE",
+   "##LED"
+  ],
+  "across": [
+   "OFT",
+   "NOOKS",
+   "UNTIE",
+   "STATE",
+   "LED"
+  ],
+  "down": [
+   "ONUS",
+   "FONT",
+   "TOTAL",
+   "KITE",
+   "SEED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ART##",
+   "WOODS",
+   "EATEN",
+   "DRAMA",
+   "##LOP"
+  ],
+  "across": [
+   "ART",
+   "WOODS",
+   "EATEN",
+   "DRAMA",
+   "LOP"
+  ],
+  "down": [
+   "AWED",
+   "ROAR",
+   "TOTAL",
+   "DEMO",
+   "SNAP"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ART##",
+   "WOODS",
+   "EATEN",
+   "DRAMA",
+   "##LOG"
+  ],
+  "across": [
+   "ART",
+   "WOODS",
+   "EATEN",
+   "DRAMA",
+   "LOG"
+  ],
+  "down": [
+   "AWED",
+   "ROAR",
+   "TOTAL",
+   "DEMO",
+   "SNAG"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "BIT##",
+   "ODORS",
+   "MOTEL",
+   "BLADE",
+   "##LOW"
+  ],
+  "across": [
+   "BIT",
+   "ODORS",
+   "MOTEL",
+   "BLADE",
+   "LOW"
+  ],
+  "down": [
+   "BOMB",
+   "IDOL",
+   "TOTAL",
+   "REDO",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "WIT##",
+   "ODORS",
+   "MOTEL",
+   "BLADE",
+   "##LOW"
+  ],
+  "across": [
+   "WIT",
+   "ODORS",
+   "MOTEL",
+   "BLADE",
+   "LOW"
+  ],
+  "down": [
+   "WOMB",
+   "IDOL",
+   "TOTAL",
+   "REDO",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOMS",
+   "METAL",
+   "STARE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOMS",
+   "METAL",
+   "STARE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "MARE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOMS",
+   "METAL",
+   "STATE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOMS",
+   "METAL",
+   "STATE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "MATE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOMS",
+   "METAL",
+   "STAKE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOMS",
+   "METAL",
+   "STAKE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "MAKE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOMS",
+   "METAL",
+   "STAGE",
+   "##LID"
+  ],
+  "across": [
+   "APT",
+   "ROOMS",
+   "METAL",
+   "STAGE",
+   "LID"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "MAGI",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOMS",
+   "METAL",
+   "STALE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOMS",
+   "METAL",
+   "STALE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "MALE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "AFT##",
+   "ROOMS",
+   "MOTEL",
+   "STARE",
+   "##LED"
+  ],
+  "across": [
+   "AFT",
+   "ROOMS",
+   "MOTEL",
+   "STARE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "FOOT",
+   "TOTAL",
+   "MERE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ART##",
+   "ROOMS",
+   "MOTEL",
+   "STARE",
+   "##LED"
+  ],
+  "across": [
+   "ART",
+   "ROOMS",
+   "MOTEL",
+   "STARE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "ROOT",
+   "TOTAL",
+   "MERE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ANT##",
+   "ROOMS",
+   "MOTEL",
+   "SNARE",
+   "##LED"
+  ],
+  "across": [
+   "ANT",
+   "ROOMS",
+   "MOTEL",
+   "SNARE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "NOON",
+   "TOTAL",
+   "MERE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOFS",
+   "METAL",
+   "STARE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOFS",
+   "METAL",
+   "STARE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "FARE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "APT##",
+   "ROOFS",
+   "METAL",
+   "STATE",
+   "##LED"
+  ],
+  "across": [
+   "APT",
+   "ROOFS",
+   "METAL",
+   "STATE",
+   "LED"
+  ],
+  "down": [
+   "ARMS",
+   "POET",
+   "TOTAL",
+   "FATE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "YARDS",
+   "STOOP",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "COP",
+   "YARDS",
+   "STOOP",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "CYST",
+   "OATH",
+   "PROOF",
+   "DOSE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "YARDS",
+   "STOOL",
+   "THOSE",
+   "##FEW"
+  ],
+  "across": [
+   "COP",
+   "YARDS",
+   "STOOL",
+   "THOSE",
+   "FEW"
+  ],
+  "down": [
+   "CYST",
+   "OATH",
+   "PROOF",
+   "DOSE",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "YARDS",
+   "STOOL",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "COP",
+   "YARDS",
+   "STOOL",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "CYST",
+   "OATH",
+   "PROOF",
+   "DOSE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "YARNS",
+   "STOOP",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "COP",
+   "YARNS",
+   "STOOP",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "CYST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "YARNS",
+   "STOOL",
+   "THOSE",
+   "##FEW"
+  ],
+  "across": [
+   "COP",
+   "YARNS",
+   "STOOL",
+   "THOSE",
+   "FEW"
+  ],
+  "down": [
+   "CYST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "COP##",
+   "YARNS",
+   "STOOL",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "COP",
+   "YARNS",
+   "STOOL",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "CYST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "BOP##",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "BOP",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "BEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "LEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "POP##",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "POP",
+   "EARNS",
+   "STOOP",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "PEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "MOP##",
+   "EARNS",
+   "STOOP",
+   "SHONE",
+   "##FED"
+  ],
+  "across": [
+   "MOP",
+   "EARNS",
+   "STOOP",
+   "SHONE",
+   "FED"
+  ],
+  "down": [
+   "MESS",
+   "OATH",
+   "PROOF",
+   "NONE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOP",
+   "SHONE",
+   "##FED"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOP",
+   "SHONE",
+   "FED"
+  ],
+  "down": [
+   "LESS",
+   "OATH",
+   "PROOF",
+   "NONE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "MOP##",
+   "EARNS",
+   "STOOP",
+   "SHOVE",
+   "##FAD"
+  ],
+  "across": [
+   "MOP",
+   "EARNS",
+   "STOOP",
+   "SHOVE",
+   "FAD"
+  ],
+  "down": [
+   "MESS",
+   "OATH",
+   "PROOF",
+   "NOVA",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOP",
+   "SHOVE",
+   "##FAD"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOP",
+   "SHOVE",
+   "FAD"
+  ],
+  "down": [
+   "LESS",
+   "OATH",
+   "PROOF",
+   "NOVA",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "BOP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FEW"
+  ],
+  "across": [
+   "BOP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FEW"
+  ],
+  "down": [
+   "BEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "BOP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "BOP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "BEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FEW"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FEW"
+  ],
+  "down": [
+   "LEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "LEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "POP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FEW"
+  ],
+  "across": [
+   "POP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FEW"
+  ],
+  "down": [
+   "PEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "POP##",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "POP",
+   "EARNS",
+   "STOOL",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "PEST",
+   "OATH",
+   "PROOF",
+   "NOSE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "MOP##",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "##FEW"
+  ],
+  "across": [
+   "MOP",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "FEW"
+  ],
+  "down": [
+   "MESS",
+   "OATH",
+   "PROOF",
+   "NONE",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "MOP##",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "##FED"
+  ],
+  "across": [
+   "MOP",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "FED"
+  ],
+  "down": [
+   "MESS",
+   "OATH",
+   "PROOF",
+   "NONE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "##FEW"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "FEW"
+  ],
+  "down": [
+   "LESS",
+   "OATH",
+   "PROOF",
+   "NONE",
+   "SLEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "##FED"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOL",
+   "SHONE",
+   "FED"
+  ],
+  "down": [
+   "LESS",
+   "OATH",
+   "PROOF",
+   "NONE",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "MOP##",
+   "EARNS",
+   "STOOL",
+   "SHOVE",
+   "##FAD"
+  ],
+  "across": [
+   "MOP",
+   "EARNS",
+   "STOOL",
+   "SHOVE",
+   "FAD"
+  ],
+  "down": [
+   "MESS",
+   "OATH",
+   "PROOF",
+   "NOVA",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "LOP##",
+   "EARNS",
+   "STOOL",
+   "SHOVE",
+   "##FAD"
+  ],
+  "across": [
+   "LOP",
+   "EARNS",
+   "STOOL",
+   "SHOVE",
+   "FAD"
+  ],
+  "down": [
+   "LESS",
+   "OATH",
+   "PROOF",
+   "NOVA",
+   "SLED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "PEP##",
+   "EARNS",
+   "SCOOP",
+   "THOSE",
+   "##FED"
+  ],
+  "across": [
+   "PEP",
+   "EARNS",
+   "SCOOP",
+   "THOSE",
+   "FED"
+  ],
+  "down": [
+   "PEST",
+   "EACH",
+   "PROOF",
+   "NOSE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ASP##",
+   "NORMS",
+   "TROOP",
+   "STOLE",
+   "##FED"
+  ],
+  "across": [
+   "ASP",
+   "NORMS",
+   "TROOP",
+   "STOLE",
+   "FED"
+  ],
+  "down": [
+   "ANTS",
+   "SORT",
+   "PROOF",
+   "MOLE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ASP##",
+   "NORMS",
+   "TROOP",
+   "STOVE",
+   "##FED"
+  ],
+  "across": [
+   "ASP",
+   "NORMS",
+   "TROOP",
+   "STOVE",
+   "FED"
+  ],
+  "down": [
+   "ANTS",
+   "SORT",
+   "PROOF",
+   "MOVE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ASP##",
+   "NORMS",
+   "TROOP",
+   "STORE",
+   "##FED"
+  ],
+  "across": [
+   "ASP",
+   "NORMS",
+   "TROOP",
+   "STORE",
+   "FED"
+  ],
+  "down": [
+   "ANTS",
+   "SORT",
+   "PROOF",
+   "MORE",
+   "SPED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "ASP##",
+   "NORMS",
+   "TROUT",
+   "STOLE",
+   "##FEW"
+  ],
+  "across": [
+   "ASP",
+   "NORMS",
+   "TROUT",
+   "STOLE",
+   "FEW"
+  ],
+  "down": [
+   "ANTS",
+   "SORT",
+   "PROOF",
+   "MULE",
+   "STEW"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "TIE##",
+   "ARROW",
+   "GORGE",
+   "SNORE",
+   "##RED"
+  ],
+  "across": [
+   "TIE",
+   "ARROW",
+   "GORGE",
+   "SNORE",
+   "RED"
+  ],
+  "down": [
+   "TAGS",
+   "IRON",
+   "ERROR",
+   "OGRE",
+   "WEED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SHE##",
+   "WORLD",
+   "ARRAY",
+   "GNOME",
+   "##RED"
+  ],
+  "across": [
+   "SHE",
+   "WORLD",
+   "ARRAY",
+   "GNOME",
+   "RED"
+  ],
+  "down": [
+   "SWAG",
+   "HORN",
+   "ERROR",
+   "LAME",
+   "DYED"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "HAS##",
+   "ULCER",
+   "STOLE",
+   "HORSE",
+   "##EEL"
+  ],
+  "across": [
+   "HAS",
+   "ULCER",
+   "STOLE",
+   "HORSE",
+   "EEL"
+  ],
+  "down": [
+   "HUSH",
+   "ALTO",
+   "SCORE",
+   "ELSE",
+   "REEL"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "GAS##",
+   "ULCER",
+   "STOLE",
+   "HORSE",
+   "##EEL"
+  ],
+  "across": [
+   "GAS",
+   "ULCER",
+   "STOLE",
+   "HORSE",
+   "EEL"
+  ],
+  "down": [
+   "GUSH",
+   "ALTO",
+   "SCORE",
+   "ELSE",
+   "REEL"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "NOUNS",
+   "AUDIO",
+   "GRIND",
+   "##TEA"
+  ],
+  "across": [
+   "SPA",
+   "NOUNS",
+   "AUDIO",
+   "GRIND",
+   "TEA"
+  ],
+  "down": [
+   "SNAG",
+   "POUR",
+   "AUDIT",
+   "NINE",
+   "SODA"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "HOURS",
+   "AUDIO",
+   "GRILL",
+   "##TEE"
+  ],
+  "across": [
+   "SPA",
+   "HOURS",
+   "AUDIO",
+   "GRILL",
+   "TEE"
+  ],
+  "down": [
+   "SHAG",
+   "POUR",
+   "AUDIT",
+   "RILE",
+   "SOLE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "HOURS",
+   "AUDIO",
+   "DRILL",
+   "##TEE"
+  ],
+  "across": [
+   "SPA",
+   "HOURS",
+   "AUDIO",
+   "DRILL",
+   "TEE"
+  ],
+  "down": [
+   "SHAD",
+   "POUR",
+   "AUDIT",
+   "RILE",
+   "SOLE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "WOULD",
+   "AUDIO",
+   "TRIMS",
+   "##TEE"
+  ],
+  "across": [
+   "SPA",
+   "WOULD",
+   "AUDIO",
+   "TRIMS",
+   "TEE"
+  ],
+  "down": [
+   "SWAT",
+   "POUR",
+   "AUDIT",
+   "LIME",
+   "DOSE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "WOULD",
+   "AUDIO",
+   "PRINT",
+   "##TEE"
+  ],
+  "across": [
+   "SPA",
+   "WOULD",
+   "AUDIO",
+   "PRINT",
+   "TEE"
+  ],
+  "down": [
+   "SWAP",
+   "POUR",
+   "AUDIT",
+   "LINE",
+   "DOTE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "WOUND",
+   "AUDIO",
+   "PRINT",
+   "##TEE"
+  ],
+  "across": [
+   "SPA",
+   "WOUND",
+   "AUDIO",
+   "PRINT",
+   "TEE"
+  ],
+  "down": [
+   "SWAP",
+   "POUR",
+   "AUDIT",
+   "NINE",
+   "DOTE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "SPA##",
+   "TOURS",
+   "AUDIO",
+   "GRILL",
+   "##TEE"
+  ],
+  "across": [
+   "SPA",
+   "TOURS",
+   "AUDIO",
+   "GRILL",
+   "TEE"
+  ],
+  "down": [
+   "STAG",
+   "POUR",
+   "AUDIT",
+   "RILE",
+   "SOLE"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "WAG##",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "WAG",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "WALL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "WEND"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "BAG##",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "BAG",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "BALL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "WEND"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "HAG##",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "HAG",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "HALL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "WEND"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "TAG##",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "TAG",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "TALL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "WEND"
+  ],
+  "t": 1
+ },
+ {
+  "grid": [
+   "GAG##",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "##END"
+  ],
+  "across": [
+   "GAG",
+   "ARROW",
+   "LEAVE",
+   "LADEN",
+   "END"
+  ],
+  "down": [
+   "GALL",
+   "AREA",
+   "GRADE",
+   "OVEN",
+   "WEND"
+  ],
+  "t": 1
+ }
+]
