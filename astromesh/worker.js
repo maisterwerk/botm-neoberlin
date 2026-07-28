@@ -405,23 +405,29 @@ export default {
     }
     // Long-lived, immutable, versioned mirror of the crossword (event requires "very long-lived caching").
     if (url.pathname === "/crossword" || url.pathname.startsWith("/crossword/")) {
-      // Versioned URLs get the year-long immutable cache; the canonical URL (no ?v=) gets 5
-      // minutes, because it is the one a human bookmarks and pinning it for a year would leave
-      // every visitor stuck on one build with no way to invalidate.
-      //
-      // The HTML is EMBEDDED in this Worker bundle rather than proxied from GitHub Pages.
-      // That is a fix for a real defect: while proxying, a request for ?v=3 happened to arrive
-      // mid-propagation, got a stale upstream copy, and was then handed to the client with
-      // `immutable, max-age=31536000`. That URL is now pinned to a build that no longer exists.
-      // Promising immutability while forwarding a mutable origin is unsound; making the Worker
-      // the origin makes the promise true, because the bytes ship with the deployment.
-      const ver = url.searchParams.get("v");
+      // Honest versioning. `immutable, max-age=1y` is a promise that these exact bytes will
+      // never change at this URL. That promise is only keepable if the URL names the bytes.
+      // So: /crossword?v=<build hash>  -> immutable for a year (the token IS the content id)
+      //     /crossword?v=anything-else -> 5 minutes (we cannot honour a promise about a token
+      //                                   whose build we may not be serving)
+      //     /crossword  (canonical)    -> 5 minutes, the URL a human bookmarks
+      // The previous scheme handed `immutable` to ANY token, so a client fetching ?v=7 the day
+      // before build 7 shipped would have been pinned for a year to build 6's bytes under
+      // build 7's name — the same defect, one step removed.
       const html = new TextDecoder().decode(
         Uint8Array.from(atob(CROSSWORD_B64), ch => ch.charCodeAt(0)));
+      const etag = '"' + CROSSWORD_BUILD + '"';
+      if (request.headers.get("If-None-Match") === etag) {
+        return new Response(null, { status: 304, headers: { "ETag": etag } });
+      }
+      const ver = url.searchParams.get("v");
+      const pinned = ver === CROSSWORD_BUILD || ver === "sha256-" + CROSSWORD_BUILD;
       return new Response(html, { status: 200, headers: {
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": ver ? "public, max-age=31536000, immutable" : "public, max-age=300",
-        "X-Crossword-Build": "sha256-" + CROSSWORD_BUILD,   // hash of the bytes, not an echo of ?v=
+        "Cache-Control": pinned ? "public, max-age=31536000, immutable" : "public, max-age=300",
+        "ETag": etag,
+        "X-Crossword-Build": "sha256-" + CROSSWORD_BUILD,
+        "Link": '<' + url.origin + '/crossword?v=' + CROSSWORD_BUILD + '>; rel="canonical"',
         "Access-Control-Allow-Origin": "*"
       }});
     }

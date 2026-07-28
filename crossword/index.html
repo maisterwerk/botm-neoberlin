@@ -75,7 +75,7 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;color:v
 <div class="wrap">
 <header>
   <h1>Set<span>tled</span></h1>
-  <p class="sub">A 5×5 mini. Three of the answers settle an argument — and they are standing next to each other.</p>
+  <p class="sub">A 5×5 mini. Three of the answers are what you get asked for when "trust me" is not enough — and they are standing next to each other.</p>
 </header>
 
 <div class="layout">
@@ -131,12 +131,12 @@ const CLUES = {
   "1A":"Spinning toy",
   "4A":"Brings home",
   "7A":"Perch at a bar",
-  "8A":"Not these",
-  "9A":"G-man",
-  "1D":"Trial run",
+  "8A":"Ones over there",
+  "9A":"Bureau man?",
+  "1D":"One way to find out",
   "2D":"Swearing, of a sort",
   "3D":"What Q.E.D. concludes",
-  "5D":"Bloodhound's tool",
+  "5D":"Wine taster's asset",
   "6D":"Rosebud, in <i>Citizen Kane</i>"
 };
 const THEME_KEYS = ["1D","2D","3D"];        // TEST, OATH, PROOF
@@ -169,6 +169,7 @@ const user = Array.from({length:N},()=>Array(N).fill(""));
 const revealedCell = Array.from({length:N},()=>Array(N).fill(false));
 const wrongMark    = Array.from({length:N},()=>Array(N).fill(false));
 let cur = {r:0,c:0,dir:"A"};
+let everClicked = false;   // the opening cursor is a default, not a user choice
 let done = false;
 
 /* ---------- DOM ---------- */
@@ -183,8 +184,9 @@ for(let r=0;r<N;r++) for(let c=0;c<N;c++){
     const s=document.createElement("span"); s.className="ltr"; d.appendChild(s);
     d.addEventListener("mousedown",e=>{
       e.preventDefault();
-      if(cur.r===r && cur.c===c){ const o=cur.dir==="A"?"D":"A"; if(entryAt(r,c,o)) cur.dir=o; }
+      if(everClicked && cur.r===r && cur.c===c){ const o=cur.dir==="A"?"D":"A"; if(entryAt(r,c,o)) cur.dir=o; }
       else { cur.r=r; cur.c=c; if(!entryAt(r,c,cur.dir)) cur.dir = cur.dir==="A"?"D":"A"; }
+      everClicked = true;
       draw();
       const mob=document.getElementById("mob");
       if(mob){ mob.value=""; mob.focus({preventScroll:true}); }
@@ -271,12 +273,17 @@ function nextClue(back){
 /* On-screen keyboards often fire no usable keydown, so also read the input's value. */
 document.getElementById("mob").addEventListener("input",e=>{
   const v=e.target.value; e.target.value="";
-  const ch=(v.match(/[a-zA-Z]/g)||[]).pop();
-  if(!ch) return;
-  user[cur.r][cur.c]=ch.toUpperCase(); revealedCell[cur.r][cur.c]=false;
-  wrongMark[cur.r][cur.c]=false; cellEl[cur.r][cur.c].classList.remove("wrong");
-  advance(); setStatus(""); draw();
-  if(isComplete()) check();
+  const letters=v.match(/[a-zA-Z]/g);
+  if(!letters) return;
+  // Paste and swipe-typing deliver several characters in ONE input event; consume them all,
+  // in order. Keeping only the last one silently wrote a wrong letter into the current square.
+  for(const ch of letters){
+    user[cur.r][cur.c]=ch.toUpperCase(); revealedCell[cur.r][cur.c]=false;
+    wrongMark[cur.r][cur.c]=false; cellEl[cur.r][cur.c].classList.remove("wrong");
+    advance();
+  }
+  setStatus(""); draw();
+  syncSolved(); if(isComplete()) check();
 });
 
 document.addEventListener("keydown",e=>{
@@ -307,7 +314,7 @@ document.addEventListener("keydown",e=>{
                  cellEl[cur.r][cur.c].classList.remove("wrong"); }
       }
     }
-    setStatus(""); draw(); return;
+    setStatus(""); syncSolved(); draw(); return;
   }
   if(/^[a-zA-Z]$/.test(k)){
     e.preventDefault();
@@ -321,6 +328,20 @@ document.addEventListener("keydown",e=>{
 /* ---------- actions ---------- */
 function setStatus(t,cls){ const s=document.getElementById("status");
   s.textContent=t; s.className=cls||""; }
+// The solved state must follow the grid, not the last button pressed. Any mutation calls this.
+function syncSolved(){
+  if(done && !(isComplete() && gridCorrect())){
+    done=false;
+    document.getElementById("reveal").style.display="none";
+    setStatus("");
+    draw();
+  }
+}
+function gridCorrect(){
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++)
+    if(!isBlock(r,c) && user[r][c]!==SOL[r][c]) return false;
+  return true;
+}
 function isComplete(){
   for(let r=0;r<N;r++) for(let c=0;c<N;c++)
     if(!isBlock(r,c) && !user[r][c]) return false;
@@ -351,9 +372,9 @@ function check(){
     }
     const rv=document.getElementById("reveal");
     rv.innerHTML='<b>The theme — Settled.</b> <b>TEST</b> (1-Down), <b>OATH</b> (2-Down) and '+
-      '<b>PROOF</b> (3-Down) are the three ways a claim is put beyond doubt: you run it, you swear '+
-      'to it, or you prove it. They are 1-, 2- and 3-Down — the first three clues in the list, '+
-      'standing in three adjacent columns.';
+      '<b>PROOF</b> (3-Down) are the three things you get asked for when \"trust me\" is not enough: '+
+      'run it, swear to it, or prove it. They are 1-, 2- and 3-Down — the first three clues in the '+
+      'list, standing in three adjacent columns at the left edge.';
     rv.style.display="block";
   }
   return true;
@@ -363,13 +384,13 @@ document.getElementById("bLetter").addEventListener("click",()=>{
   if(isBlock(cur.r,cur.c)) return;
   user[cur.r][cur.c]=SOL[cur.r][cur.c]; revealedCell[cur.r][cur.c]=true;
   wrongMark[cur.r][cur.c]=false; cellEl[cur.r][cur.c].classList.remove("wrong");
-  advance(); draw(); if(isComplete()) check();
+  advance(); draw(); syncSolved(); if(isComplete()) check();
 });
 document.getElementById("bWord").addEventListener("click",()=>{
   const k=curKey(); if(!k) return;
   entries[k].cells.forEach(([r,c])=>{ user[r][c]=SOL[r][c]; revealedCell[r][c]=true;
     wrongMark[r][c]=false; cellEl[r][c].classList.remove("wrong"); });
-  draw(); if(isComplete()) check();
+  draw(); syncSolved(); if(isComplete()) check();
 });
 document.getElementById("bClear").addEventListener("click",()=>{
   for(let r=0;r<N;r++) for(let c=0;c<N;c++){ user[r][c]=""; revealedCell[r][c]=false;

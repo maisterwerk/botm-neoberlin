@@ -119,7 +119,35 @@ with sync_playwright() as pw:
     t("23. Reveal letter fills exactly one correct square",
       pg.evaluate("__state().user[0]")=="T..##", pg.evaluate("__state().user[0]"))
 
-    t("24. no JS errors during the whole run", errs==[], "; ".join(errs[:3]))
+    # a solved grid that is then EDITED (not re-Checked) must drop the theme panel and the dots
+    pg.click("#bClear"); pg.evaluate("__autofill(null)")
+    pg.evaluate("document.querySelector('[data-r=\"1\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    pg.keyboard.press("Backspace")
+    st=pg.evaluate("__state()")
+    dots=pg.eval_on_selector_all(".cell.themer","els=>els.length")
+    t("25. Backspace on a solved grid closes the panel and hides the dots",
+      st["reveal"]!="block" and st["done"] is False and dots==0,
+      f'reveal={st["reveal"]} done={st["done"]} dots={dots}')
+
+    # paste / swipe-typing delivers several characters in ONE input event
+    pg.click("#bClear")
+    pg.eval_on_selector('[data-r="1"][data-c="0"]',
+        "el=>el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    if "Down" in pg.inner_text("#cluebar"): pg.keyboard.press(" ")   # aim at 4-Across
+    assert "Across" in pg.inner_text("#cluebar")
+    pg.eval_on_selector("#mob",
+        "m=>{m.value='EARNS';m.dispatchEvent(new Event('input',{bubbles:true}))}")
+    row=pg.evaluate("__state().user[1]")
+    t("26. a multi-letter input event fills the whole entry, not just its last letter",
+      row=="EARNS", row)
+
+    # the opening cursor is a default, so the first click must select Across, not toggle to Down
+    pg.reload(); pg.wait_for_timeout(300)
+    pg.evaluate("document.querySelector('[data-r=\"0\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    t("27. the very first click selects Across, not Down",
+      "Across" in pg.inner_text("#cluebar"), pg.inner_text("#cluebar").replace("\n"," ")[:40])
+
+    t("28. no JS errors during the whole run", errs==[], "; ".join(errs[:3]))
 
     pg.click("#bClear"); pg.evaluate("__autofill(null)"); pg.wait_for_timeout(1400)
     pg.screenshot(path="solved.png")
