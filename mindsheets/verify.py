@@ -18,10 +18,21 @@ EVENTS = ["Special Skills using X",
           "AstroMesh: Minds & MCP Mashup Challenge",
           "Minds Building Chatbots Challenge",
           "Mindsheets Masterpiece and Debugging"]
-MINDS = ["NeoBerlin", "Demo-Alpha", "Demo-Beta"]
+# MINDS is DERIVED from the data, never hardcoded. The previous version listed three names, so
+# it could not possibly have detected that the Leaderboard silently dropped a fourth Mind — the
+# verifier shared the workbook's blind spot, which is the one failure mode a second
+# implementation exists to rule out. It now reads whatever is in the Submissions tab.
+def minds_in_order(rows):
+    seen=[]
+    for (_, m, *_ ) in rows:
+        if m not in seen: seen.append(m)
+    return seen
 
 checks = []
 def chk(where, expect, got, note=""):
+    # a formula returning "" reads back as None through openpyxl; treat them as the same thing
+    if expect == "" and got is None: got = ""
+    if got == "" and expect is None: expect = ""
     if isinstance(expect, float) or isinstance(got, float):
         ok = expect is not None and got is not None and abs(float(expect)-float(got)) < 1e-9
     else:
@@ -44,7 +55,14 @@ for (row, mind, ev, c, k, kr) in raw:
     chk(f"Submissions!I{row}", c+k+kr, S.cell(row,9).value, f"{mind} / {ev[:22]}")
     chk(f"Submissions!J{row}", grade(c+k+kr), S.cell(row,10).value)
 
-# ---- 3. Leaderboard: per-event SUMIFS, overall SUM, RANK, medal ----
+MINDS = minds_in_order(raw)
+LB_SLOTS = 12
+# every distinct Mind on Submissions must have a row on the Leaderboard, and no phantom rows
+lb_names = [L.cell(5+i,3).value for i in range(LB_SLOTS)]
+chk("Leaderboard!C (mind list)", MINDS, [n for n in lb_names if n],
+    "every Mind on Submissions appears, in first-seen order")
+
+# ---- 3. Leaderboard: best per event, overall, rank, medal ----
 tot = {}
 for i, m in enumerate(MINDS):
     lr = 5 + i
@@ -60,11 +78,14 @@ for i, m in enumerate(MINDS):
     tot[m] = sum(per)
     chk(f"Leaderboard!L{lr}", sum(per), L.cell(lr,12).value, f"{m} overall")
 order = sorted(tot.values(), reverse=True)
+distinct = sorted(set(tot.values()), reverse=True)
 for i, m in enumerate(MINDS):
     lr = 5 + i
     rank = order.index(tot[m]) + 1
     chk(f"Leaderboard!B{lr}", rank, L.cell(lr,2).value, f"{m} rank")
-    chk(f"Leaderboard!M{lr}", {1:"🥇",2:"🥈",3:"🥉"}.get(rank,""), L.cell(lr,13).value)
+    # medals go by POSITION AMONG DISTINCT TOTALS, so a tie does not produce two silvers
+    place = distinct.index(tot[m]) + 1
+    chk(f"Leaderboard!M{lr}", {1:"🥇",2:"🥈",3:"🥉"}.get(place,""), L.cell(lr,13).value, f"{m} medal")
 
 # ---- 4. Dashboard KPIs ----
 top = max(tot.values()); nb = tot["NeoBerlin"]
@@ -77,18 +98,32 @@ for i, m in enumerate(MINDS):
     chk(f"Dashboard!C{12+i}", tot[m], D.cell(12+i,3).value, f"standings {m}")
 
 # ---- 5. Reward Simulator: quadratic merit, steward binding ----
+# Merit per STEWARD, summed over every Mind that steward owns — that is what "binding" means,
+# and it is checked here rather than assumed from a fixed row reference.
 pool = R.cell(5,4).value
-merits = [tot["NeoBerlin"], tot["Demo-Alpha"], tot["Demo-Beta"], R.cell(11,3).value*2]
+stew_of = {}
+for (_, m, _, *_ ) in raw: pass
+for (row, m, ev, c, k, kr) in raw: stew_of.setdefault(m, S.cell(row,4).value)
+merits = []
+r_i = 8
+while R.cell(r_i,2).value and R.cell(r_i,2).value != "TOTAL":
+    name = R.cell(r_i,2).value
+    if name.startswith("SybilFarm"):
+        merits.append(R.cell(r_i,3).value*2)
+    else:
+        merits.append(sum(t for mm,t in tot.items() if stew_of.get(mm)==name))
+    r_i += 1
 w = [math.sqrt(m) for m in merits]
 tw = sum(w)
-for i in range(4):
+for i in range(len(merits)):
     rr = 8+i
     chk(f"Reward!D{rr}", merits[i], R.cell(rr,4).value, "merit")
     chk(f"Reward!E{rr}", w[i], R.cell(rr,5).value, "sqrt weight")
     chk(f"Reward!F{rr}", w[i]/tw, R.cell(rr,6).value, "share")
     chk(f"Reward!G{rr}", pool*w[i]/tw, R.cell(rr,7).value, "payout ETH")
-chk("Reward!F12", 1.0, R.cell(12,6).value, "shares sum to 1")
-chk("Reward!G12", float(pool), R.cell(12,7).value, "payouts sum to the pool")
+TOT_R = 8+len(merits)
+chk(f"Reward!F{TOT_R}", 1.0, R.cell(TOT_R,6).value, "shares sum to 1")
+chk(f"Reward!G{TOT_R}", float(pool), R.cell(TOT_R,7).value, "payouts sum to the pool")
 
 # ---- 6. Next Best Move: attempts arithmetic and the EV closed form ----
 N = wv["Next Best Move"]

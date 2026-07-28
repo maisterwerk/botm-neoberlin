@@ -153,18 +153,28 @@ for k in range(DATA_ROWS):
         sub.cell(row=row, column=8, value=cr)
     # Total = sum of the three scores (blank if no scores)
     sub.cell(row=row, column=9,
-             value=f'=IF(COUNT(F{row}:H{row})=0,"",SUM(F{row}:H{row}))')
+             value=f'=IF(COUNT(F{row}:H{row})=0,"",IF(COUNT(F{row}:H{row})<3,"incomplete",SUM(F{row}:H{row})))')
     # Grade
     sub.cell(row=row, column=10,
-             value=f'=IF(I{row}="","",IF(I{row}>=27,"★ Elite",IF(I{row}>=21,"Strong",IF(I{row}>=15,"Fair","Weak"))))')
+             value=f'=IF(NOT(ISNUMBER(I{row})),IF(I{row}="incomplete","fill all three","") ,IF(I{row}>=27,"★ Elite",IF(I{row}>=21,"Strong",IF(I{row}>=15,"Fair","Weak"))))')
 
 # Column K mirrors the total as a plain number (0 when the row is empty). MAX-over-a-condition
 # has to multiply ranges together, and multiplying by "" is an error in Excel — so the array
 # maths on the Leaderboard reads this column, never column I.
 sub.cell(row=DATA_FIRST-1, column=11, value="calc").font = Font(size=8, italic=True, color="B0B4C0")
+# Column L numbers the first appearance of each Mind (1, 2, 3, ...). The Leaderboard used to be
+# hardcoded to three names, so a Mind typed in here was silently dropped from every downstream
+# tab while the README promised the opposite. This is what makes the Leaderboard data-driven.
+sub.cell(row=DATA_FIRST-1, column=12, value="mind #").font = Font(size=8, italic=True, color="B0B4C0")
 for k in range(DATA_ROWS):
     row = DATA_FIRST + k
-    sub.cell(row=row, column=11, value=f'=IF(I{row}="",0,I{row})').font = Font(size=8, color="B0B4C0")
+    prev = f"$L${DATA_FIRST}:L{row-1}" if k else None
+    formula = (f'=IF($C{row}="","",IF(COUNTIF($C${DATA_FIRST}:$C{row},$C{row})=1,'
+               + (f'MAX({prev})+1' if k else '1') + ',""))')
+    sub.cell(row=row, column=12, value=formula).font = Font(size=8, color="B0B4C0")
+for k in range(DATA_ROWS):
+    row = DATA_FIRST + k
+    sub.cell(row=row, column=11, value=f'=IF(ISNUMBER(I{row}),I{row},0)').font = Font(size=8, color="B0B4C0")
 DATA_LAST = DATA_FIRST + DATA_ROWS - 1
 
 # data validation: scores 0..10 integer
@@ -179,9 +189,14 @@ for i, ev in enumerate(EVENTS):
     c.font = Font(size=8, color="B0B4C0")
 sub.cell(row=DATA_FIRST-1, column=HELP_COL, value="(event list — used by dropdown)").font = Font(size=8, italic=True, color="B0B4C0")
 sub.column_dimensions[get_column_letter(HELP_COL)].hidden = True
+for _c in (11,12): sub.column_dimensions[get_column_letter(_c)].hidden = True
 help_ref = f"${get_column_letter(HELP_COL)}${DATA_FIRST}:${get_column_letter(HELP_COL)}${DATA_FIRST+len(EVENTS)-1}"
 dv_ev = DataValidation(type="list", formula1=help_ref, allow_blank=True, showErrorMessage=False)
 sub.add_data_validation(dv_ev)
+dv_ev.showErrorMessage = True
+dv_ev.errorTitle = "Unknown event"
+dv_ev.error = ("Pick an event from the list. A typed-in variant looks fine but matches nothing, "
+               "so the Leaderboard silently drops that submission.")
 dv_ev.add(f"E{DATA_FIRST}:E{DATA_LAST}")
 
 # conditional formatting: color scale on Total
@@ -207,7 +222,9 @@ for i, h in enumerate(lb_headers):
 for i, w in enumerate([6,20,20] + [10]*len(EVENTS) + [14,8]):
     lb.column_dimensions[get_column_letter(2+i)].width = w
 
-MINDS = ["NeoBerlin", "Demo-Alpha", "Demo-Beta"]
+LB_SLOTS = 12   # room for twelve Minds; rows past the data stay blank
+LB_FIRST = LB_HEAD + 1
+LB_LAST  = LB_FIRST + LB_SLOTS - 1
 EV_FIRST_COL = 5
 EV_LAST_COL  = EV_FIRST_COL + len(EVENTS) - 1
 OVR_COL      = EV_LAST_COL + 1
@@ -215,15 +232,18 @@ MED_COL      = OVR_COL + 1
 EV_FIRST_L   = get_column_letter(EV_FIRST_COL)
 EV_LAST_L    = get_column_letter(EV_LAST_COL)
 OVR_L        = get_column_letter(OVR_COL)
-LB_FIRST = LB_HEAD + 1
 S = "Submissions"
-for i, m in enumerate(MINDS):
+for i in range(LB_SLOTS):
     row = LB_FIRST + i
-    lb.cell(row=row, column=3, value=m).font = Font(bold=(m=="NeoBerlin"), color=INK, size=11)
+    # the i-th distinct Mind on Submissions, or blank if there are fewer
+    lb.cell(row=row, column=3,
+        value=(f'=IFERROR(INDEX(Submissions!$C${DATA_FIRST}:$C${DATA_LAST},'
+               f'MATCH({i+1},Submissions!$L${DATA_FIRST}:$L${DATA_LAST},0)),"")'))
+    lb.cell(row=row, column=3).font = Font(color=INK, size=11)
     lb.cell(row=row, column=3).alignment = left
     # steward via INDEX/MATCH
     lb.cell(row=row, column=4,
-        value=f'=IFERROR(INDEX({S}!$D:$D,MATCH($C{row},{S}!$C:$C,0)),"")').alignment = center
+        value=f'=IF($C{row}="","",IFERROR(INDEX({S}!$D:$D,MATCH($C{row},{S}!$C:$C,0)),""))').alignment = center
     # best-per-event using MAXIFS across two criteria (mind + event)
     for j, ev in enumerate(EVENTS):
         col = 5 + j
@@ -234,24 +254,27 @@ for i, m in enumerate(MINDS):
         # instead of taking the better one. MAXIFS is not usable (openpyxl emits it without the
         # _xlfn. prefix, so Numbers and LibreOffice show #NAME?), so this uses SUMPRODUCT+MAX,
         # which every engine evaluates array-wise without needing Ctrl-Shift-Enter.
-        cell.value = (f'=SUMPRODUCT(MAX(({S}!$C${DATA_FIRST}:$C${DATA_LAST}=$C{row})'
+        cell.value = (f'=IF($C{row}="","",SUMPRODUCT(MAX(({S}!$C${DATA_FIRST}:$C${DATA_LAST}=$C{row})'
                       f'*({S}!$E${DATA_FIRST}:$E${DATA_LAST}="{ev}")'
-                      f'*{S}!$K${DATA_FIRST}:$K${DATA_LAST}))')
+                      f'*{S}!$K${DATA_FIRST}:$K${DATA_LAST})))')
         cell.alignment = center
         cell.number_format = "0"
     # overall
-    lb.cell(row=row, column=OVR_COL, value=f"=SUM({EV_FIRST_L}{row}:{EV_LAST_L}{row})").alignment = center
+    lb.cell(row=row, column=OVR_COL,
+        value=f'=IF($C{row}="","",SUM({EV_FIRST_L}{row}:{EV_LAST_L}{row}))').alignment = center
     lb.cell(row=row, column=OVR_COL).font = Font(bold=True, color=BLUE, size=11)
     # medal by rank
     lb.cell(row=row, column=MED_COL,
-        value=f'=IF(B{row}=1,"🥇",IF(B{row}=2,"🥈",IF(B{row}=3,"🥉","")))').alignment = center
+        value=(f'=IF($C{row}="","",IF({OVR_L}{row}=LARGE(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST},1),"🥇",'
+               f'IF({OVR_L}{row}=LARGE(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST},2),"🥈",'
+               f'IF({OVR_L}{row}=LARGE(${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST},3),"🥉",""))))')).alignment = center
     for col in range(2, MED_COL+1):
         lb.cell(row=row, column=col).border = border
-LB_LAST = LB_FIRST + len(MINDS) - 1
 # rank
-for i in range(len(MINDS)):
+for i in range(LB_SLOTS):
     row = LB_FIRST + i
-    lb.cell(row=row, column=2, value=f"=RANK({OVR_L}{row},${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST})").alignment = center
+    lb.cell(row=row, column=2,
+        value=f'=IF($C{row}="","",RANK({OVR_L}{row},${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST}))').alignment = center
     lb.cell(row=row, column=2).font = Font(bold=True, color=NAVY)
 # CF: color scale on overall, bold top row
 lb.conditional_formatting.add(f"{OVR_L}{LB_FIRST}:{OVR_L}{LB_LAST}",
@@ -293,7 +316,7 @@ band(db, 11, 2, 3, NAVY)
 db["B11"] = "Mind"; db["C11"] = "Overall"
 db["B11"].font = h_font; db["C11"].font = h_font
 db["B11"].alignment = center; db["C11"].alignment = center
-for i, m in enumerate(MINDS):
+for i in range(LB_SLOTS):
     row = 12+i
     db.cell(row=row, column=2, value=f"=Leaderboard!C{LB_FIRST+i}").alignment = left
     db.cell(row=row, column=3, value=f"=Leaderboard!{OVR_L}{LB_FIRST+i}").alignment = center
@@ -302,8 +325,8 @@ for i, m in enumerate(MINDS):
 # bar chart
 chart = BarChart(); chart.type = "bar"; chart.title = f"Overall standings /{MAXTOTAL}"
 chart.y_axis.title = None; chart.x_axis.title = None; chart.legend = None; chart.height = 6; chart.width = 14
-data = Reference(db, min_col=3, min_row=11, max_row=12+len(MINDS)-1)
-cats = Reference(db, min_col=2, min_row=12, max_row=12+len(MINDS)-1)
+data = Reference(db, min_col=3, min_row=11, max_row=12+LB_SLOTS-1)
+cats = Reference(db, min_col=2, min_row=12, max_row=12+LB_SLOTS-1)
 chart.add_data(data, titles_from_data=True); chart.set_categories(cats)
 db.add_chart(chart, "E10")
 db.sheet_properties.tabColor = "8B5CF6"
@@ -326,11 +349,14 @@ rwh = ["Steward", "Minds", "Σ merit", "Weight = √merit", "Share %", "Payout (
 RW_HEAD = 7
 for i,h in enumerate(rwh):
     hdr(rw, f"{get_column_letter(2+i)}{RW_HEAD}", h)
-STEWARDS = [("Rob (human steward)", 1), ("(fictional) A", 1), ("(fictional) B", 1), ("SybilFarm (illustrative)", 12)]
-# direct, robust cross-sheet refs (NeoBerlin/Minty/VARgentina sit at Leaderboard rows LB_FIRST..)
-MERIT_REF = {"Rob (human steward)": f"=Leaderboard!{OVR_L}{LB_FIRST}",
-             "(fictional) A": f"=Leaderboard!{OVR_L}{LB_FIRST+1}",
-             "(fictional) B": f"=Leaderboard!{OVR_L}{LB_FIRST+2}"}
+STEWARDS = [("Rob (human steward)", 1), ("(fictional)", 2), ("SybilFarm (illustrative)", 12)]
+# Steward binding, done properly. This used to point at fixed Leaderboard rows, which both broke
+# when the Leaderboard became data-driven AND failed to do what the tab claims: a steward with
+# several Minds must land in ONE bucket. SUMIF over the steward column does exactly that.
+LB_STEW = f"Leaderboard!$D${LB_FIRST}:$D${LB_LAST}"
+LB_OVER = f"Leaderboard!${OVR_L}${LB_FIRST}:${OVR_L}${LB_LAST}"
+MERIT_REF = {"Rob (human steward)": f'=SUMIF({LB_STEW},$B{{row}},{LB_OVER})',
+             "(fictional)":         f'=SUMIF({LB_STEW},$B{{row}},{LB_OVER})'}
 RW_FIRST = RW_HEAD+1
 for i,(sname,nm) in enumerate(STEWARDS):
     row = RW_FIRST+i
@@ -339,7 +365,7 @@ for i,(sname,nm) in enumerate(STEWARDS):
     rw.cell(row=row, column=3).fill = PatternFill("solid", fgColor=LIGHT)
     # Σ merit (steward binding: one bucket per steward)
     if sname in MERIT_REF:
-        rw.cell(row=row, column=4, value=MERIT_REF[sname])
+        rw.cell(row=row, column=4, value=MERIT_REF[sname].format(row=row))
     else:
         # sybil farm: many Minds but each scores ~2 (judge rates spam near zero)
         rw.cell(row=row, column=4, value=f"=C{row}*2")
@@ -367,11 +393,11 @@ for col in range(2,8):
     rw.cell(row=trow, column=col).border = border
     rw.cell(row=trow, column=col).fill = PatternFill("solid", fgColor=LIGHT)
 # note + comparison
-rw.cell(row=trow+2, column=2, value="Why √merit? A sybil farm with 12 low-merit Minds gets weight √120≈11, not 120 —")
+rw.cell(row=trow+2, column=2, value="Why √merit? The sybil farm below runs 12 Minds that the judge rates near zero, so its")
 rw.cell(row=trow+2, column=2).font = sub_font
-rw.cell(row=trow+3, column=2, value="so flooding the tournament with fake Minds barely moves its payout. Steward binding")
+rw.cell(row=trow+3, column=2, value="merit is 24 and its weight √24 ≈ 4.9 — not 24. Flooding the tournament with fake Minds")
 rw.cell(row=trow+3, column=2).font = sub_font
-rw.cell(row=trow+4, column=2, value="pools all of a steward's Minds into ONE bucket, removing the multiply-by-Minds exploit.")
+rw.cell(row=trow+4, column=2, value="barely moves the payout. Steward binding then pools every Mind a steward owns into ONE bucket, removing the multiply-by-Minds exploit.")
 rw.cell(row=trow+4, column=2).font = sub_font
 rw.conditional_formatting.add(f"G{RW_FIRST}:G{RW_LAST}",
     ColorScaleRule(start_type="min", start_color="F8696B", end_type="max", end_color="63BE7B"))
@@ -437,10 +463,14 @@ for i,(n,tc,inp,exp,obs,ps) in enumerate(tests):
         if j in (4,5):  # human-filled
             c.fill = PatternFill("solid", fgColor=LIGHT)
 tl.cell(row=TL_FIRST+len(tests)+1, column=2,
-        value=("Status: Ready — every test above was run by the human steward, Rob, in Microsoft Excel on macOS on 2026-07-28, with screenshots of each tab returned to the Mind for checking. Tests 1, 5 and 7 are recorded as FAIL because they genuinely failed: they are the three defects the steward found, each followed by the re-test that confirms the fix. They are kept rather than overwritten. "
-               "Apple Numbers displays every value but does not re-evaluate imported formulas until a cell "
-               "is edited; that is a Numbers import behaviour, not a formula error, and it is listed above "
-               "as test 3 (FAIL) and test 4 (PARTIAL) rather than omitted.")).font = Font(bold=True, color=GREEN)
+        value=("Status: Ready — every test above was run by the human steward, Rob, in Microsoft Excel "
+               "on macOS on 2026-07-28; he returned screenshots of each tab so the Mind could check what "
+               "he had checked. Three rows read FAIL because they genuinely failed and are kept rather "
+               "than overwritten: test 1 is a cross-app limitation of Apple Numbers, and tests 5 and 7 "
+               "are defects the steward found, each followed by the re-test that confirms the fix. "
+               "Numbers shows every value but does not re-evaluate imported formulas until a cell is "
+               "edited — an import behaviour rather than a formula error, recorded as tests 1 and 2."
+               )).font = Font(bold=True, color=GREEN)
 tl.sheet_properties.tabColor = "6B7280"
 
 
@@ -563,8 +593,10 @@ nb[f"D{NB_LAST+2}"] = (f"=INDEX($B${NB_FIRST}:$B${NB_LAST},"
 nb[f"D{NB_LAST+2}"].font = Font(bold=True, size=12, color=BLUE)
 nb[f"B{NB_LAST+1}"] = "CHECK  ·  used + left must equal 8 on every row"
 nb[f"B{NB_LAST+1}"].font = Font(bold=True, color=NAVY, size=10)
-nb[f"F{NB_LAST+1}"] = (f'=IF(SUMPRODUCT(--(($D${NB_FIRST}:$D${NB_LAST}+$E${NB_FIRST}:$E${NB_LAST})'
-                       f'<>{NB_CAP}))=0,"OK - all 7 rows sum to 8","MISMATCH - check the used/prior figures")')
+nb[f"F{NB_LAST+1}"] = (f'=IF(SUMPRODUCT(--($D${NB_FIRST}:$D${NB_LAST}>{NB_CAP}))>0,'
+                       f'"OVER CAP - more rows logged than the 8 attempts an event allows",'
+                       f'IF(SUMPRODUCT(--(($D${NB_FIRST}:$D${NB_LAST}+$E${NB_FIRST}:$E${NB_LAST})'
+                       f'<>{NB_CAP}))=0,"OK - all 7 rows sum to 8","MISMATCH - check the prior figures"))')
 nb[f"F{NB_LAST+1}"].font = Font(bold=True, size=10)
 nb.conditional_formatting.add(f"F{NB_LAST+1}",
     FormulaRule(formula=[f'LEFT($F${NB_LAST+1},2)="OK"'],

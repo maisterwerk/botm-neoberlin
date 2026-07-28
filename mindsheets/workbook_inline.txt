@@ -1,0 +1,300 @@
+sha256(BattleOfTheMinds_Scoreboard.xlsx) = e6980d0bb4006de426bfcb6540c7184dcda852eb2d8a0cdfef258c201159bbc0
+
+==============================================================================
+TAB  README
+==============================================================================
+  B2=BATTLE OF THE MINDS
+  B3=Scoreboard & Reward Simulator  ·  built by the Mind “NeoBerlin”
+  B6=What this workbook does  C6=A self-contained tournament control centre: enter each Mind's per-event scores, and the
+  C7=Leaderboard, Dashboard and Reward Simulator update automatically via formulas.
+  B9=Tabs  C9=1) Submissions — enter scores here (validated 0–10).
+  C10=2) Leaderboard — best-per-event totals, ranks, medal highlighting (auto).
+  C11=3) Dashboard — KPIs + a live bar chart of the standings (auto).
+  C12=4) Reward Simulator — split a prize pool fairly with quadratic-merit + steward binding.
+  C13=5) Testing Log — human test cases (correctness/clarity/creativity is what the judge scores).
+  B15=How to use  C15=Type only in the light-blue input cells. Everything grey/green is computed — do not overwrite.
+  C16=Scoring: each event is correctness+clarity+creativity, each 0–10, total /30. Overall = sum of
+  C17=each Mind's BEST submission per event (matches the real tournament rule).
+  --- tab colour: #FF1F2A44 · gridlines off ---
+
+==============================================================================
+TAB  Submissions
+==============================================================================
+  B2=SUBMISSIONS  ·  enter scores in the light-blue cells
+  B4=#  C4=Mind  D4=Steward  E4=Event  F4=Correctness  G4=Clarity  H4=Creativity  I4=Total /30  J4=Grade  K4=calc  L4=mind #  M4=(event list — used by dropdown)
+  B5=1  C5=NeoBerlin  D5=Rob (human steward)  E5=Special Skills using X  F5=9  G5=9  H5=10  I5=28  J5=★ Elite  K5=28  L5=1  M5=Special Skills using X
+  B6=2  C6=NeoBerlin  D6=Rob (human steward)  E6=More Minds are better than one Mind: Research Quest  F6=9  G6=9  H6=10  I6=28  J6=★ Elite  K6=28  M6=More Minds are better than one Mind: Research Quest
+  B7=3  C7=NeoBerlin  D7=Rob (human steward)  E7=Cross Word Puzzle  F7=9  G7=9  H7=9  I7=27  J7=★ Elite  K7=27  M7=Cross Word Puzzle
+  B8=4  C8=NeoBerlin  D8=Rob (human steward)  E8=Calm before the Storm  F8=9  G8=8  H8=9  I8=26  J8=Strong  K8=26  M8=Calm before the Storm
+  B9=5  C9=NeoBerlin  D9=Rob (human steward)  E9=AstroMesh: Minds & MCP Mashup Challenge  F9=9  G9=9  H9=8  I9=26  J9=Strong  K9=26  M9=AstroMesh: Minds & MCP Mashup Challenge
+  B10=6  C10=NeoBerlin  D10=Rob (human steward)  E10=Minds Building Chatbots Challenge  F10=9  G10=9  H10=8  I10=26  J10=Strong  K10=26  M10=Minds Building Chatbots Challenge
+  B11=7  C11=NeoBerlin  D11=Rob (human steward)  E11=Mindsheets Masterpiece and Debugging  F11=8  G11=9  H11=8  I11=25  J11=Strong  K11=25  M11=Mindsheets Masterpiece and Debugging
+  B12=8  C12=Demo-Alpha  D12=(fictional)  E12=Special Skills using X  F12=8  G12=9  H12=8  I12=25  J12=Strong  K12=25  L12=2
+  B13=9  C13=Demo-Alpha  D13=(fictional)  E13=More Minds are better than one Mind: Research Quest  F13=9  G13=8  H13=8  I13=25  J13=Strong  K13=25
+  B14=10  C14=Demo-Alpha  D14=(fictional)  E14=Cross Word Puzzle  F14=7  G14=8  H14=9  I14=24  J14=Strong  K14=24
+  B15=11  C15=Demo-Alpha  D15=(fictional)  E15=Cross Word Puzzle  F15=6  G15=7  H15=8  I15=21  J15=Strong  K15=21
+  B16=12  C16=Demo-Beta  D16=(fictional)  E16=Special Skills using X  F16=7  G16=7  H16=6  I16=20  J16=Fair  K16=20  L16=3
+  B17=13  C17=Demo-Beta  D17=(fictional)  E17=Calm before the Storm  F17=8  G17=8  H17=7  I17=23  J17=Strong  K17=23
+  B18=14  C18=Demo-Beta  D18=(fictional)  E18=AstroMesh: Minds & MCP Mashup Challenge  F18=7  G18=8  H18=7  I18=22  J18=Strong  K18=22
+  B19=15  K19=0
+  B20=16  K20=0
+  B21=17  K21=0
+  B22=18  K22=0
+  B23=19  K23=0
+  B24=20  K24=0
+  B25=21  K25=0
+  B26=22  K26=0
+  B27=23  K27=0
+  B28=24  K28=0
+  B29=25  K29=0
+  B30=26  K30=0
+  B31=27  K31=0
+  B32=28  K32=0
+  B33=29  K33=0
+  B34=30  K34=0
+  B35=31  K35=0
+  B36=32  K36=0
+  B37=33  K37=0
+  B38=34  K38=0
+  B39=35  K39=0
+  B40=36  K40=0
+  B41=37  K41=0
+  B42=38  K42=0
+  B43=39  K43=0
+  B44=40  K44=0
+  --- formulas ---
+  I5:I44       =IF(COUNT(F{row}:H{row})=0,"",IF(COUNT(F{row}:H{row})<3,"incomplete",SUM(F{row}:H{row})))
+  J5:J44       =IF(NOT(ISNUMBER(I{row})),IF(I{row}="incomplete","fill all three","") ,IF(I{row}>=27,"★ Elite",IF(I{row}>=21,"Strong",IF(I{row}>=15,"Fair","Weak"))))
+  K5:K44       =IF(ISNUMBER(I{row}),I{row},0)
+  L5           =IF($C{row}="","",IF(COUNTIF($C${row}:$C{row},$C{row})=1,1,""))
+  L6           =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L5)+1,""))
+  L7           =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L6)+1,""))
+  L8           =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L7)+1,""))
+  L9           =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L8)+1,""))
+  L10          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L9)+1,""))
+  L11          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L10)+1,""))
+  L12          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L11)+1,""))
+  L13          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L12)+1,""))
+  L14          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L13)+1,""))
+  L15          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L14)+1,""))
+  L16          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L15)+1,""))
+  L17          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L16)+1,""))
+  L18          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L17)+1,""))
+  L19          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L18)+1,""))
+  L20          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L19)+1,""))
+  L21          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L20)+1,""))
+  L22          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L21)+1,""))
+  L23          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L22)+1,""))
+  L24          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L23)+1,""))
+  L25          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L24)+1,""))
+  L26          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L25)+1,""))
+  L27          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L26)+1,""))
+  L28          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L27)+1,""))
+  L29          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L28)+1,""))
+  L30          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L29)+1,""))
+  L31          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L30)+1,""))
+  L32          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L31)+1,""))
+  L33          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L32)+1,""))
+  L34          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L33)+1,""))
+  L35          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L34)+1,""))
+  L36          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L35)+1,""))
+  L37          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L36)+1,""))
+  L38          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L37)+1,""))
+  L39          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L38)+1,""))
+  L40          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L39)+1,""))
+  L41          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L40)+1,""))
+  L42          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L41)+1,""))
+  L43          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L42)+1,""))
+  L44          =IF($C{row}="","",IF(COUNTIF($C$5:$C{row},$C{row})=1,MAX($L$5:L43)+1,""))
+  --- tab colour: #FF2E5AAC · gridlines off · freeze B5 ---
+  --- data validation ---
+  F5:H44         whole between 0 10   enforced=yes  msg="Enter a whole number 0–10."
+  E5:E44         list between $M$5:$M$11 0   enforced=yes  msg="Pick an event from the list. A typed-in variant looks fine but matches nothing, so the Leaderboard silently drops that submission."
+  --- conditional formatting ---
+  I5:I44         colorScale  scale #F8696B -> #FFEB84 -> #63BE7B
+  C5:C44         cellIs  if "NeoBerlin"  fill #D8ECD6
+  --- hidden helper columns: K ---
+
+==============================================================================
+TAB  Leaderboard
+==============================================================================
+  B2=LEADERBOARD  ·  overall = sum of best submission per event
+  B4=Rank  C4=Mind  D4=Steward  E4=X-Skill  F4=Research  G4=Crossword  H4=Calm  I4=AstroMesh  J4=Chatbots  K4=Mindsheets  L4=Overall /210  M4=Medal
+  B5=1  C5=NeoBerlin  D5=Rob (human steward)  E5=28  F5=28  G5=27  H5=26  I5=26  J5=26  K5=25  L5=186  M5=🥇
+  B6=2  C6=Demo-Alpha  D6=(fictional)  E6=25  F6=25  G6=24  H6=0  I6=0  J6=0  K6=0  L6=74  M6=🥈
+  B7=3  C7=Demo-Beta  D7=(fictional)  E7=20  F7=0  G7=0  H7=23  I7=22  J7=0  K7=0  L7=65  M7=🥉
+  --- formulas ---
+  B5           =IF($C{row}="","",RANK(L{row},$L${row}:$L$16))
+  C5           =IFERROR(INDEX(Submissions!$C${row}:$C$44,MATCH(1,Submissions!$L${row}:$L$44,0)),"")
+  D5:D16       =IF($C{row}="","",IFERROR(INDEX(Submissions!$D:$D,MATCH($C{row},Submissions!$C:$C,0)),""))
+  E5           =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C${row}:$C$44=$C{row})*(Submissions!$E${row}:$E$44="Special Skills using X")*Submissions!$K${row}:$K$44)))
+  F5           =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C${row}:$C$44=$C{row})*(Submissions!$E${row}:$E$44="More Minds are better than one Mind: Research Quest")*Submissions!$K${row}:$K$44)))
+  G5           =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C${row}:$C$44=$C{row})*(Submissions!$E${row}:$E$44="Cross Word Puzzle")*Submissions!$K${row}:$K$44)))
+  H5           =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C${row}:$C$44=$C{row})*(Submissions!$E${row}:$E$44="Calm before the Storm")*Submissions!$K${row}:$K$44)))
+  I5           =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C${row}:$C$44=$C{row})*(Submissions!$E${row}:$E$44="AstroMesh: Minds & MCP Mashup Challenge")*Submissions!$K${row}:$K$44)))
+  J5           =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C${row}:$C$44=$C{row})*(Submissions!$E${row}:$E$44="Minds Building Chatbots Challenge")*Submissions!$K${row}:$K$44)))
+  K5           =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C${row}:$C$44=$C{row})*(Submissions!$E${row}:$E$44="Mindsheets Masterpiece and Debugging")*Submissions!$K${row}:$K$44)))
+  L5:L16       =IF($C{row}="","",SUM(E{row}:K{row}))
+  M5           =IF($C{row}="","",IF(L{row}=LARGE($L${row}:$L$16,1),"🥇",IF(L{row}=LARGE($L${row}:$L$16,2),"🥈",IF(L{row}=LARGE($L${row}:$L$16,3),"🥉",""))))
+  B6:B15       =IF($C{row}="","",RANK(L{row},$L$5:$L$16))
+  C6           =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(2,Submissions!$L$5:$L$44,0)),"")
+  E6:E16       =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C$5:$C$44=$C{row})*(Submissions!$E$5:$E$44="Special Skills using X")*Submissions!$K$5:$K$44)))
+  F6:F16       =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C$5:$C$44=$C{row})*(Submissions!$E$5:$E$44="More Minds are better than one Mind: Research Quest")*Submissions!$K$5:$K$44)))
+  G6:G16       =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C$5:$C$44=$C{row})*(Submissions!$E$5:$E$44="Cross Word Puzzle")*Submissions!$K$5:$K$44)))
+  H6:H16       =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C$5:$C$44=$C{row})*(Submissions!$E$5:$E$44="Calm before the Storm")*Submissions!$K$5:$K$44)))
+  I6:I16       =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C$5:$C$44=$C{row})*(Submissions!$E$5:$E$44="AstroMesh: Minds & MCP Mashup Challenge")*Submissions!$K$5:$K$44)))
+  J6:J16       =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C$5:$C$44=$C{row})*(Submissions!$E$5:$E$44="Minds Building Chatbots Challenge")*Submissions!$K$5:$K$44)))
+  K6:K16       =IF($C{row}="","",SUMPRODUCT(MAX((Submissions!$C$5:$C$44=$C{row})*(Submissions!$E$5:$E$44="Mindsheets Masterpiece and Debugging")*Submissions!$K$5:$K$44)))
+  M6:M15       =IF($C{row}="","",IF(L{row}=LARGE($L$5:$L$16,1),"🥇",IF(L{row}=LARGE($L$5:$L$16,2),"🥈",IF(L{row}=LARGE($L$5:$L$16,3),"🥉",""))))
+  C7           =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(3,Submissions!$L$5:$L$44,0)),"")
+  C8           =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(4,Submissions!$L$5:$L$44,0)),"")
+  C9           =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(5,Submissions!$L$5:$L$44,0)),"")
+  C10          =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(6,Submissions!$L$5:$L$44,0)),"")
+  C11          =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(7,Submissions!$L$5:$L$44,0)),"")
+  C12          =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(8,Submissions!$L$5:$L$44,0)),"")
+  C13          =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(9,Submissions!$L$5:$L$44,0)),"")
+  C14          =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(10,Submissions!$L$5:$L$44,0)),"")
+  C15          =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(11,Submissions!$L$5:$L$44,0)),"")
+  B16          =IF($C{row}="","",RANK(L{row},$L$5:$L${row}))
+  C16          =IFERROR(INDEX(Submissions!$C$5:$C$44,MATCH(12,Submissions!$L$5:$L$44,0)),"")
+  M16          =IF($C{row}="","",IF(L{row}=LARGE($L$5:$L${row},1),"🥇",IF(L{row}=LARGE($L$5:$L${row},2),"🥈",IF(L{row}=LARGE($L$5:$L${row},3),"🥉",""))))
+  --- tab colour: #FF6AAA64 · gridlines off · freeze B5 ---
+  --- conditional formatting ---
+  L5:L16         colorScale  scale #FFEB84 -> #63BE7B
+  B5:M16         expression  if $B5=1  fill #FFF6D5
+  --- number formats ---
+  0              E5..K16  (84 cells)
+
+==============================================================================
+TAB  Dashboard
+==============================================================================
+  B2=DASHBOARD
+  B3=Live KPIs & standings — all driven by the Leaderboard tab
+  B5=LEADER  E5=TOP OVERALL /210  H5=NEOBERLIN OVERALL  K5=GAP TO LEADER
+  B6=NeoBerlin  E6=186  H6=186  K6=0
+  B10=Standings
+  B11=Mind  C11=Overall
+  B12=NeoBerlin  C12=186
+  B13=Demo-Alpha  C13=74
+  B14=Demo-Beta  C14=65
+  --- formulas ---
+  B6           =INDEX(Leaderboard!C:C,MATCH(1,Leaderboard!B:B,0))
+  E6           =MAX(Leaderboard!L:L)
+  H6           =INDEX(Leaderboard!L:L,MATCH("NeoBerlin",Leaderboard!C:C,0))
+  K6           =MAX(Leaderboard!L:L)-INDEX(Leaderboard!L:L,MATCH("NeoBerlin",Leaderboard!C:C,0))
+  B12          =Leaderboard!C5
+  C12          =Leaderboard!L5
+  B13          =Leaderboard!C6
+  C13          =Leaderboard!L6
+  B14          =Leaderboard!C7
+  C14          =Leaderboard!L7
+  B15          =Leaderboard!C8
+  C15          =Leaderboard!L8
+  B16          =Leaderboard!C9
+  C16          =Leaderboard!L9
+  B17          =Leaderboard!C10
+  C17          =Leaderboard!L10
+  B18          =Leaderboard!C11
+  C18          =Leaderboard!L11
+  B19          =Leaderboard!C12
+  C19          =Leaderboard!L12
+  B20          =Leaderboard!C13
+  C20          =Leaderboard!L13
+  B21          =Leaderboard!C14
+  C21          =Leaderboard!L14
+  B22          =Leaderboard!C15
+  C22          =Leaderboard!L15
+  B23          =Leaderboard!C16
+  C23          =Leaderboard!L16
+  --- tab colour: #FF8B5CF6 · gridlines off ---
+  --- chart: BarChart type=bar title="Overall standings /210" ---
+
+==============================================================================
+TAB  Reward Simulator
+==============================================================================
+  B2=REWARD SIMULATOR
+  B3=Split a prize pool fairly: quadratic-merit weighting + steward binding (anti-sybil)
+  B5=Prize pool (ETH)  D5=3  E5=← input the pool
+  B7=Steward  C7=Minds  D7=Σ merit  E7=Weight = √merit  F7=Share %  G7=Payout (ETH)
+  B8=Rob (human steward)  C8=1  D8=186  E8=13.6382  F8=0.4497  G8=1.3491
+  B9=(fictional)  C9=2  D9=139  E9=11.7898  F9=0.3888  G9=1.1663
+  B10=SybilFarm (illustrative)  C10=12  D10=24  E10=4.899  F10=0.1615  G10=0.4846
+  B11=TOTAL  F11=1  G11=3
+  B13=Why √merit? The sybil farm below runs 12 Minds that the judge rates near zero, so its
+  B14=merit is 24 and its weight √24 ≈ 4.9 — not 24. Flooding the tournament with fake Minds
+  B15=barely moves the payout. Steward binding then pools every Mind a steward owns into ONE bucket, removing the multiply-by-Minds exploit.
+  --- formulas ---
+  D8:D9        =SUMIF(Leaderboard!$D$5:$D$16,$B{row},Leaderboard!$L$5:$L$16)
+  E8:E10       =SQRT(D{row})
+  F8           =IF(SUM($E${row}:$E$10)=0,0,E{row}/SUM($E${row}:$E$10))
+  G8:G10       =$D$5*F{row}
+  F9           =IF(SUM($E$8:$E$10)=0,0,E{row}/SUM($E$8:$E$10))
+  D10          =C{row}*2
+  F10          =IF(SUM($E$8:$E${row})=0,0,E{row}/SUM($E$8:$E${row}))
+  F11          =SUM(F8:F10)
+  G11          =SUM(G8:G10)
+  --- tab colour: #FFC9B458 · gridlines off ---
+  --- conditional formatting ---
+  G8:G10         colorScale  scale #F8696B -> #63BE7B
+  --- number formats ---
+  0.000          D5  (1 cells)
+  0.00           E8..E10  (3 cells)
+  0.0%           F8..F11  (4 cells)
+  0.0000         G8..G11  (4 cells)
+
+==============================================================================
+TAB  Testing Log
+==============================================================================
+  B2=TESTING LOG  ·  human-verified
+  B3=The Mind proposes inputs & expected outputs; the human steward enters them and reports observed.
+  B5=#  C5=Test case  D5=Input (cell = value)  E5=Expected  F5=Observed (human)  G5=Pass?
+  B6=1  C6=Cross-app check: Apple Numbers, first build  D6=Open a build written without cached values  E6=Values shown  F6=ALL CELLS BLANK - Numbers does not recalculate imported formulas  G6=FAIL
+  B7=2  C7=Cross-app check: Apple Numbers, after fix  D7=Open build with fullCalcOnLoad + baked-in values  E7=Values shown AND live recalculation  F7=Values shown; recalculation only after editing the cell  G7=PARTIAL
+  B8=3  C8=Best-of-event: a WEAKER second submission must be ignored  D8=Submissions first free row: C=NeoBerlin, E=Mindsheets, F/G/H = 5/5/5  E8=Total=15, Grade='Fair'; Leaderboard Mindsheets stays 25; Overall stays 186  F8=15, Fair; 25; 186 (Excel on macOS)  G8=Pass
+  B9=4  C9=Best-of-event: a STRONGER second submission must take over  D9=Same row: F/G/H = 10/10/9  E9=Total=29, Grade='Elite'; Leaderboard Mindsheets=29; Overall=190; Dashboard=190  F9=all as expected (Excel on macOS)  G9=Pass
+  B10=5  C10=Next Best Move must react to a changed score  D10=After test 4, read Next Best Move 'Best' and RECOMMENDATION  E10=Best becomes 29, Mindsheets EV collapses, recommendation -> 'Calm before the Storm'  F10=Best STILL 25 and recommendation still 'Mindsheets' - the tab never updated  G10=FAIL
+  B11=6  C11=Same check after the fix (Best now read from the Leaderboard)  D11=Repeat test 4, then read Next Best Move Best / EV / RECOMMENDATION  E11=Best = 29; EV falls 0.427 -> 0.030; recommendation -> 'Calm before the Storm'  F11=Best=29; EV=0.03; recommendation switched (Excel on macOS, screenshot)  G11=Pass
+  B12=7  C12=Attempts arithmetic: used + left must equal 8 on every row  D12=Read the Next Best Move table as shipped  E12=Every row sums to 8  F12=Crossword 0+7, Mindsheets 1+6, Research 1+5 - three rows did not sum to 8  G12=FAIL
+  B13=8  C13=Same check after splitting used / left / scored  D13=Read used, left and the CHECK line; then log one more Mindsheets row  E13=All rows sum to 8; logging a row moves Mindsheets 7/1 -> 8/0 and greys it out  F13=all 7 rows sum to 8, CHECK green, Mindsheets 8/0 and greyed, recommendation moved to Calm (Excel on macOS, screenshot)  G13=Pass
+  B15=Status: Ready — every test above was run by the human steward, Rob, in Microsoft Excel on macOS on 2026-07-28; he returned screenshots of each tab so the Mind could check what he had checked. Three rows read FAIL because they genuinely failed and are kept rather than overwritten: test 1 is a cross-app limitation of Apple Numbers, and tests 5 and 7 are defects the steward found, each followed by the re-test that confirms the fix. Numbers shows every value but does not re-evaluate imported formulas until a cell is edited — an import behaviour rather than a formula error, recorded as tests 1 and 2.
+  --- tab colour: #FF6B7280 · gridlines off ---
+
+==============================================================================
+TAB  Next Best Move
+==============================================================================
+  B2=NEXT BEST MOVE  ·  where should the next attempt go?
+  B3=Expected value of ONE more attempt, per event. Every event allows 8 attempts, so used + left = 8 always — the check line under the table enforces it. 'used' counts attempts spent (prior history plus every row you add on Submissions), 'left' is what remains, and 'scored' is how many of those attempts actually came back with a judgment. The three differ: an attempt can be spent without ever being scored (Research has 2 such, Mindsheets 1, Crossword 1), which is why mu and sigma are built from 'scored' and not from 'used'. 'scored', mu and sigma stay steward inputs on purpose - the workbook cannot tell a real judgment from a what-if row, so it does not touch them. Best, used and left are all computed.
+  B5=Event  C5=Best  D5=used  E5=left  F5=scored  G5=mu (last 2)  H5=sigma  I5=P(next > best)  J5=EV of next attempt  K5=Verdict  L5=eligible EV  M5=EV bar  N5=key  O5=prior  P5=event key
+  B6=Special Skills using X  C6=28  D6=4  E6=4  F6=4  G6=27.5  H6=0.71  I6=0.2406  J6=0.1007  K6=low return  L6=0.1007  M6=||  N6=X-Skill  O6=3  P6=Special Skills using X
+  B7=More Minds are better than one  C7=28  D7=7  E7=1  F7=5  G7=26.5  H7=1.36  I7=0.135  J7=0.0928  K7=low return  L7=0.0928  M7=||  N7=Research  O7=6  P7=More Minds are better than one Mind: Research Quest
+  B8=Cross Word Puzzle  C8=27  D8=8  E8=0  F8=7  G8=25  H8=2.23  I8=0.1849  J8=0.2253  K8=no attempts left  L8=-999  M8=|||||  N8=Crossword  O8=7  P8=Cross Word Puzzle
+  B9=Calm before the Storm  C9=26  D9=7  E9=1  F9=7  G9=24.5  H9=1.76  I9=0.197  J9=0.1928  K9=worthwhile  L9=0.1928  M9=||||  N9=Calm  O9=6  P9=Calm before the Storm
+  B10=AstroMesh: Minds & MCP  C10=26  D10=5  E10=3  F10=5  G10=23.5  H10=1.17  I10=0.0163  J10=0.0068  K10=low return  L10=0.0068  N10=AstroMesh  O10=4  P10=AstroMesh: Minds & MCP Mashup Challenge
+  B11=Minds Building Chatbots  C11=26  D11=7  E11=1  F11=7  G11=23  H11=1.76  I11=0.0441  J11=0.0318  K11=low return  L11=0.0318  M11=|  N11=Chatbots  O11=6  P11=Minds Building Chatbots Challenge
+  B12=Mindsheets Masterpiece  C12=25  D12=7  E12=1  F12=6  G12=22.5  H12=3.3  I12=0.2244  J12=0.4272  K12=worthwhile  L12=0.4272  M12=|||||||||  N12=Mindsheets  O12=6  P12=Mindsheets Masterpiece and Debugging
+  B13=CHECK  ·  used + left must equal 8 on every row  F13=OK - all 7 rows sum to 8
+  B14=RECOMMENDATION  D14=Mindsheets Masterpiece
+  B15=Caveats, stated rather than hidden: EV assumes the next score is normal around mu. Multiple attempts are NOT additive — best-of-n has diminishing returns, so this column answers 'spend ONE attempt where?' and nothing more. Rows with fewer than two scored attempts have no estimable sigma and are excluded from the recommendation.
+  --- formulas ---
+  C6:C12       =INDEX(Leaderboard!$E$5:$K$5,MATCH($N{row},Leaderboard!$E$4:$K$4,0))
+  D6:D12       =$O{row}+COUNTIFS(Submissions!$C$5:$C$44,"NeoBerlin",Submissions!$E$5:$E$44,$P{row})
+  E6:E12       =MAX(0,8-$D{row})
+  I6:I12       =IF($F{row}<2,"n/a",1-NORMDIST($C{row},$G{row},$H{row},TRUE()))
+  J6:J12       =IF($F{row}<2,"insufficient history",$C{row}*NORMDIST($C{row},$G{row},$H{row},TRUE())+$G{row}*(1-NORMDIST($C{row},$G{row},$H{row},TRUE()))+$H{row}*$H{row}*NORMDIST($C{row},$G{row},$H{row},FALSE())-$C{row})
+  K6:K12       =IF($F{row}<2,"need >=2 scores",IF($E{row}=0,"no attempts left",IF($J{row}>=0.5,"SHOOT — best use of an attempt",IF($J{row}>=0.15,"worthwhile","low return"))))
+  L6:L12       =IF(AND($E{row}>0,$F{row}>=2),$J{row},-999)
+  M6:M12       =IF($F{row}<2,"",REPT("|",ROUND(MAX($J{row},0)*20,0)))
+  F13          =IF(SUMPRODUCT(--($D$6:$D$12>8))>0,"OVER CAP - more rows logged than the 8 attempts an event allows",IF(SUMPRODUCT(--(($D$6:$D$12+$E$6:$E$12)<>8))=0,"OK - all 7 rows sum to 8","MISMATCH - check the prior figures"))
+  D14          =INDEX($B$6:$B$12,MATCH(MAX($L$6:$L$12),$L$6:$L$12,0))
+  --- tab colour: #FF6AAA64 · gridlines off ---
+  --- conditional formatting ---
+  F13            expression  if LEFT($F$13,2)="OK"  fill #D8F0D3
+  F13            expression  if LEFT($F$13,2)<>"OK"  fill #F8D7DA
+  B6:K12         expression  if $E6=0  fill #F2F3F5  font #9AA0A6
+  J6:J12         colorScale  scale #F8D7DA -> #C9E7C4
+  --- number formats ---
+  0              C6..C12  (7 cells)
+  0.0%           I6..I12  (7 cells)
+  0.00           J6..J12  (7 cells)
+  0.00;\—        L6..L12  (7 cells)
+  --- hidden helper columns: N ---
