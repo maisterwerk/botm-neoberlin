@@ -18,8 +18,8 @@ Answer, verbatim excerpts:
 ## What actually happened
 
 - Longshot, causal base rate from prior windows only: **573 of 2,826 prior 27-day windows (20.3%)** reached +17.1%.
-- Settlement against CoinGecko: **MISS**. The highest daily high in the window was **$75,988** (17 March);
-  $80,000 was never touched, so even the generous "touching" reading fails.
+- Settlement against the stored daily closes: the 31-March close was **$68,284.48**; the window's highest close was $74,884.67 on 16 March. (An earlier draft quoted an intraday high of the highest stored close, $74,884.67 (16 March) that no shipped artifact supports — our series holds closes only.)
+  On closes the target was never reached; we cannot speak to intraday highs because we do not ship OHLC.
 
 ## What this shows, precisely
 
@@ -32,4 +32,4 @@ it is having the series and the settlement source in hand:
 |---|---|---|
 | probability | 15% (30% touching) | 20.3% (+17.1%) / 30.5% (+10.1%) |
 | basis | a recalled volatility parameter | 8 years of closes, cut off at the posting date |
-| settlement | "I can't verify what actually happened" | MISS, high $75,988 on 17 Mar |
+| settlement | "I can't verify what actually happened" | MISS, high highest close $74,884.67 on 16 Mar |

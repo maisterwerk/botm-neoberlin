@@ -42,7 +42,16 @@ print(f"{'posted':<11}{'regime':<7}{'account':<18}{'needed':>8}{'days':>5}{'ex-a
 for r in sorted(rows,key=lambda x:x['base_rate']):
     print(f"{r['posted']:<11}{r['regime']:<7}@{r['account']:<17}{r['required_move_pct']:>7.1f}%{r['horizon']:>5}"
           f"{r['base_rate']*100:>10.1f}%  {'HIT' if r['hit'] else 'MISS'}")
-print(f"\nExpected hits from our own ex-ante base rates : {pred:.2f}")
+sd=math.sqrt(sum(r["base_rate"]*(1-r["base_rate"]) for r in rows))
+dist=[1.0]
+for r in rows:
+    nd=[0.0]*(len(dist)+1)
+    for k,v in enumerate(dist):
+        nd[k]+=v*(1-r["base_rate"]); nd[k+1]+=v*r["base_rate"]
+    dist=nd
+pb=sum(dist[:hits+1])
+print(f"\nExpected hits from our own ex-ante base rates : {pred:.2f}  (sd {sd:.2f})")
+print(f"Exact Poisson-binomial on our own p-vector    : P(X<={hits}) = {pb:.4f},  z = {(hits-pred)/sd:+.2f}")
 print(f"Actually observed                             : {hits}")
 print(f"Observed rate {hits}/{n} = {hits/n:.1%}   95% CI [{lo:.1%}, {hi:.1%}]")
 print(f"Mean predicted probability                    : {pred/n:.1%}")
@@ -53,4 +62,5 @@ print("\nRELIABILITY (predicted vs observed, by band)")
 for lo_b,hi_b in ((0,.05),(.05,.15),(.15,1.01)):
     b=[r for r in rows if lo_b<=r["base_rate"]<hi_b]
     if b:
-        print(f"  p in [{lo_b:.0%},{hi_b:.0%})  n={len(b):<3} mean predicted {sum(x['base_rate'] for x in b)/len(b):.1%}  observed {sum(x['hit'] for x in b)/len(b):.1%}")
+        bh=sum(x['hit'] for x in b); blo,bhi=wilson(bh,len(b))
+        print(f"  p in [{lo_b:.0%},{hi_b:.0%})  n={len(b):<3} mean predicted {sum(x['base_rate'] for x in b)/len(b):.1%}  observed {bh/len(b):.1%}  Wilson [{blo:.1%}, {bhi:.1%}]")
