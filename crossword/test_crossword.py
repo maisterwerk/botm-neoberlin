@@ -16,16 +16,16 @@ with sync_playwright() as pw:
     t("2. every across & down entry is a DISTINCT word", st["distinct"] is True)
     t("3. every white square is checked both ways", st["unchecked"]==[], str(st["unchecked"]))
     t("4. clue list matches entry list exactly", st["errors"]==[], str(st["errors"]))
-    exp={"1A":"MAP","4A":"ERROR","7A":"SCORE","8A":"SHOAL","9A":"FLY",
-         "1D":"MESS","2D":"ARCH","3D":"PROOF","5D":"ORAL","6D":"RELY"}
+    exp={"1A":"TOP","4A":"EARNS","7A":"STOOL","8A":"THOSE","9A":"FED",
+         "1D":"TEST","2D":"OATH","3D":"PROOF","5D":"NOSE","6D":"SLED"}
     got={k:v["answer"] for k,v in st["entries"].items()}
     t("5. numbering + answers as designed", got==exp, str(got))
 
     # typing a real answer through the UI
     pg.evaluate("document.querySelector('[data-r=\"1\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
-    for ch in "ERROR": pg.keyboard.press(ch)
+    for ch in "EARNS": pg.keyboard.press(ch)
     row=pg.evaluate("__state().user[1]")
-    t("6. typing fills the across entry left-to-right", row=="ERROR", row)
+    t("6. typing fills the across entry left-to-right", row=="EARNS", row)
 
     # space toggles direction
     pg.evaluate("document.querySelector('[data-r=\"0\"][data-c=\"2\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
@@ -46,7 +46,7 @@ with sync_playwright() as pw:
     t("10. correct grid => Solved", ok is True and "Solved" in stt["status"], stt["status"])
     t("11. theme reveal fires on solve", stt["reveal"]=="block")
     rv=pg.inner_text("#reveal")
-    t("12. reveal names all three themers", all(w in rv for w in ("ERROR","SCORE","PROOF")))
+    t("12. reveal names all three themers", all(w in rv for w in ("TEST","OATH","PROOF")))
 
     # reveal-word button
     pg.click("#bClear")
@@ -58,10 +58,68 @@ with sync_playwright() as pw:
     # clear
     pg.click("#bClear")
     rows=pg.evaluate("__state().user")
-    t("14. Clear empties the grid", rows==["MAP##","ERROR","SCORE","SHOAL","##FLY"]
+    t("14. Clear empties the grid", rows==["TOP##","EARNS","STOOL","THOSE","##FED"]
       .__class__(["...##",".....",".....",".....","##..."]), str(rows))
 
-    t("15. no JS errors during the whole run", errs==[], "; ".join(errs[:3]))
+
+    # ---- regressions for defects a review found in the previous build ----
+    pg.click("#bClear")
+    pg.evaluate("__autofill([2,0])")            # break one square, mark it red
+    pg.keyboard.press("ArrowRight")             # any redraw
+    red=pg.eval_on_selector_all(".cell.wrong","els=>els.length")
+    t("16. red mark survives a redraw", red==1, str(red))
+    pg.evaluate("document.querySelector('[data-r=\"2\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    pg.keyboard.press("S")
+    red=pg.eval_on_selector_all(".cell.wrong","els=>els.length")
+    t("17. red mark clears when that square is edited", red==0, str(red))
+
+    pg.click("#bClear"); pg.evaluate("__autofill(null)")
+    t("18a. solved => theme panel open", pg.evaluate("__state().reveal")=="block")
+    pg.evaluate("document.querySelector('[data-r=\"2\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    pg.keyboard.press("Backspace"); pg.keyboard.press("Q"); pg.click("#bCheck")
+    t("18b. breaking a solved grid closes the theme panel again",
+      pg.evaluate("__state().reveal")!="block", pg.evaluate("__state().reveal"))
+
+    pg.click("#bClear")
+    dots=pg.eval_on_selector_all(".cell.themer","els=>els.length")
+    t("19a. themed squares NOT marked before the solve (no spoiler)", dots==0, str(dots))
+    pg.evaluate("__autofill(null)")
+    dots=pg.eval_on_selector_all(".cell.themer","els=>els.length")
+    t("19b. themed squares marked after the solve", dots==13, str(dots))
+
+    # mobile: no soft keyboard can appear without a focusable input
+    pg.click("#bClear")
+    has=pg.evaluate("!!document.getElementById('mob')")
+    t("20a. an input exists so phones can raise a keyboard", has)
+    pg.evaluate("document.querySelector('[data-r=\"0\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    t("20b. tapping a square focuses that input", pg.evaluate("document.activeElement.id")=="mob",
+      pg.evaluate("document.activeElement.id"))
+    for ch in "TOP":
+        pg.evaluate("(c)=>{const m=document.getElementById('mob');m.value=c;m.dispatchEvent(new Event('input',{bubbles:true}))}", ch)
+    t("20c. typing through that input fills the grid (phone path)",
+      pg.evaluate("__state().user[0]")=="TOP##", pg.evaluate("__state().user[0]"))
+
+    pg.click("#bClear")
+    pg.focus("#bCheck"); pg.keyboard.press("Tab")
+    t("21. Tab reaches the buttons instead of being swallowed",
+      pg.evaluate("document.activeElement.tagName")=="BUTTON", pg.evaluate("document.activeElement.id"))
+
+    # real-event coverage for the interactions the write-up claims
+    pg.click("#bClear")
+    pg.evaluate("document.querySelector('[data-r=\"1\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    for ch in "EARNS": pg.keyboard.press(ch)
+    pg.keyboard.press("Backspace")
+    a1=pg.evaluate("__state().user[1]")
+    pg.keyboard.press("Backspace")
+    b1=pg.evaluate("__state().user[1]")
+    t("22. Backspace deletes, then steps back and deletes again", a1=="EARN." and b1=="EAR..", a1+" then "+b1)
+    pg.click("#bClear")
+    pg.evaluate("document.querySelector('[data-r=\"0\"][data-c=\"0\"]').dispatchEvent(new MouseEvent('mousedown',{bubbles:true}))")
+    pg.click("#bLetter")
+    t("23. Reveal letter fills exactly one correct square",
+      pg.evaluate("__state().user[0]")=="T..##", pg.evaluate("__state().user[0]"))
+
+    t("24. no JS errors during the whole run", errs==[], "; ".join(errs[:3]))
 
     pg.click("#bClear"); pg.evaluate("__autofill(null)"); pg.wait_for_timeout(1400)
     pg.screenshot(path="solved.png")

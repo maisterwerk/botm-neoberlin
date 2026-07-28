@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Show Your Work — a 5×5 Mini Crossword</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+<title>Settled — a 5×5 Mini Crossword</title>
 <style>
 :root{
   --bg:#0e1116; --panel:#161b22; --line:#30363d; --ink:#e6edf3; --dim:#8b949e;
@@ -74,13 +74,18 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;color:v
 <body>
 <div class="wrap">
 <header>
-  <h1>Show Your <span>Work</span></h1>
-  <p class="sub">A 5×5 mini. Three of the answers are ways of finding out whether a claim holds up — and one of them runs down the spine of the grid.</p>
+  <h1>Set<span>tled</span></h1>
+  <p class="sub">A 5×5 mini. Three of the answers settle an argument — and they are standing next to each other.</p>
 </header>
 
 <div class="layout">
   <div class="left">
-    <div id="grid" role="application" aria-label="Crossword grid"></div>
+    <div id="grid" role="grid" aria-label="Crossword grid, 5 by 5"></div>
+    <!-- Off-screen field: tapping a square focuses it, which is the only way to raise a
+         soft keyboard on iOS/Android. Desktop typing still goes through window keydown. -->
+    <input id="mob" type="text" inputmode="text" autocomplete="off" autocorrect="off"
+           autocapitalize="characters" spellcheck="false" aria-label="Type a letter"
+           style="position:absolute;opacity:0;height:1px;width:1px;left:-9999px;top:0">
     <div id="cluebar">Click a square to begin.</div>
     <div class="controls">
       <button class="primary" id="bCheck">Check</button>
@@ -100,7 +105,7 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;color:v
 
 <footer>
   Type to fill · <b>Tab</b> next clue · <b>Space</b> switches Across/Down · arrow keys move ·
-  <b>Backspace</b> deletes and steps back. Purple dots mark the themed answers.<br>
+  <b>Backspace</b> deletes and steps back. Solve it to find out what the three themed answers have in common.<br>
   Built by NeoBerlin. One self-contained file — no external assets, no dependencies, no network calls.
 </footer>
 </div>
@@ -108,33 +113,33 @@ footer{margin-top:34px;border-top:1px solid var(--line);padding-top:14px;color:v
 <script>
 /* ============================================================
    GRID  ( # = black square )
-     M A P # #
-     E R R O R
-     S C O R E
-     S H O A L
-     # # F L Y
-   Across: MAP ERROR SCORE SHOAL FLY
-   Down  : MESS ARCH PROOF ORAL RELY
-   All ten entries are distinct words. PROOF is the vertical
-   spine and crosses ERROR, SCORE and SHOAL.
+     T O P # #
+     E A R N S
+     S T O O L
+     T H O S E
+     # # F E D
+   Across: TOP EARNS STOOL THOSE FED
+   Down  : TEST OATH PROOF NOSE SLED
+   All ten entries are distinct. The three themers TEST, OATH
+   and PROOF are 1-, 2- and 3-Down: three adjacent columns.
    ============================================================ */
-const SOL = ["MAP##","ERROR","SCORE","SHOAL","##FLY"];
+const SOL = ["TOP##","EARNS","STOOL","THOSE","##FED"];
 const N = 5;
 const isBlock = (r,c) => SOL[r][c] === "#";
 
 const CLUES = {
-  "1A":"Legend holder",
-  "4A":"Fielder's flub, on a scoreboard",
-  "7A":"Twenty, to Lincoln",
-  "8A":"School of fish, or the shallows it may be hiding over",
-  "9A":"High one to left field, or a feature of trousers",
-  "1D":"Where soldiers eat",
-  "2D":"Sly, as a grin",
-  "3D":"What Q.E.D. marks the end of — and what a whiskey label puts a number on",
-  "5D":"Kind of exam you can't slip notes into",
-  "6D":"Lean (on)"
+  "1A":"Spinning toy",
+  "4A":"Brings home",
+  "7A":"Perch at a bar",
+  "8A":"Not these",
+  "9A":"G-man",
+  "1D":"Trial run",
+  "2D":"Swearing, of a sort",
+  "3D":"What Q.E.D. concludes",
+  "5D":"Bloodhound's tool",
+  "6D":"Rosebud, in <i>Citizen Kane</i>"
 };
-const THEME_KEYS = ["4A","7A","3D"];        // ERROR, SCORE, PROOF
+const THEME_KEYS = ["1D","2D","3D"];        // TEST, OATH, PROOF
 
 /* ---------- numbering (standard crossword rules) ---------- */
 const num = Array.from({length:N},()=>Array(N).fill(0));
@@ -162,6 +167,7 @@ THEME_KEYS.forEach(k=>entries[k].cells.forEach(x=>THEME_CELLS.add(x.join(","))))
 /* ---------- state ---------- */
 const user = Array.from({length:N},()=>Array(N).fill(""));
 const revealedCell = Array.from({length:N},()=>Array(N).fill(false));
+const wrongMark    = Array.from({length:N},()=>Array(N).fill(false));
 let cur = {r:0,c:0,dir:"A"};
 let done = false;
 
@@ -180,6 +186,8 @@ for(let r=0;r<N;r++) for(let c=0;c<N;c++){
       if(cur.r===r && cur.c===c){ const o=cur.dir==="A"?"D":"A"; if(entryAt(r,c,o)) cur.dir=o; }
       else { cur.r=r; cur.c=c; if(!entryAt(r,c,cur.dir)) cur.dir = cur.dir==="A"?"D":"A"; }
       draw();
+      const mob=document.getElementById("mob");
+      if(mob){ mob.value=""; mob.focus({preventScroll:true}); }
     });
   }
   gridEl.appendChild(d); cellEl[r][c]=d;
@@ -224,8 +232,9 @@ function draw(){
     d.classList.toggle("inword", inw.has(r+","+c));
     d.classList.toggle("active", r===cur.r&&c===cur.c);
     d.classList.toggle("revealed", revealedCell[r][c]);
-    d.classList.toggle("themer", THEME_CELLS.has(r+","+c));
-    d.classList.remove("wrong");
+    d.classList.toggle("themer", done && THEME_CELLS.has(r+","+c));
+    // a red mark survives redraws and clears only when that square is edited
+    if(!wrongMark[r][c]) d.classList.remove("wrong");
     d.querySelector(".ltr").textContent = user[r][c];
   }
   document.querySelectorAll("li").forEach(li=>{
@@ -259,10 +268,26 @@ function nextClue(back){
   cur={r:e.cells[0][0],c:e.cells[0][1],dir:e.dir};
 }
 
+/* On-screen keyboards often fire no usable keydown, so also read the input's value. */
+document.getElementById("mob").addEventListener("input",e=>{
+  const v=e.target.value; e.target.value="";
+  const ch=(v.match(/[a-zA-Z]/g)||[]).pop();
+  if(!ch) return;
+  user[cur.r][cur.c]=ch.toUpperCase(); revealedCell[cur.r][cur.c]=false;
+  wrongMark[cur.r][cur.c]=false; cellEl[cur.r][cur.c].classList.remove("wrong");
+  advance(); setStatus(""); draw();
+  if(isComplete()) check();
+});
+
 document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
+  // A real keydown is authoritative; blank the mirror input so `input` cannot double-fire.
+  const mob=document.getElementById("mob"); if(mob) mob.value="";
   const k=e.key;
-  if(k==="Tab"){ e.preventDefault(); nextClue(e.shiftKey); draw(); return; }
+  // Tab cycles clues only while the grid has focus; otherwise it must reach the buttons.
+  if(k==="Tab"){
+    if(document.activeElement && document.activeElement.tagName==="BUTTON") return;
+    e.preventDefault(); nextClue(e.shiftKey); draw(); return; }
   if(k===" "){ e.preventDefault(); const o=cur.dir==="A"?"D":"A";
                if(entryAt(cur.r,cur.c,o)) cur.dir=o; draw(); return; }
   if(k==="ArrowUp"){e.preventDefault();cur.dir="D";step(-1,0);draw();return;}
@@ -271,21 +296,23 @@ document.addEventListener("keydown",e=>{
   if(k==="ArrowRight"){e.preventDefault();cur.dir="A";step(0,1);draw();return;}
   if(k==="Backspace"){
     e.preventDefault();
-    if(user[cur.r][cur.c]){ user[cur.r][cur.c]=""; revealedCell[cur.r][cur.c]=false; }
+    if(user[cur.r][cur.c]){ user[cur.r][cur.c]=""; revealedCell[cur.r][cur.c]=false; wrongMark[cur.r][cur.c]=false; cellEl[cur.r][cur.c].classList.remove("wrong"); }
     else{
       const key=curKey();
       if(key){
         const cells=entries[key].cells;
         const i=cells.findIndex(([r,c])=>r===cur.r&&c===cur.c);
         if(i>0){ cur.r=cells[i-1][0]; cur.c=cells[i-1][1];
-                 user[cur.r][cur.c]=""; revealedCell[cur.r][cur.c]=false; }
+                 user[cur.r][cur.c]=""; revealedCell[cur.r][cur.c]=false; wrongMark[cur.r][cur.c]=false;
+                 cellEl[cur.r][cur.c].classList.remove("wrong"); }
       }
     }
     setStatus(""); draw(); return;
   }
   if(/^[a-zA-Z]$/.test(k)){
     e.preventDefault();
-    user[cur.r][cur.c]=k.toUpperCase(); revealedCell[cur.r][cur.c]=false;
+    user[cur.r][cur.c]=k.toUpperCase(); revealedCell[cur.r][cur.c]=false; wrongMark[cur.r][cur.c]=false;
+    cellEl[cur.r][cur.c].classList.remove("wrong");
     advance(); setStatus(""); draw();
     if(isComplete()) check();
   }
@@ -304,12 +331,17 @@ function check(){
   let bad=0;
   for(let r=0;r<N;r++) for(let c=0;c<N;c++){
     if(isBlock(r,c)) continue;
-    if(user[r][c]!==SOL[r][c]){ cellEl[r][c].classList.add("wrong"); bad++; }
+    if(user[r][c]!==SOL[r][c]){ wrongMark[r][c]=true; cellEl[r][c].classList.add("wrong"); bad++; }
   }
-  if(bad){ setStatus(bad+" square"+(bad>1?"s are":" is")+" wrong (shown in red).","no"); return false; }
+  if(bad){
+    setStatus(bad+" square"+(bad>1?"s are":" is")+" wrong (shown in red).","no");
+    // the grid is no longer solved, so the theme panel must close again
+    if(done){ done=false; document.getElementById("reveal").style.display="none"; draw(); }
+    return false; }
   setStatus("Solved — every across and down answer checks out.","ok");
   if(!done){
     done=true;
+    draw();          // the themed squares are only marked once the puzzle is solved
     let i=0;
     for(let r=0;r<N;r++) for(let c=0;c<N;c++){
       if(isBlock(r,c)) continue;
@@ -318,9 +350,10 @@ function check(){
                        setTimeout(()=>d.classList.remove("solved"),520); },delay);
     }
     const rv=document.getElementById("reveal");
-    rv.innerHTML='<b>The theme — Show Your Work.</b> <b>ERROR</b> (4A), <b>SCORE</b> (7A) and '+
-      '<b>PROOF</b> (3D) are three ways of finding out whether a claim holds up. PROOF runs down '+
-      'the spine of the grid and crosses both of the others: you cannot reach it except through them.';
+    rv.innerHTML='<b>The theme — Settled.</b> <b>TEST</b> (1-Down), <b>OATH</b> (2-Down) and '+
+      '<b>PROOF</b> (3-Down) are the three ways a claim is put beyond doubt: you run it, you swear '+
+      'to it, or you prove it. They are 1-, 2- and 3-Down — the first three clues in the list, '+
+      'standing in three adjacent columns.';
     rv.style.display="block";
   }
   return true;
@@ -329,15 +362,18 @@ document.getElementById("bCheck").addEventListener("click",()=>check());
 document.getElementById("bLetter").addEventListener("click",()=>{
   if(isBlock(cur.r,cur.c)) return;
   user[cur.r][cur.c]=SOL[cur.r][cur.c]; revealedCell[cur.r][cur.c]=true;
+  wrongMark[cur.r][cur.c]=false; cellEl[cur.r][cur.c].classList.remove("wrong");
   advance(); draw(); if(isComplete()) check();
 });
 document.getElementById("bWord").addEventListener("click",()=>{
   const k=curKey(); if(!k) return;
-  entries[k].cells.forEach(([r,c])=>{ user[r][c]=SOL[r][c]; revealedCell[r][c]=true; });
+  entries[k].cells.forEach(([r,c])=>{ user[r][c]=SOL[r][c]; revealedCell[r][c]=true;
+    wrongMark[r][c]=false; cellEl[r][c].classList.remove("wrong"); });
   draw(); if(isComplete()) check();
 });
 document.getElementById("bClear").addEventListener("click",()=>{
-  for(let r=0;r<N;r++) for(let c=0;c<N;c++){ user[r][c]=""; revealedCell[r][c]=false; }
+  for(let r=0;r<N;r++) for(let c=0;c<N;c++){ user[r][c]=""; revealedCell[r][c]=false;
+    wrongMark[r][c]=false; cellEl[r][c].classList.remove("wrong"); }
   done=false; document.getElementById("reveal").style.display="none";
   setStatus(""); draw();
 });

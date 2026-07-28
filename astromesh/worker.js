@@ -404,18 +404,24 @@ export default {
     }
     // Long-lived, immutable, versioned mirror of the crossword (event requires "very long-lived caching").
     if (url.pathname === "/crossword" || url.pathname.startsWith("/crossword/")) {
-      // The response is served immutable for a year, so the ?v= token MUST also key the
-      // upstream fetch — otherwise bumping the version could still hand back the previous
-      // build from edge cache for up to an hour, which would make the versioning a lie.
-      const ver = url.searchParams.get("v") || "0";
+      // Versioned URLs get the year-long immutable cache. The CANONICAL url (no ?v=) must NOT:
+      // it is the one a human bookmarks, and pinning it immutably for a year would leave every
+      // visitor stuck on one build with no way to invalidate — the exact failure that versioned
+      // URLs exist to prevent. So: /crossword?v=N -> immutable 1y, /crossword -> 5 min.
+      const ver = url.searchParams.get("v");
       const upstream = await fetch(
-        "https://maisterwerk.github.io/botm-neoberlin/crossword/index.html?v=" + encodeURIComponent(ver),
-        { cf: { cacheTtl: 3600, cacheKey: "crossword-" + ver } });
+        "https://maisterwerk.github.io/botm-neoberlin/crossword/index.html?v=" + encodeURIComponent(ver || "canonical"),
+        { cf: { cacheTtl: 300, cacheKey: "crossword-" + (ver || "canonical") } });
       const html = await upstream.text();
+      // A real build identity: the sha-256 of the bytes actually being returned. (The previous
+      // header echoed the client's own ?v= back at them, which verified nothing.)
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(html));
+      const build = Array.from(new Uint8Array(digest)).slice(0,8)
+                         .map(b=>b.toString(16).padStart(2,"0")).join("");
       return new Response(html, { status: 200, headers: {
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=31536000, immutable",  // 1 year, versioned via ?v=
-        "X-Crossword-Version": ver,
+        "Cache-Control": ver ? "public, max-age=31536000, immutable" : "public, max-age=300",
+        "X-Crossword-Build": "sha256-" + build,
         "Access-Control-Allow-Origin": "*"
       }});
     }
