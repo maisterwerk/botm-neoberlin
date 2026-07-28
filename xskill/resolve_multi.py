@@ -97,6 +97,23 @@ for reg in ("BULL", "FLAT", "BEAR", "UNKNOWN"):
     up = sum(1 for r in rows if r["direction"] == "above")
     print(f"{reg:<8}{len(rows):>4}{h:>6}{h/len(rows):>8.0%}{d:>7}{up:>13}{len(rows)-up:>13}")
 
+# EVENT-LEVEL table: same dedup rule as cluster_robust.py (asset, target, deadline)
+seen=set(); events=[]
+for r in ledger:
+    k=(r["asset"], round(r["target"],2), r["deadline"])
+    if k in seen: continue
+    seen.add(k); events.append(r)
+print(f"\nSAME TABLE AT EVENT LEVEL — {len(events)} independent claim-events "
+      f"({len(ledger)-len(events)} exact duplicates removed)")
+print(f"{'regime':<8}{'n':>4}{'hits':>6}{'rate':>8}")
+for reg in ("BULL","FLAT","BEAR"):
+    rows=[r for r in events if r["regime"]==reg]
+    if rows:
+        h=sum(r["hit"] for r in rows)
+        print(f"{reg:<8}{len(rows):>4}{h:>6}{h/len(rows):>8.1%}")
+h=sum(r["hit"] for r in events)
+print(f"{'total':<8}{len(events):>4}{h:>6}{h/len(events):>8.1%}")
+
 print("\nBY DIRECTION")
 for d in ("above", "below"):
     rows = [r for r in ledger if r["direction"] == d]

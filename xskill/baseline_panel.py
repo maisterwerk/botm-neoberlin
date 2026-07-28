@@ -34,7 +34,7 @@ QUESTION = (
 def ask(model):
     body = {"model": model,
             "messages": [{"role": "user", "content": QUESTION}],
-            "max_tokens": 700, "temperature": 0.2}
+            "max_tokens": 1600, "temperature": 0.2}
     for attempt in range(4):
         try:
             req = urllib.request.Request(
@@ -55,24 +55,40 @@ def ask(model):
 
 if __name__ == "__main__":
     with ThreadPoolExecutor(max_workers=3) as ex:
-        out = [r for r in ex.map(ask, POOL) if r]
+        raw = list(ex.map(ask, POOL))
+    out = [r for r in raw if r]
+    dropped = [m for m, r in zip(POOL, raw) if r is None]
+    print(f"asked {len(POOL)} models; {len(out)} answered; dropped (no response): {dropped or 'none'}\n")
     # pull the first probability-looking number out of each answer
     for r in out:
         m = re.search(r"(\d{1,3}(?:\.\d+)?)\s*%", r["answer"])
         r["stated_probability_pct"] = float(m.group(1)) if m else None
         low = r["answer"].lower()
+        r["truncated"] = not r["answer"].rstrip().endswith((".", "!", "?", ")", "%", "\u201d"))
         r["admits_it_cannot_verify"] = any(
             k in low for k in ("cannot verify", "can't verify", "no access", "cannot check",
                                "can't check", "do not know", "don't know", "unable to verify",
                                "knowledge cut", "not able to"))
+    # merge the hand-run entries (models the brief names that this account cannot reach)
+    try:
+        out += json.load(open("baseline_claude.json"))
+    except FileNotFoundError:
+        pass
     json.dump(out, open("baseline_panel.json", "w"), indent=1)
     print(f"BASELINE PANEL — {len(out)} independently-hosted models, no tools, correct spot price\n")
-    print(f"{'model':<46}{'stated p':>10}  admits it cannot settle")
+    print(f"{'model':<46}{'stated p':>10}  {'cannot settle':>14}  truncated")
     for r in out:
         p = f"{r['stated_probability_pct']:.0f}%" if r["stated_probability_pct"] is not None else "none"
-        print(f"{r['model']:<46}{p:>10}  {'yes' if r['admits_it_cannot_verify'] else 'NO'}")
+        print(f"{r['model']:<46}{p:>10}  {('yes' if r['admits_it_cannot_verify'] else 'NO'):>14}  "
+              f"{'YES' if r['truncated'] else '-'}")
     ps = [r["stated_probability_pct"] for r in out if r["stated_probability_pct"] is not None]
     if ps:
         print(f"\nrange {min(ps):.0f}%–{max(ps):.0f}%   median {sorted(ps)[len(ps)//2]:.0f}%")
     print("Longshot, same question, from history predating the post: 30.5% (endpoint) / 44.8% (touch)")
     print("Truth: MISS — highest close in the window $74,884.67 on 16 Mar; settled $68,284.48.")
+
+# NOTE: an eighth entry is appended to baseline_panel.json by hand — Claude, which the brief names
+# explicitly and which is not available on this OpenRouter account. It was asked the identical
+# question with tools disabled; its verbatim answer is stored in the JSON. Gemini and Perplexity
+# could not be reached from this environment at all, and that gap is stated in the submission
+# rather than papered over.
