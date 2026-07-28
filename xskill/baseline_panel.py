@@ -3,8 +3,8 @@
 baseline_panel.py — the head-to-head done properly.
 
 The previous submission compared Longshot against ONE unaided model, and the prompt carried a
-wrong spot price, so the comparison was not matched. This asks FIVE independently-hosted models
-from four different vendors the *correct* question — the claim exactly as posted — and records
+wrong spot price, so the comparison was not matched. This asks eight models via OpenRouter (six answer) plus Claude asked directly — seven
+entries from seven vendors — the *correct* question — the claim exactly as posted — and records
 what each says. No tools, no web access: that is the point. The comparison is not
 "is the model clever", it is "can an unaided chat answer settle a claim against a price series".
 
@@ -61,14 +61,16 @@ if __name__ == "__main__":
     print(f"asked {len(POOL)} models; {len(out)} answered; dropped (no response): {dropped or 'none'}\n")
     # pull the first probability-looking number out of each answer
     for r in out:
-        m = re.search(r"(\d{1,3}(?:\.\d+)?)\s*%", r["answer"])
+        m = re.search(r"(\d{1,3}(?:\.\d+)?)\s*%", r["answer"]) or re.search(
+            r"[≈~]\s*0?\.(\d+)\b", r["answer"])
         r["stated_probability_pct"] = float(m.group(1)) if m else None
         low = r["answer"].lower()
         r["truncated"] = not r["answer"].rstrip().endswith((".", "!", "?", ")", "%", "\u201d"))
         r["admits_it_cannot_verify"] = any(
             k in low for k in ("cannot verify", "can't verify", "no access", "cannot check",
                                "can't check", "do not know", "don't know", "unable to verify",
-                               "knowledge cut", "not able to"))
+                               "knowledge cut", "not able to", "can't confirm", "cannot confirm",
+                               "impossible", "not provided", "don't have the price"))
     # merge the hand-run entries (models the brief names that this account cannot reach)
     try:
         out += json.load(open("baseline_claude.json"))
@@ -87,8 +89,10 @@ if __name__ == "__main__":
     print("Longshot, same question, from history predating the post: 30.5% (endpoint) / 44.8% (touch)")
     print("Truth: MISS — highest close in the window $74,884.67 on 16 Mar; settled $68,284.48.")
 
-# NOTE: an eighth entry is appended to baseline_panel.json by hand — Claude, which the brief names
-# explicitly and which is not available on this OpenRouter account. It was asked the identical
-# question with tools disabled; its verbatim answer is stored in the JSON. Gemini and Perplexity
-# could not be reached from this environment at all, and that gap is stated in the submission
-# rather than papered over.
+# NOTE: baseline_claude.json holds one hand-run entry — Claude, which the brief names explicitly
+# and which is not available on this OpenRouter account. It was asked the identical question with
+# tools disabled; its verbatim answer is stored there and merged in above, making it the SEVENTH
+# entry. Gemini and Perplexity could not be reached from this environment at all; that gap is
+# stated in the submission rather than papered over.
+# The derived flags below are a convenience only — the submission quotes the ANSWERS, because the
+# keyword matcher provably misses phrasings like "can't confirm" and "verification is impossible".

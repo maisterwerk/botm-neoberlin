@@ -1,3 +1,4 @@
+# RETIRED — superseded by baseline_panel.py. This file used a WRONG spot price ($68,300, the 31-March close, not the 4-March posting close of $72,667) and therefore answered a +17.1% question instead of the +10.1% claim actually posted. Kept only so the correction is auditable. Do not cite.
 # Baseline test — the same question, asked of an unaided general model
 
 Prompt (no tools, no web, no code — a normal chat answer):
