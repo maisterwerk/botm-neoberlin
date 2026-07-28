@@ -1,3 +1,4 @@
+import { CROSSWORD_B64, CROSSWORD_BUILD } from "./crossword_html.js";
 /**
  * AstroMesh — Cosmic Market Compass
  * A Cloudflare Worker that:
@@ -404,24 +405,23 @@ export default {
     }
     // Long-lived, immutable, versioned mirror of the crossword (event requires "very long-lived caching").
     if (url.pathname === "/crossword" || url.pathname.startsWith("/crossword/")) {
-      // Versioned URLs get the year-long immutable cache. The CANONICAL url (no ?v=) must NOT:
-      // it is the one a human bookmarks, and pinning it immutably for a year would leave every
-      // visitor stuck on one build with no way to invalidate — the exact failure that versioned
-      // URLs exist to prevent. So: /crossword?v=N -> immutable 1y, /crossword -> 5 min.
+      // Versioned URLs get the year-long immutable cache; the canonical URL (no ?v=) gets 5
+      // minutes, because it is the one a human bookmarks and pinning it for a year would leave
+      // every visitor stuck on one build with no way to invalidate.
+      //
+      // The HTML is EMBEDDED in this Worker bundle rather than proxied from GitHub Pages.
+      // That is a fix for a real defect: while proxying, a request for ?v=3 happened to arrive
+      // mid-propagation, got a stale upstream copy, and was then handed to the client with
+      // `immutable, max-age=31536000`. That URL is now pinned to a build that no longer exists.
+      // Promising immutability while forwarding a mutable origin is unsound; making the Worker
+      // the origin makes the promise true, because the bytes ship with the deployment.
       const ver = url.searchParams.get("v");
-      const upstream = await fetch(
-        "https://maisterwerk.github.io/botm-neoberlin/crossword/index.html?v=" + encodeURIComponent(ver || "canonical"),
-        { cf: { cacheTtl: 300, cacheKey: "crossword-" + (ver || "canonical") } });
-      const html = await upstream.text();
-      // A real build identity: the sha-256 of the bytes actually being returned. (The previous
-      // header echoed the client's own ?v= back at them, which verified nothing.)
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(html));
-      const build = Array.from(new Uint8Array(digest)).slice(0,8)
-                         .map(b=>b.toString(16).padStart(2,"0")).join("");
+      const html = new TextDecoder().decode(
+        Uint8Array.from(atob(CROSSWORD_B64), ch => ch.charCodeAt(0)));
       return new Response(html, { status: 200, headers: {
         "Content-Type": "text/html; charset=utf-8",
         "Cache-Control": ver ? "public, max-age=31536000, immutable" : "public, max-age=300",
-        "X-Crossword-Build": "sha256-" + build,
+        "X-Crossword-Build": "sha256-" + CROSSWORD_BUILD,   // hash of the bytes, not an echo of ?v=
         "Access-Control-Allow-Origin": "*"
       }});
     }
