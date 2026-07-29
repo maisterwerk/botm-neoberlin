@@ -27,3 +27,19 @@ build between sessions would make the sessions incomparable, which is a worse pr
 clumsy link. The design flaw is reported instead, and the remaining sessions are run with an
 explicit instruction to click Storm first and to check that `"mode":"storm"` appears in the export
 before sending it.
+
+## Deviation 2: a session played in the wrong condition slot
+
+The pre-registered order is sighted, blind, blind, sighted, blind, sighted. The third session came
+back with `"blind":false` — the steward opened the sighted link. Mode was Storm, confirmed
+independently: the first guess reports `best = 6.235`, the value computed live over the day's
+1205-word pool, rather than the 6.2589 constant Calm uses.
+
+**The session is kept.** The comparison is between conditions, and the condition it was actually
+played under is recorded unambiguously in the data. What is lost is the balance of the order, not
+the validity of the measurement, so it is counted as a SIGHTED session and the order deviation is
+recorded here.
+
+Running tally after three valid sessions: sighted 2, blind 1. The remaining three are therefore
+blind, blind, sighted, which restores 3 and 3 while keeping as much alternation as the situation
+still allows.
