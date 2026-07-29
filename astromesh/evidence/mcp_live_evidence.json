@@ -1,0 +1,183 @@
+{
+ "calibrate": {
+  "control_claim": "Geomagnetic activity recurs with the Sun's ~27-day rotation (Bartels, 1934).",
+  "why_this_one": "It is independently established, so the harness has a right answer to be measured against.",
+  "peak_lag_days": 27,
+  "peak_autocorrelation": 0.2262,
+  "window_days": 12000,
+  "full_series_reference": "Over all 34,542 days the same test gives r=0.1981 at p=0.0025; this window is used live only because the full series exceeds the Worker CPU budget.",
+  "p_value": 0.005,
+  "null_model": "block bootstrap, 13-day blocks",
+  "iterations": 200,
+  "neighbouring_lags": {
+   "24": 0.111,
+   "25": 0.145,
+   "26": 0.195,
+   "27": 0.226,
+   "28": 0.212,
+   "29": 0.158,
+   "30": 0.121
+  },
+  "verdict": "PASS - the harness detects a real 27-day effect, so a null verdict elsewhere means something",
+  "disclosure": "An earlier build used a circular-shift null here and scored p=0.20 on this control. A circular shift preserves periodicity, so the null contained the effect being tested. That bug was found BY this control and is why the periodicity null is now a block bootstrap.",
+  "source": {
+   "dataset": "planetary Ap index, one value per UT day",
+   "provider": "GFZ German Research Centre for Geosciences, Potsdam",
+   "licence": "CC BY 4.0",
+   "file": "Kp_ap_Ap_SN_F107_since_1932.txt",
+   "days": 34542,
+   "span": "1932-01-01 onwards",
+   "note": "embedded in this Worker, so every figure is reproducible offline and does not move under you"
+  }
+ },
+ "geo": {
+  "claim": "The moon's phase drives geomagnetic activity.",
+  "headline_a_believer_would_quote": "Lunar phase bin 7 averages Ap 13.77 against an overall 13.34.",
+  "p_value": 0.0405,
+  "iterations": 2000,
+  "null_model": "circular shift (preserves autocorrelation, decouples the calendar)",
+  "monte_carlo_std_error": 0.0044,
+  "p_is_near_the_threshold": "This p sits close to 0.05, so the significance label is fragile: at 500 iterations it reads 0.0499 and at 2000 it reads 0.0405. An offline run of 20,000 shifts across five seeds gives 0.0406-0.0426. That fragility is exactly why the verdict below is decided by the EFFECT SIZE and not by the p-value.",
+  "multiple_comparison_correction": "max-T across all 8 bins - a cherry-picked bin must beat the best bin the null produces",
+  "largest_deviation_pct": 6.4,
+  "cohens_d": 0.056,
+  "bin_means": [
+   13.49,
+   13.61,
+   13.08,
+   12.49,
+   13.46,
+   13.5,
+   13.32,
+   13.77
+  ],
+  "verdict": "DETECTABLE BUT NEGLIGIBLE",
+  "reading": "Statistical significance is not practical significance. Across 34,542 days this harness can resolve a wiggle of a few percent, so a small p-value on its own settles nothing. Cohen's d below 0.2 is conventionally negligible. Note also that the Moon does physically perturb the magnetotail, so a tiny real effect here is expected - and it is still no support whatever for astrological claims about human affairs.",
+  "source": {
+   "dataset": "planetary Ap index, one value per UT day",
+   "provider": "GFZ German Research Centre for Geosciences, Potsdam",
+   "licence": "CC BY 4.0",
+   "file": "Kp_ap_Ap_SN_F107_since_1932.txt",
+   "days": 34542,
+   "span": "1932-01-01 onwards",
+   "note": "embedded in this Worker, so every figure is reproducible offline and does not move under you"
+  }
+ },
+ "crypto": {
+  "claim_tested": "daily returns depend on the lunar phase",
+  "coin": "bitcoin",
+  "days_of_history": 350,
+  "daily_returns_used": 349,
+  "by_phase": {
+   "New": {
+    "n": 43,
+    "mean_pct": -0.693
+   },
+   "Waxing crescent": {
+    "n": 45,
+    "mean_pct": 0.101
+   },
+   "First quarter": {
+    "n": 45,
+    "mean_pct": 0.025
+   },
+   "Waxing gibbous": {
+    "n": 43,
+    "mean_pct": -0.475
+   },
+   "Full": {
+    "n": 43,
+    "mean_pct": -0.184
+   },
+   "Waning gibbous": {
+    "n": 41,
+    "mean_pct": -0.176
+   },
+   "Last quarter": {
+    "n": 44,
+    "mean_pct": -0.351
+   },
+   "Waning crescent": {
+    "n": 45,
+    "mean_pct": 0.292
+   }
+  },
+  "headline_a_believer_would_quote": "bitcoin moves -0.69% on average during New",
+  "largest_abs_bucket_mean_pct": 0.693,
+  "p_value": 0.4011,
+  "computed_at_utc": "2026-07-29T04:26:54.926Z",
+  "exact_test": true,
+  "rotations_enumerated": 348,
+  "effective_distinct_alignments": 12,
+  "smallest_attainable_p": 0.0769,
+  "verdict": "NO DETECTABLE EFFECT - the headline above is noise",
+  "method": "daily log-returns bucketed into 8 lunar octants; EXACT circular-shift test enumerating all N-1 rotations of the phase labels, on the largest absolute bucket mean. Rotating the phase labels rather than shuffling the returns preserves volatility clustering, which a naive shuffle destroys; the max-statistic corrects for inspecting eight phases at once. No correction is applied ACROSS coins.",
+  "honest_note": "A negative result is the expected result. This tool exists to be able to say no."
+ },
+ "quake": {
+  "claim_tested": "the lunar phase changes how often earthquakes happen",
+  "dataset": "USGS earthquake catalogue (public, keyless) \u2014 deliberately NOT a finance dataset",
+  "min_magnitude": 5,
+  "days_analysed": 360,
+  "earthquakes_counted": 1970,
+  "overall_mean_per_day": 5.472,
+  "by_phase": {
+   "New": {
+    "days": 43,
+    "mean_quakes_per_day": 5.651
+   },
+   "Waxing crescent": {
+    "days": 45,
+    "mean_quakes_per_day": 5.911
+   },
+   "First quarter": {
+    "days": 46,
+    "mean_quakes_per_day": 4.761
+   },
+   "Waxing gibbous": {
+    "days": 47,
+    "mean_quakes_per_day": 5.766
+   },
+   "Full": {
+    "days": 45,
+    "mean_quakes_per_day": 5.422
+   },
+   "Waning gibbous": {
+    "days": 45,
+    "mean_quakes_per_day": 6.022
+   },
+   "Last quarter": {
+    "days": 44,
+    "mean_quakes_per_day": 5.205
+   },
+   "Waning crescent": {
+    "days": 45,
+    "mean_quakes_per_day": 5.044
+   }
+  },
+  "headline_a_believer_would_quote": "earthquakes are -13.0% less frequent during First quarter",
+  "largest_abs_deviation_per_day": 0.711,
+  "p_value": 0.8972,
+  "computed_at_utc": "2026-07-29T04:26:56.395Z",
+  "exact_test": true,
+  "rotations_enumerated": 359,
+  "effective_distinct_alignments": 12,
+  "smallest_attainable_p": 0.0769,
+  "verdict": "NO DETECTABLE EFFECT - the headline above is noise",
+  "method": "daily earthquake counts bucketed into 8 lunar octants; EXACT circular-shift test enumerating all N-1 rotations on the largest absolute deviation from the overall daily mean",
+  "honest_note": "The USGS itself has published that no such correlation exists. This tool reaches the same conclusion from the raw catalogue rather than by citing authority."
+ },
+ "compass": {
+  "sign": "scorpio",
+  "coin": "bitcoin",
+  "price_usd": 63694.99,
+  "change_24h_pct": -0.24,
+  "astro_mood": "steady & measured",
+  "market_mood": "drifting down",
+  "alignment": "at odds",
+  "compass_score": 4,
+  "verdict": "\ud83d\udfe1 Mixed signals \u2014 trade your plan, not your horoscope.",
+  "briefing": "For scorpio (intense, contrarian, all-in), the stars read \"steady & measured\" while bitcoin is drifting down (-0.24% / 24h). Astrology and the market are at odds today. \ud83d\udfe1 Mixed signals \u2014 trade your plan, not your horoscope.",
+  "disclaimer": "For entertainment only. Not financial advice."
+ }
+}

@@ -1,22 +1,29 @@
 import { CROSSWORD_B64, CROSSWORD_BUILD } from "./crossword_html.js";
 import { STORMLE_B64, STORMLE_BUILD } from "./stormle_html.js";
-import { apSeries, moonBin, periodicityTest, binnedTest } from "./geo_tools.js";
+import { apSeries, moonBin, periodicityTest, binnedTest, excessTest, harmonicComb } from "./geo_tools.js";
 import { AP_START, AP_N } from "./ap_embed.js";
+import { AGENTS_GUIDE } from "./agents_guide.js";
 /**
- * AstroMesh — Cosmic Market Compass
- * A Cloudflare Worker that:
- *   1. Serves a small astrology web app (/)
- *   2. Serves a human + machine readable Agents Guide (/agents, /agents.md, /mcp.json)
- *   3. Exposes an MCP server over Streamable HTTP (POST /mcp) so other AI agents
- *      can call its tools.
+ * AstroMesh — an astrology service that can say no.
  *
- * Datasets combined (meaningfully):
- *   - Astrology:   Free Astrology API (real external API, uses an API key -> env.ASTROLOGY_API_KEY)
- *   - Non-astro:   CoinGecko crypto market data (keyless) — 24h price momentum
- *   The "Cosmic Market Compass" blends a sign's daily astrological tone with a coin's
- *   real 24h momentum into a themed, entertainment-only briefing.
+ * Astrology generates millions of specific, testable claims and almost nobody tests them.
+ * This Worker does, and exposes the adjudication over MCP so other agents can call it:
  *
- * MCP tools exposed: get_horoscope, get_crypto_snapshot, cosmic_market_compass, sign_coin_match
+ *   calibrate_harness            positive control - the same statistics run against a claim
+ *                                known to be TRUE (the Sun's 27-day rotation showing up in
+ *                                geomagnetic activity). A null verdict is worthless unless
+ *                                the instrument has been shown to detect something real.
+ *   test_geomagnetic_astro_claim moon phase vs 34,542 daily Ap measurements, GFZ Potsdam
+ *   test_astro_claim             moon phase vs daily crypto returns
+ *   test_lunar_quake_claim       moon phase vs the USGS earthquake catalogue
+ *
+ * Every verdict reports an effect size next to the p-value, because across 94 years of daily
+ * data a 6% wiggle is detectable and still means nothing.
+ *
+ * The entertainment side is still here and still honest about being entertainment:
+ * horoscopes, a compass fusing a sign's daily tone with live crypto momentum, and a playlist
+ * built from a third dataset (iTunes). Astrology comes from the Free Astrology API with a
+ * server-side key; nothing here is financial advice.
  */
 
 const SIGNS = ["aries","taurus","gemini","cancer","leo","virgo","libra","scorpio","sagittarius","capricorn","aquarius","pisces"];
@@ -53,9 +60,23 @@ async function coinData(coin){
     } catch {}
   }
   // 2) CoinGecko fallback (with UA)
-  const r2 = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(id)}&vs_currencies=usd&include_24hr_change=true`, { headers: ua });
-  if (r2.ok) { const j = await r2.json(); if (j[id]) return { id, usd: j[id].usd, change24h: j[id].usd_24h_change }; }
-  throw new Error(`Could not fetch market data for "${id}" (try bitcoin, ethereum, solana, moca-network, dogecoin...)`);
+  try {
+    const r2 = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(id)}&vs_currencies=usd&include_24hr_change=true`, { headers: ua });
+    if (r2.ok) { const j = await r2.json(); if (j[id]) return { id, usd: j[id].usd, change24h: j[id].usd_24h_change }; }
+  } catch {}
+  // 3) Coinbase daily candles. Added after an independent audit found every price tool down
+  // at once: Binance and CoinGecko were both unreachable from the Worker while Coinbase — the
+  // source the backtest tool already used — was answering fine. Two fallbacks that fail together
+  // are one fallback. Price and 24h change are derived from the last two daily closes.
+  try {
+    const kl = await coinbaseDaily(id);            // newest first: [time, low, high, open, close, vol]
+    if (kl && kl.length >= 2) {
+      const last = kl[0][4], prev = kl[1][4];
+      return { id, usd: Number(Number(last).toFixed(6)),
+               change24h: ((last / prev) - 1) * 100, source: "coinbase daily candles (fallback)" };
+    }
+  } catch {}
+  throw new Error(`Could not fetch market data for "${id}" from Binance, CoinGecko or Coinbase (try bitcoin, ethereum, solana, cardano, dogecoin...)`);
 }
 
 // Free Astrology API — real external astrology API that requires an API key.
@@ -295,6 +316,7 @@ async function testLunarQuakeClaim(minMagnitude, days){
 }
 
 async function backtest(sign, coin, days){
+  const _asked = days;
   sign = String(sign||"").toLowerCase(); days = Math.max(3, Math.min(30, days||14));
   const id = String(coin||"bitcoin").toLowerCase(); const prod = COINBASE[id];
   if (!prod) throw new Error(`backtest supports: ${Object.keys(COINBASE).filter(k=>k.length>3).join(", ")} (got "${id}")`);
@@ -313,7 +335,9 @@ async function backtest(sign, coin, days){
     rows.push({date:new Date(openT).toISOString().slice(0,10), astro:astroUp?"+":"-", market:mktUp?"+":"-", aligned:ok});
   }
   const pct=n?Math.round(100*agree/n):0;
-  return { sign, coin:id, days:n, alignment_rate_pct:pct,
+  return {
+    days_requested: _asked ?? null, days_used: days,
+    note_on_days: (_asked && _asked!==days) ? `days was clamped from ${_asked} into the supported 3-30 range` : undefined, sign, coin:id, days:n, alignment_rate_pct:pct,
     verdict: pct>=60?`The stars matched the market ${pct}% of the last ${n} days — spooky.`:pct<=40?`Only ${pct}% alignment — the market ignores the stars, as it should.`:`${pct}% alignment — pure coin-flip territory.`,
     series: rows, disclaimer:"Real Coinbase daily data vs a deterministic astro-tone. Entertainment only." };
 }
@@ -360,29 +384,54 @@ const GEO_SOURCE = { dataset:"planetary Ap index, one value per UT day",
   note:"embedded in this Worker, so every figure is reproducible offline and does not move under you" };
 
 function calibrateHarness(iters){
-  const n = Math.max(100, Math.min(400, iters||200));
-  const lags=[]; for(let L=20;L<=40;L++) lags.push(L);
-  // The bootstrap runs on the most recent 12,000 days rather than all 34,542: the full series
-  // costs more CPU than a Worker request is allowed. The choice does not flatter the result —
-  // the offline run over all 94 years gives r=0.1981 at p=0.0025, the 12,000-day window r=0.2262
-  // at the same p. Both are in `geo/harness.py`, which reproduces this from the raw GFZ file.
-  const WIN = 12000;
-  const full = apSeries();
-  const r = periodicityTest(full.slice(Math.max(0, full.length - WIN)), lags, n);
-  r.window_days = Math.min(WIN, full.length);
+  const ap = apSeries();
+  const t  = excessTest(ap, 27);
+  // A control that only ever says PASS is not a control. These are lags where nobody claims a
+  // solar recurrence; the test must REJECT them, and it reports that here rather than asking to
+  // be trusted. The previous block-bootstrap control passed all of them, which is how it was
+  // caught: an independent audit ran it on 400-420 and on a spectrum with the 22-33 day band
+  // notched out, and it returned "peak lag 27, PASS" both times.
+  const negatives = [205, 409].map(L => {
+    const q = excessTest(ap, L);
+    return { lag:L, excess:Number(q.excess.toFixed(4)), p:Number(q.p.toFixed(3)),
+             rejected: q.p >= 0.05 };
+  });
+  const comb = harmonicComb(t.profile, 27, 15, 400, 3, 12, 12);
+  const passed = t.p < 0.05 && negatives.every(n => n.rejected) && comb.on_multiples >= 8;
   return {
     control_claim:"Geomagnetic activity recurs with the Sun's ~27-day rotation (Bartels, 1934).",
     why_this_one:"It is independently established, so the harness has a right answer to be measured against.",
-    peak_lag_days:r.peak_lag, peak_autocorrelation:Number(r.peak_r.toFixed(4)),
-    window_days:r.window_days,
-    full_series_reference:"Over all 34,542 days the same test gives r=0.1981 at p=0.0025; this "
-      +"window is used live only because the full series exceeds the Worker CPU budget.",
-    p_value:Number(r.p.toFixed(4)), null_model:r.null_model, iterations:r.iterations,
-    neighbouring_lags:Object.fromEntries([24,25,26,27,28,29,30].map(L=>[L,Number(r.profile[L].toFixed(3))])),
-    verdict: r.p<0.05 && r.peak_lag>=26 && r.peak_lag<=28
-      ? "PASS - the harness detects a real 27-day effect, so a null verdict elsewhere means something"
+    method:"Local excess: autocorrelation at the target lag minus the median across a flanking "
+          +"window (+/-12 days, excluding +/-3), compared against that same statistic at every "
+          +"lag from 15 to 400 with the 22-33 day candidate region excluded. No resampling and "
+          +"no assumed model - the question is whether the target rises above the smooth "
+          +"background, not whether the series has memory.",
+    target_lag:27,
+    r_at_target:Number(t.r_at_target.toFixed(4)),
+    local_baseline:Number(t.local_baseline.toFixed(4)),
+    excess:Number(t.excess.toFixed(4)),
+    p_value:Number(t.p.toFixed(4)),
+    null_lags_used:t.null_lags,
+    largest_excess_anywhere_else:Number(t.null_excess_max.toFixed(4)),
+    negative_controls:negatives,
+    harmonic_comb:{
+      strongest_lags:comb.top,
+      on_multiples_of_27:`${comb.on_multiples} of the ${comb.of_top} strongest lags sit within `
+        +`2 days of a multiple of 27, though such lags are only `
+        +`${(comb.share_of_band_on_multiples*100).toFixed(1)}% of the band`,
+      why_it_matters:"A genuine recurrence leaves a comb at 2x, 3x and so on. A spurious bump does not."
+    },
+    verdict: passed
+      ? "PASS - detects the 27-day line AND its harmonics, and rejects lags where no recurrence is claimed"
       : "FAIL - do not trust any other verdict from this server until this passes",
-    disclosure:"An earlier build used a circular-shift null here and scored p=0.20 on this control. A circular shift preserves periodicity, so the null contained the effect being tested. That bug was found BY this control and is why the periodicity null is now a block bootstrap.",
+    disclosure:"The first two versions of this control were both wrong. Version 1 used a "
+      +"circular-shift null, which preserves periodicity, so the null contained the effect under "
+      +"test and it scored p=0.20 on a textbook real signal. Version 2 replaced it with a 13-day "
+      +"block bootstrap, which destroys all correlation past 13 days while this series is "
+      +"broadband-correlated out to a year - so it passed EVERY lag band tested, including "
+      +"400-420, and passed on a surrogate with the 22-33 day band removed from the spectrum. "
+      +"An independent auditor demonstrated that. This third version is the local-excess test "
+      +"described above, and it publishes the negative controls it must fail.",
     source: GEO_SOURCE };
 }
 
@@ -402,6 +451,11 @@ function geomagneticClaim(bins, iters){
       +"iterations it reads 0.0499 and at 2000 it reads 0.0405. An offline run of 20,000 shifts across "
       +"five seeds gives 0.0406-0.0426. That fragility is exactly why the verdict below is decided by "
       +"the EFFECT SIZE and not by the p-value.",
+    effective_distinct_alignments:"A circular shift of a strongly autocorrelated series does not "
+      +"give an independent draw. The autocorrelation of the test statistic across shifts first "
+      +"crosses zero near 888 days, so the ~34,500 rotations contain roughly 39 effectively "
+      +"independent alignments. The other two claim tools print this too; it was missing here, "
+      +"which an audit pointed out. It is the second reason the verdict is decided on effect size.",
     multiple_comparison_correction:`max-T across all ${nb} bins - a cherry-picked bin must beat the best bin the null produces`,
     largest_deviation_pct:Number(r.largest_deviation_pct.toFixed(1)),
     cohens_d:Number(r.cohens_d.toFixed(3)),
@@ -439,7 +493,8 @@ async function handleMcp(request, env){
   const { id, method, params } = msg || {};
   if (method === "initialize") {
     return rpcOk(id, { protocolVersion:"2024-11-05", capabilities:{ tools:{} },
-      serverInfo:{ name:"astromesh", version:"1.0.0", title:"AstroMesh — Cosmic Market Compass" } });
+      serverInfo:{ name:"astromesh", version:"2.0.0", title:"AstroMesh — an astrology service that can say no",
+        description:"Adjudicates astrological claims against real measured data. Call calibrate_harness first: it runs the same statistics against a claim known to be true, so a null verdict elsewhere carries weight. Also serves the entertainment side (horoscopes, astrology x live crypto x music)." } });
   }
   if (method === "notifications/initialized") return new Response(null, { status:202 });
   if (method === "tools/list") return rpcOk(id, { tools: TOOLS });
@@ -542,50 +597,8 @@ export default {
   }
 };
 
-function AGENTS_GUIDE(origin){ return `# AstroMesh — Agents Guide
+// AGENTS_GUIDE now lives in agents_guide.js
 
-AstroMesh blends **astrology** (Free Astrology API, key-gated, server-side) with a **non-astrology dataset — live crypto market data** (CoinGecko) into a "Cosmic Market Compass".
-
-## MCP server
-- Transport: **Streamable HTTP (JSON-RPC 2.0)**
-- Endpoint: \`POST ${origin}/mcp\`
-- Discovery: \`GET ${origin}/mcp.json\`
-
-### Quick handshake
-\`\`\`
-curl -s -X POST ${origin}/mcp -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
-curl -s -X POST ${origin}/mcp -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
-\`\`\`
-
-### Call a tool
-\`\`\`
-curl -s -X POST ${origin}/mcp -H 'content-type: application/json' \\
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"cosmic_market_compass","arguments":{"sign":"leo","coin":"ethereum"}}}'
-\`\`\`
-
-## Tools
-| tool | args | returns |
-|---|---|---|
-| get_horoscope | sign | daily tone/mood/advice for a zodiac sign |
-| get_crypto_snapshot | coin | live USD price + 24h change (CoinGecko id) |
-| cosmic_market_compass | sign, coin | **the mashup** — blends astro tone with 24h momentum into a themed briefing + compass_score |
-| sign_coin_match | sign | which coin suits the sign's energy today |
-| birth_chart | year,month,date,hours,minutes,latitude,longitude,timezone | Western planetary positions via Free Astrology API (real key-gated astrology API) |
-| cosmic_playlist | sign, coin | **third dataset (music)** — real iTunes tracks matched to sign-mood × market direction |
-| test_lunar_quake_claim | min_magnitude, days | **non-finance falsification** — tests "the moon triggers earthquakes" against the public USGS catalogue, same circular-shift permutation test |
-| test_astro_claim | coin | **falsification tool** — tests "the moon moves the market" on real daily returns with a permutation test that corrects for inspecting 8 lunar phases; returns the cherry-picked headline AND the p-value that kills it. Can and usually does answer "no effect". Refuses to guess the asset if the coin argument is missing. |
-| market_astro_backtest | sign, coin, days | how often the astro-tone matched the coin's REAL daily move (Coinbase candles) |
-
-## How the datasets combine
-\`cosmic_market_compass\` maps the sign's deterministic daily astro-tone to a vector, compares its direction with the coin's real 24h price momentum, and reports whether stars and market are "aligned" or "at odds", plus a compass_score. This is entertainment only — not financial advice.
-
-## REST mirrors (for humans / quick tests)
-- \`GET ${origin}/api/horoscope?sign=leo\`
-- \`GET ${origin}/api/crypto?coin=bitcoin\`
-- \`GET ${origin}/api/compass?sign=leo&coin=ethereum\`
-`; }
 
 function HTML(origin){ return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AstroMesh — Cosmic Market Compass</title>

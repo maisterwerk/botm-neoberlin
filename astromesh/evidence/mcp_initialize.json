@@ -1,0 +1,16 @@
+{
+    "jsonrpc": "2.0",
+    "id": 0,
+    "result": {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {
+            "tools": {}
+        },
+        "serverInfo": {
+            "name": "astromesh",
+            "version": "2.0.0",
+            "title": "AstroMesh \u2014 an astrology service that can say no",
+            "description": "Adjudicates astrological claims against real measured data. Call calibrate_harness first: it runs the same statistics against a claim known to be true, so a null verdict elsewhere carries weight. Also serves the entertainment side (horoscopes, astrology x live crypto x music)."
+        }
+    }
+}

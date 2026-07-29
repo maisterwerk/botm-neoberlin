@@ -10,8 +10,8 @@ import json, os, sys, time, urllib.request
 
 KEY = open("/Users/claude/Neo 2.0/secrets/openrouter.key").read().strip()
 MCP = "https://astromesh.neoberlin-mind.workers.dev/mcp"
-MODELS = ["nvidia/nemotron-3-ultra-550b-a55b:free", "google/gemma-4-31b-it:free",
-          "nvidia/nemotron-3-super-120b-a12b:free", "openai/gpt-oss-20b:free"]
+MODELS = ["nvidia/nemotron-3-super-120b-a12b:free", "google/gemma-4-31b-it:free",
+          "openai/gpt-oss-20b:free", "inclusionai/ling-3.0-flash:free"]
 
 def rpc(method, params=None, _id=1):
     body = {"jsonrpc": "2.0", "id": _id, "method": method}
@@ -23,7 +23,15 @@ def rpc(method, params=None, _id=1):
     d = json.load(r)
     res = d.get("result", {})
     c = res.get("content")
-    return json.loads(c[0]["text"]) if c else res
+    if not c: return res
+    txt = c[0]["text"]
+    # The server answers a bad call with a plain-text message such as
+    #   Error: argument "coin" is required
+    # An earlier version of this relay tried to json.loads() that and handed the model
+    # "Expecting value: line 1 column 1" instead, so it could not self-correct. The server was
+    # fine; the relay was hiding its error message. Pass non-JSON through untouched.
+    try: return json.loads(txt)
+    except json.JSONDecodeError: return {"server_message": txt}
 
 def ask(model, messages, max_tokens=1400):
     body = {"model": model, "messages": messages, "temperature": 0.2, "max_tokens": max_tokens}
@@ -44,7 +52,8 @@ def ask(model, messages, max_tokens=1400):
 SYSTEM = ("You are an independent AI agent auditing a third-party MCP server. You cannot browse. "
           "To call a tool, emit ONE line of exactly this form and nothing else:\n"
           "CALL <tool_name> <json-arguments>\n"
-          "You will be given the raw response. Call as many tools as you need (max 5). "
+          "You will be given the raw response. If a call fails, read the error and retry with "
+          "corrected arguments. Call as many tools as you need (max 8). "
           "When finished, emit a final answer beginning with VERDICT: and give your honest "
           "assessment of whether this server does something substantive or is decorative. "
           "Be sceptical. Say so if it is thin.")
@@ -58,7 +67,7 @@ if __name__ == "__main__":
                 {"role": "user", "content": f"MCP server tool catalogue:\n{catalogue}\n\nBegin."}]
         log = [f"### model: {model}"]
         ok = False
-        for turn in range(6):
+        for turn in range(9):
             out = ask(model, msgs)
             if out is None: log.append("(model unreachable)"); break
             line = out.strip().splitlines()[0].strip()
@@ -81,5 +90,5 @@ if __name__ == "__main__":
                 log.append("MODEL SAYS >>> " + out.strip()[:900]); ok = True; break
         transcript.append("\n".join(log))
         print("\n".join(log)[:1500]); print("\n" + "="*72 + "\n")
-        if ok: break
-    open("second_mind_transcript.txt", "w").write("\n\n".join(transcript))
+        # run every model: one favourable opinion is an anecdote, several are evidence
+    open("second_mind_round2.txt", "w").write("\n\n".join(transcript))

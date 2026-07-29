@@ -58,7 +58,68 @@ function mulberry(seed) { return function () {
   t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
   return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-/* PERIODICITY. A circular shift is the WRONG null here: shifting a periodic series leaves the
+/* ---------------------------------------------------------------------------
+   LOCAL-EXCESS PERIODICITY TEST — the replacement for a control that did not work.
+
+   The previous control block-bootstrapped 13-day blocks and asked whether the peak
+   autocorrelation beat that null. An independent audit destroyed it: the bootstrap removes ALL
+   correlation past 13 days, while geomagnetic activity is broadband-correlated out to a year by
+   the 11-year solar cycle, so EVERY lag band passed — 60-80, 100-120, 200-220, even 400-420,
+   where nobody claims a recurrence. It also passed on a surrogate with the 22-33 day band
+   notched out of the spectrum. It was certifying claims nobody makes, permissively, which is the
+   precise failure this design exists to prevent.
+
+   The right question is not "is there correlation at 27" but "does 27 rise ABOVE the smooth
+   background". So the statistic is a local excess — the autocorrelation at the target lag minus
+   the median across a flanking window — and the null is that same statistic at every other lag
+   in a wide band, with the candidate region excluded. No resampling and no assumed model: if the
+   target is not a sharper bump than the bumps found elsewhere in the profile, it fails.
+   --------------------------------------------------------------------------- */
+export function lagProfile(x, lmax){
+  const n=x.length; let m=0; for(let i=0;i<n;i++) m+=x[i]; m/=n;
+  const d=new Float64Array(n); for(let i=0;i<n;i++) d[i]=x[i]-m;
+  let c0=0; for(let i=0;i<n;i++) c0+=d[i]*d[i];
+  const out=new Float64Array(lmax+1);
+  for(let L=1;L<=lmax;L++){ let s=0; for(let i=0;i+L<n;i++) s+=d[i]*d[i+L]; out[L]=s/c0; }
+  return out;
+}
+function localExcess(prof, L, inner, outer){
+  const w=[];
+  for(let i=Math.max(1,L-outer); i<=Math.min(prof.length-1, L+outer); i++)
+    if(Math.abs(i-L)>inner) w.push(prof[i]);
+  w.sort((a,b)=>a-b);
+  const med = w.length%2 ? w[(w.length-1)/2] : (w[w.length/2-1]+w[w.length/2])/2;
+  return prof[L]-med;
+}
+export function excessTest(x, target, opts){
+  const o = Object.assign({lo:15, hi:400, exLo:22, exHi:33, inner:3, outer:12}, opts||{});
+  const prof = lagProfile(x, o.hi+o.outer+2);
+  const obs = localExcess(prof, target, o.inner, o.outer);
+  const nulls=[];
+  for(let L=o.lo; L<=o.hi; L++){
+    if(L>=o.exLo && L<=o.exHi) continue;
+    nulls.push(localExcess(prof, L, o.inner, o.outer));
+  }
+  let ge=0, mx=-1e9, sum=0;
+  for(const v of nulls){ if(v>=obs) ge++; if(v>mx) mx=v; sum+=v; }
+  return { target, r_at_target:prof[target], local_baseline:prof[target]-obs, excess:obs,
+           p:(ge+1)/(nulls.length+1), null_lags:nulls.length,
+           null_excess_max:mx, null_excess_mean:sum/nulls.length, profile:prof };
+}
+/* harmonics: a genuine recurrence leaves a comb at 2x, 3x ... a spurious bump does not */
+export function harmonicComb(prof, base, lo, hi, inner, outer, topN){
+  const rows=[];
+  for(let L=lo; L<=hi; L++) rows.push([L, localExcess(prof, L, inner, outer)]);
+  rows.sort((a,b)=>b[1]-a[1]);
+  const top=rows.slice(0, topN);
+  const onMult = top.filter(([L])=>{ for(let k=1;k<=15;k++) if(Math.abs(L-base*k)<=2) return true; return false; });
+  let bandCount=0; for(let L=lo;L<=hi;L++){ for(let k=1;k<=15;k++) if(Math.abs(L-base*k)<=2){ bandCount++; break; } }
+  return { top: top.map(([L,e])=>({lag:L, excess:Number(e.toFixed(4))})),
+           on_multiples: onMult.length, of_top: topN,
+           share_of_band_on_multiples: Number((bandCount/(hi-lo+1)).toFixed(3)) };
+}
+
+/* PERIODICITY (retained for reference). A circular shift is the WRONG null here: shifting a periodic series leaves the
    period intact, so the null would contain the very effect under test. The first build of this
    harness did exactly that and failed to detect the 27-day solar rotation — a textbook real
    effect — which is how the bug was caught. The null is a BLOCK BOOTSTRAP with 13-day blocks:

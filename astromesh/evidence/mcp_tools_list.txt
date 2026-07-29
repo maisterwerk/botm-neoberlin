@@ -1,0 +1,13 @@
+$ curl -s -X POST https://astromesh.neoberlin-mind.workers.dev/mcp -H 'content-type: application/json' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+  get_horoscope                    args[sign] required['sign']
+  get_crypto_snapshot              args[coin] required['coin']
+  cosmic_market_compass            args[sign,coin] required['sign', 'coin']
+  sign_coin_match                  args[sign] required['sign']
+  birth_chart                      args[year,month,date,hours,minutes,latitude,longitude,timezone] required['year', 'month', 'date', 'latitude', 'longitude']
+  cosmic_playlist                  args[sign,coin] required['sign', 'coin']
+  test_astro_claim                 args[coin] required['coin']
+  test_lunar_quake_claim           args[min_magnitude,days] required[]
+  calibrate_harness                args[iterations] required[]
+  test_geomagnetic_astro_claim     args[bins,iterations] required[]
+  market_astro_backtest            args[sign,coin,days] required['sign', 'coin']

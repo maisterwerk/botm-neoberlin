@@ -1,0 +1,39 @@
+### model: nvidia/nemotron-3-super-120b-a12b:free
+MODEL CALLS >>> get_horoscope {"sign": "aries"}
+SERVER RETURNS >>> {"sign": "aries", "date": "2026-07-29", "tone": 0.612, "mood": "steady & measured", "trait": "bold, impulsive, first-mover", "advice": "Hold your ground; small, deliberate steps win."}
+MODEL CALLS >>> test_astro_claim {}
+SERVER RETURNS >>> {"server_message": "Error: argument \"coin\" is required (e.g. bitcoin, ethereum, solana, cardano) \u2014 this tool will not guess which asset you meant"}
+MODEL CALLS >>> test_astro_claim {"coin": "bitcoin"}
+SERVER RETURNS >>> {"claim_tested": "daily returns depend on the lunar phase", "coin": "bitcoin", "days_of_history": 350, "daily_returns_used": 349, "by_phase": {"New": {"n": 43, "mean_pct": -0.693}, "Waxing crescent": {"n": 45, "mean_pct": 0.101}, "First quarter": {"n": 45, "mean_pct": 0.025}, "Waxing gibbous": {"n": 43, "mean_pct": -0.475}, "Full": {"n": 43, "mean_pct": -0.188}, "Waning gibbous": {"n": 41, "mean_pct": -0.176}, "Last quarter": {"n": 44, "mean_pct": -0.351}, "Waning crescent": {"n": 45, "mean_pct": 0.292}}, "headline_a_believer_would_quote": "bitcoin moves -0.69% on average during New", "largest_abs_bucket_mean_pct": 0.693, "p_value": 0.4011, "computed_at_utc": "2026-07-29T04:22:09.201Z", "exact_test": true, "rotations_enumerated": 348, "effective_distinct_alignments": 12, "smallest_attainable_p": 0.0769, "verdict": "NO DETECTABLE EFFECT - the headline above is noise", "method": "daily log-returns bucketed into 8 lunar octants; EXACT circular-shift test enumerating all N-1 rotations of the phase labels, on the largest absolute bucket mean. Rotating the phase labels rather than shufflin
+MODEL VERDICT >>>
+VERDICT: The server provides a mix of genuine, data‑driven capabilities (live crypto prices, external birth‑chart API, rigorous permutation‑test tools for astrological and geophysical claims) alongside primarily decorative, entertainment‑focused wrappers (daily horoscopes, astro‑crypto‑music playlists, themed briefings). While it can perform substantive analyses and fetch real‑world data, many of its highlighted tools are thin, thematic layers rather than deep analytical services. Overall, it leans toward novelty but does contain a substantive core.
+
+### model: google/gemma-4-31b-it:free
+(model unreachable)
+
+### model: openai/gpt-oss-20b:free
+(model unreachable)
+
+### model: inclusionai/ling-3.0-flash:free
+MODEL CALLS >>> get_horoscope {"sign": "aries"}
+SERVER RETURNS >>> {"sign": "aries", "date": "2026-07-29", "tone": 0.612, "mood": "steady & measured", "trait": "bold, impulsive, first-mover", "advice": "Hold your ground; small, deliberate steps win."}
+MODEL CALLS >>> get_crypto_snapshot {"coin_id": "bitcoin"}
+SERVER RETURNS >>> {"id": "bitcoin", "usd": 63600, "change24h": 0.5081856362894438}
+MODEL CALLS >>> cosmic_market_compass {"sign": "aries", "coin_id": "bitcoin"}
+SERVER RETURNS >>> {"sign": "aries", "coin": "bitcoin", "price_usd": 63600, "change_24h_pct": 0.51, "astro_mood": "steady & measured", "market_mood": "drifting up", "alignment": "aligned", "compass_score": 13, "verdict": "\ud83d\udfe1 Mixed signals \u2014 trade your plan, not your horoscope.", "briefing": "For aries (bold, impulsive, first-mover), the stars read \"steady & measured\" while bitcoin is drifting up (+0.51% / 24h). Astrology and the market are aligned today. \ud83d\udfe1 Mixed signals \u2014 trade your plan, not your horoscope.", "disclaimer": "For entertainment only. Not financial advice."}
+MODEL SAYS >>> <tool_call>sign_coin_match {"sign": "aries"}
+</tool_call>
+<tool_call>birth_chart {"sign": "aries", "birth_date": "2000-03-21", "birth_time": "06:00", "birth_place": "New York"}
+</tool_call>
+<tool_call>cosmic_playlist {"sign": "aries", "coin_id": "bitcoin"}
+</tool_call>
+<tool_call>test_astro_claim {"sign": "aries", "coin_id": "bitcoin", "days": 30}
+</tool_call>
+<tool_call>test_lunar_quake_claim {"days": 30}
+</tool_call>
+<tool_call>calibrate_harness
+</tool_call>
+<tool_call>test_geomagnetic_astro_claim {"days": 30}
+</tool_call>
+<tool_call>market_astro_backtest {"sign": "aries", "coin_id": "bitcoin", "days": 30}
+</tool_call>
