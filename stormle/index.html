@@ -303,9 +303,26 @@ function dailyIndex(){ return fnv(String(dayNumber())) % N; }
 let mode="calm", answer="", cands=WORDS.slice(), rows=[], cur="", over=false, history=[];
 let peeking=false;
 let stormSalt="";
+/* ?blind=1 hides the barometer while still recording every number, so the same session can be
+   played with and without the instrument and the two compared. */
+const BLIND = new URLSearchParams(location.search).get("blind")==="1";
 
+/* Storm used to be ONE puzzle forever. The tie-break salt varied it only where exact ties occur,
+   which is 12 of 1552 openings — a reviewer measured that and the last submission had to walk the
+   claim back. The honest fix is not a different tie-break but a different puzzle: each UTC day
+   fixes a deterministic ~78% subset of the answer list, and the host stalls maximally WITHIN that
+   subset. It still never lies — every reply is the true pattern for every word left standing — and
+   the surviving set is still shown. A word outside today's pool stays a legal guess; it simply
+   cannot be today's answer, which the page says on screen. */
+function dailyPool(){
+  const d = dayNumber();
+  const out = [];
+  for(const w of WORDS) if(fnv(w+"|"+d) % 1000 < 780) out.push(w);
+  return out;
+}
 function reset(m){
-  mode=m; cands=WORDS.slice(); rows=[]; cur=""; over=false; history=[];
+  mode=m; cands = (m==="storm") ? dailyPool() : WORDS.slice();
+  rows=[]; cur=""; over=false; history=[];
   answer = (m==="calm") ? WORDS[dailyIndex()] : "";
   stormSalt = String(dayNumber());
   document.getElementById("mCalm").classList.toggle("on", m==="calm");
@@ -362,7 +379,18 @@ function render(){
     const k=b.dataset.k; b.className = b.classList.contains("wide")?"wide":"";
     if(st[k]) b.classList.add(st[k]);
   });
-  // barometer
+  // barometer — in blind mode nothing is shown, but everything is still measured
+  if(BLIND){
+    document.getElementById("bits").textContent = "—";
+    document.getElementById("nc").textContent = "hidden";
+    document.getElementById("barFill").style.width = "0%";
+    document.getElementById("tbl").style.display = "none";
+    document.getElementById("effNote").textContent = "";
+    document.getElementById("cands").textContent = "hidden for this session";
+    document.getElementById("baroNote").textContent =
+      "BLIND SESSION — the barometer is switched off. Every number is still recorded so this "
+      + "session can be compared against one played with it visible.";
+  } else {
   const bits = cands.length>0 ? LOG2(cands.length) : 0;
   document.getElementById("bits").textContent = bits.toFixed(2);
   document.getElementById("nc").textContent = cands.length;
@@ -398,6 +426,7 @@ function render(){
       `how much more (or less) the replies delivered than your questions were worth.`;
   } else note.textContent="";
   // candidates
+  }
   // The word list is hidden by default. Printing it whenever <=40 words remained meant the
   // game solved itself: after one decent opener the answer was usually sitting on screen.
   const cd=document.getElementById("cands");
@@ -479,6 +508,15 @@ window.__reset = reset;
 window.__bestGuess = bestGuess;
 window.__scoreCode = scoreCode;
 window.__cands = ()=>cands.slice();
+window.__blind = BLIND;
+window.__export = ()=>({
+  mode, blind:BLIND, day:dayNumber(), pool:cands.length,
+  rows:rows.map(r=>r.g+":"+r.p), over,
+  history:history.map(h=>({guess:h.guess, asked:Number(h.asked.toFixed(4)),
+                           best:Number(h.best.toFixed(4)), got:Number(h.got.toFixed(4)),
+                           left:h.left, skill:Number(Math.min(1,h.asked/Math.max(1e-9,h.best)).toFixed(4))})),
+  solved: rows.length>0 && rows[rows.length-1].p==="GGGGG"
+});
 window.__summary = ()=>{
   if(!history.length) return null;
   const r=history.map(h=>h.best>1e-9 ? Math.min(1,h.asked/h.best) : 1);
