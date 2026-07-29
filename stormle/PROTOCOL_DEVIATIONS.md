@@ -43,3 +43,14 @@ recorded here.
 Running tally after three valid sessions: sighted 2, blind 1. The remaining three are therefore
 blind, blind, sighted, which restores 3 and 3 while keeping as much alternation as the situation
 still allows.
+
+## A confound worth naming before the last two sessions
+
+The steward's opening word has improved across sessions — WATER, TREES, WHILE, then TEARS, which
+is the information-optimal opener and scores Skill 1.00. He is learning the game itself, and that
+learning does not switch off when the barometer is hidden. The pre-registered alternating order
+existed to spread exactly this across both conditions; two of the six sessions were played in the
+wrong slot, so that balance is now imperfect.
+
+Stated here, before the final two sessions, so it cannot be introduced afterwards as an
+explanation for whichever result appears.
