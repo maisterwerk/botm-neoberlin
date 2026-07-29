@@ -133,9 +133,18 @@ with sync_playwright() as pw:
     ans=pg.evaluate("__state().answer")
     t("15. candidate words are hidden by default (no self-spoiler)",
       ans not in txt and "still fit" in txt, txt[:70])
+    # Date-independent: keep playing the recommendation until few enough words remain that the
+    # panel lists them. The old version assumed one opener left <=60 candidates, which was true on
+    # the day it was written and not today — a brittle test, not a broken feature.
+    for _ in range(4):
+        if pg.evaluate("__cands().length") <= 60: break
+        rec = pg.evaluate("__bestGuess(__cands()).word")
+        pg.evaluate(f"__play('{rec}')")
     pg.click("#peek")
-    t("15b. they can still be revealed on request", ans in pg.inner_text("#cands"),
-      pg.inner_text("#cands")[:70])
+    txt = pg.inner_text("#cands")
+    left = pg.evaluate("__cands().length")
+    t("15b. they can still be revealed on request",
+      left <= 60 and any(w in txt for w in pg.evaluate("__cands()")), f"{left} left: {txt[:60]}")
 
     # 16 Space must not re-fire the focused on-screen key
     pg.evaluate("__reset('calm')")
@@ -211,6 +220,40 @@ with sync_playwright() as pw:
     before=len(pg.evaluate("__state().rows")); pg.evaluate("__play('TEARS')")
     t("22. a finished game refuses further guesses",
       len(pg.evaluate("__state().rows"))==before, str(pg.evaluate("__state().msg")))
+
+    # ---- the two things this build adds ----
+    diff=pg.evaluate("""()=>{
+      const pools={}, lines={};
+      for(const d of [20661,20662,20663,20664,20665,20666]){
+        const p=__words.filter(w=>__fnv(w+"|"+d)%1000<780);
+        pools[d]=p.length;
+        const r=__adversarial('TEARS',p,String(d));
+        lines[d]=r.pattern+":"+r.survivors.length;
+      }
+      return {pools, distinct:new Set(Object.values(lines)).size, lines:Object.values(lines)};}""")
+    t("24. the daily pool gives a different storm on different days",
+      diff["distinct"]>=4, f'{diff["distinct"]}/6 distinct: {diff["lines"]}')
+    t("24b. the daily pool is a strict subset of the answer list",
+      all(300 < v < 1552 for v in diff["pools"].values()), str(diff["pools"]))
+
+    liar2=pg.evaluate("""()=>{
+      let c=__words.filter(w=>__fnv(w+"|"+20663)%1000<780), bad=0;
+      for(const g of ['TEARS','LUCID','MOUND']){
+        const r=__adversarial(g,c,'20663');
+        for(const w of r.survivors) if(__score(g,w)!==r.pattern) bad++;
+        c=r.survivors;
+      }
+      return {bad,left:c.length};}""")
+    t("25. inside the daily pool the host still never lies", liar2["bad"]==0 and liar2["left"]>0, str(liar2))
+
+    pg.goto(URL + ("&" if "?" in URL else "?") + "blind=1"); pg.wait_for_timeout(300)
+    pg.evaluate("__reset('storm')"); pg.evaluate("__play('TEARS')")
+    ex=pg.evaluate("__export()")
+    t("26. blind mode hides the instrument", pg.inner_text("#bits").strip()=="\u2014" and ex["blind"] is True,
+      f'anzeige="{pg.inner_text("#bits").strip()}" blind={ex["blind"]}')
+    t("26b. blind mode still records every number",
+      ex["history"][0]["asked"]>0 and ex["history"][0]["best"]>0 and "skill" in ex["history"][0],
+      str(ex["history"][0]))
 
     t("23. no JS errors", errs==[], "; ".join(errs[:2]))
     pg.evaluate("__reset('calm')")

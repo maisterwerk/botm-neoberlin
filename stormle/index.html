@@ -499,6 +499,7 @@ document.getElementById("peek").addEventListener("click",e=>{
 window.__score = score;
 window.__entropy = entropy;
 window.__adversarial = adversarialReply;
+window.__fnv = fnv;
 window.__words = WORDS;
 window.__guesses = GUESSES;
 window.__state = ()=>({mode, answer, left:cands.length, rows:rows.map(r=>r.g+":"+r.p),
