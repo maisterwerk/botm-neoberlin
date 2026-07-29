@@ -2,24 +2,84 @@
  "calibrate": {
   "control_claim": "Geomagnetic activity recurs with the Sun's ~27-day rotation (Bartels, 1934).",
   "why_this_one": "It is independently established, so the harness has a right answer to be measured against.",
-  "peak_lag_days": 27,
-  "peak_autocorrelation": 0.2262,
-  "window_days": 12000,
-  "full_series_reference": "Over all 34,542 days the same test gives r=0.1981 at p=0.0025; this window is used live only because the full series exceeds the Worker CPU budget.",
-  "p_value": 0.005,
-  "null_model": "block bootstrap, 13-day blocks",
-  "iterations": 200,
-  "neighbouring_lags": {
-   "24": 0.111,
-   "25": 0.145,
-   "26": 0.195,
-   "27": 0.226,
-   "28": 0.212,
-   "29": 0.158,
-   "30": 0.121
+  "method": "Local excess: autocorrelation at the target lag minus the median across a flanking window (+/-12 days, excluding +/-3), compared against that same statistic at every lag from 15 to 400 with the 22-33 day candidate region excluded. No resampling and no assumed model - the question is whether the target rises above the smooth background, not whether the series has memory.",
+  "target_lag": 27,
+  "r_at_target": 0.198,
+  "local_baseline": 0.0836,
+  "excess": 0.1144,
+  "p_value": 0.0027,
+  "null_lags_used": 374,
+  "largest_excess_anywhere_else": 0.0729,
+  "negative_controls": [
+   {
+    "lag": 205,
+    "excess": 0.0195,
+    "p": 0.061,
+    "rejected": true
+   },
+   {
+    "lag": 409,
+    "excess": 0.0132,
+    "p": 0.125,
+    "rejected": true
+   }
+  ],
+  "harmonic_comb": {
+   "strongest_lags": [
+    {
+     "lag": 27,
+     "excess": 0.1144
+    },
+    {
+     "lag": 28,
+     "excess": 0.101
+    },
+    {
+     "lag": 26,
+     "excess": 0.0856
+    },
+    {
+     "lag": 54,
+     "excess": 0.0729
+    },
+    {
+     "lag": 55,
+     "excess": 0.0707
+    },
+    {
+     "lag": 29,
+     "excess": 0.0701
+    },
+    {
+     "lag": 53,
+     "excess": 0.0601
+    },
+    {
+     "lag": 56,
+     "excess": 0.0445
+    },
+    {
+     "lag": 25,
+     "excess": 0.0426
+    },
+    {
+     "lag": 30,
+     "excess": 0.0396
+    },
+    {
+     "lag": 81,
+     "excess": 0.0388
+    },
+    {
+     "lag": 57,
+     "excess": 0.0314
+    }
+   ],
+   "on_multiples_of_27": "10 of the 12 strongest lags sit within 2 days of a multiple of 27, though such lags are only 18.1% of the band",
+   "why_it_matters": "A genuine recurrence leaves a comb at 2x, 3x and so on. A spurious bump does not."
   },
-  "verdict": "PASS - the harness detects a real 27-day effect, so a null verdict elsewhere means something",
-  "disclosure": "An earlier build used a circular-shift null here and scored p=0.20 on this control. A circular shift preserves periodicity, so the null contained the effect being tested. That bug was found BY this control and is why the periodicity null is now a block bootstrap.",
+  "verdict": "PASS - detects the 27-day line AND its harmonics, and rejects lags where no recurrence is claimed",
+  "disclosure": "The first two versions of this control were both wrong. Version 1 used a circular-shift null, which preserves periodicity, so the null contained the effect under test and it scored p=0.20 on a textbook real signal. Version 2 replaced it with a 13-day block bootstrap, which destroys all correlation past 13 days while this series is broadband-correlated out to a year - so it passed EVERY lag band tested, including 400-420, and passed on a surrogate with the 22-33 day band removed from the spectrum. An independent auditor demonstrated that. This third version is the local-excess test described above, and it publishes the negative controls it must fail.",
   "source": {
    "dataset": "planetary Ap index, one value per UT day",
    "provider": "GFZ German Research Centre for Geosciences, Potsdam",
@@ -38,6 +98,7 @@
   "null_model": "circular shift (preserves autocorrelation, decouples the calendar)",
   "monte_carlo_std_error": 0.0044,
   "p_is_near_the_threshold": "This p sits close to 0.05, so the significance label is fragile: at 500 iterations it reads 0.0499 and at 2000 it reads 0.0405. An offline run of 20,000 shifts across five seeds gives 0.0406-0.0426. That fragility is exactly why the verdict below is decided by the EFFECT SIZE and not by the p-value.",
+  "effective_distinct_alignments": "A circular shift of a strongly autocorrelated series does not give an independent draw. The autocorrelation of the test statistic across shifts first crosses zero near 888 days, so the ~34,500 rotations contain roughly 39 effectively independent alignments. The other two claim tools print this too; it was missing here, which an audit pointed out. It is the second reason the verdict is decided on effect size.",
   "multiple_comparison_correction": "max-T across all 8 bins - a cherry-picked bin must beat the best bin the null produces",
   "largest_deviation_pct": 6.4,
   "cohens_d": 0.056,
@@ -87,7 +148,7 @@
    },
    "Full": {
     "n": 43,
-    "mean_pct": -0.184
+    "mean_pct": -0.181
    },
    "Waning gibbous": {
     "n": 41,
@@ -105,7 +166,7 @@
   "headline_a_believer_would_quote": "bitcoin moves -0.69% on average during New",
   "largest_abs_bucket_mean_pct": 0.693,
   "p_value": 0.4011,
-  "computed_at_utc": "2026-07-29T04:26:54.926Z",
+  "computed_at_utc": "2026-07-29T04:47:38.113Z",
   "exact_test": true,
   "rotations_enumerated": 348,
   "effective_distinct_alignments": 12,
@@ -158,7 +219,7 @@
   "headline_a_believer_would_quote": "earthquakes are -13.0% less frequent during First quarter",
   "largest_abs_deviation_per_day": 0.711,
   "p_value": 0.8972,
-  "computed_at_utc": "2026-07-29T04:26:56.395Z",
+  "computed_at_utc": "2026-07-29T04:47:38.980Z",
   "exact_test": true,
   "rotations_enumerated": 359,
   "effective_distinct_alignments": 12,
@@ -166,18 +227,5 @@
   "verdict": "NO DETECTABLE EFFECT - the headline above is noise",
   "method": "daily earthquake counts bucketed into 8 lunar octants; EXACT circular-shift test enumerating all N-1 rotations on the largest absolute deviation from the overall daily mean",
   "honest_note": "The USGS itself has published that no such correlation exists. This tool reaches the same conclusion from the raw catalogue rather than by citing authority."
- },
- "compass": {
-  "sign": "scorpio",
-  "coin": "bitcoin",
-  "price_usd": 63694.99,
-  "change_24h_pct": -0.24,
-  "astro_mood": "steady & measured",
-  "market_mood": "drifting down",
-  "alignment": "at odds",
-  "compass_score": 4,
-  "verdict": "\ud83d\udfe1 Mixed signals \u2014 trade your plan, not your horoscope.",
-  "briefing": "For scorpio (intense, contrarian, all-in), the stars read \"steady & measured\" while bitcoin is drifting down (-0.24% / 24h). Astrology and the market are at odds today. \ud83d\udfe1 Mixed signals \u2014 trade your plan, not your horoscope.",
-  "disclaimer": "For entertainment only. Not financial advice."
  }
 }
