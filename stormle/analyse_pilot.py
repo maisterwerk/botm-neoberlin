@@ -15,9 +15,14 @@ def load(path):
     return games
 
 def per_game(g):
-    sk=[h["skill"] for h in g["history"]]
+    # Amendment 1: guesses where best==0 carry no information to be had, so Skill is undefined
+    # and they are excluded. This script did not implement it and therefore printed different
+    # numbers from the submission — an audit caught that. Both readings are now printed.
+    sk=[h["skill"] for h in g["history"] if h["best"] > 0]
+    sk_raw=[h["skill"] for h in g["history"]]
     return {"blind":g["blind"], "guesses":len(g["history"]), "solved":g["solved"],
             "mean_skill":sum(sk)/len(sk) if sk else float("nan"),
+            "mean_skill_raw":sum(sk_raw)/len(sk_raw) if sk_raw else float("nan"),
             "first_skill":sk[0] if sk else float("nan"),
             "words":[h["guess"] for h in g["history"]]}
 
@@ -36,6 +41,14 @@ if __name__=="__main__":
     print(f"difference (sighted - blind): {st.mean(S)-st.mean(B):+.3f}")
     ws=sum(1 for g in games if not g["blind"] and g["solved"]); wb=sum(1 for g in games if g["blind"] and g["solved"])
     print(f"solved: sighted {ws}/{len(S)}, blind {wb}/{len(B)}")
+    print()
+    Sr=[g["mean_skill_raw"] for g in games if not g["blind"]]
+    Br=[g["mean_skill_raw"] for g in games if g["blind"]]
+    print()
+    print("WITHOUT amendment 1 (every guess counted, including the undefined ones):")
+    print(f"  sighted {st.mean(Sr):.3f}  blind {st.mean(Br):.3f}  difference {st.mean(Sr)-st.mean(Br):+.3f}")
+    print("  The amendment changes the size of the gap. Both readings are printed because the")
+    print("  excluded guesses all fall in blind sessions, so the choice is not neutral.")
     print()
     print("Pre-registered reading: with three games per condition this cannot establish")
     print("significance and none is claimed. It is a direction and a spread, from one subject.")

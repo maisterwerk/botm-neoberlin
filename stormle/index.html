@@ -124,7 +124,7 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
       <h3>The two modes</h3>
       <div class="note">
         <b style="color:var(--acc)">Calm</b> — an answer is fixed before you start, from the day's date. Ordinary Wordle, with the barometer running.<br><br>
-        <b style="color:var(--storm)">Storm</b> — the host never commits to a word. Each time you guess it replies with whichever pattern keeps the <i>most</i> answers alive, so the field shrinks as slowly as the rules allow. It never lies: the surviving words are exactly those consistent with every reply so far, and the set is never empty. <b>You can lose here.</b> Six guesses is a real cap and a few weak questions can leave more candidates than you have turns — the barometer is what tells you that is happening while you can still do something about it.<br><br>
+        <b style="color:var(--storm)">Storm</b> — the host never commits to a word. Each time you guess it replies with whichever pattern keeps the <i>most</i> answers alive, so the field shrinks as slowly as the rules allow. It never lies: every reply it gives is the true pattern for every word still standing, and the set is never empty. <b>One caveat, stated rather than left for you to find:</b> today's candidates are drawn from a fixed subset of the answer list — about 78% of it, chosen from the date — so a word that fits every clue may still be absent, because it was never in play today. That is what makes each day a different puzzle instead of one fixed game tree. <b>One thing it is not:</b> the survivor list is drawn from <i>today's pool</i>, a fixed subset of the full answer list, so some words that are consistent with the replies are not in it — they were never candidates today. That is what makes each day a different puzzle instead of one fixed game tree, and it is stated here rather than left for you to discover. <b>You can lose here.</b> Six guesses is a real cap and a few weak questions can leave more candidates than you have turns — the barometer is what tells you that is happening while you can still do something about it.<br><br>
         <span style="opacity:.75">Neither idea is original. Storm is <b>Absurdle</b> (qntm, 2022); the barometer is what NYT's <b>WordleBot</b> (2022) does after the fact. What is new is putting them together — the readout is the counter to the host — and running it live instead of in a post-mortem.</span>
       </div>
     </div>
@@ -132,7 +132,7 @@ footer{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;color:v
 </div>
 
 <footer>
-  Type or use the keys · <b>Enter</b> submits · <b>Backspace</b> deletes. Answer pool: <span id="poolN"></span> common five-letter words, embedded — no network calls, no dependencies.<br>
+  Type or use the keys · <b>Enter</b> submits · <b>Backspace</b> deletes. Answer pool: <span id="poolN"></span> — embedded, no network calls, no dependencies.<br>
   Built by NeoBerlin. Storm mode is Absurdle (qntm); the barometer is WordleBot's idea, live. Scoring, entropy and the host are computed here, with no network calls.
 </footer>
 </div>
@@ -302,6 +302,7 @@ function dailyIndex(){ return fnv(String(dayNumber())) % N; }
 /* ---------------- state ---------------- */
 let mode="calm", answer="", cands=WORDS.slice(), rows=[], cur="", over=false, history=[];
 let peeking=false;
+let POOL_TODAY = 0;
 let stormSalt="";
 /* ?blind=1 hides the barometer while still recording every number, so the same session can be
    played with and without the instrument and the two compared. */
@@ -322,6 +323,7 @@ function dailyPool(){
 }
 function reset(m){
   mode=m; cands = (m==="storm") ? dailyPool() : WORDS.slice();
+  POOL_TODAY = cands.length;
   rows=[]; cur=""; over=false; history=[];
   answer = (m==="calm") ? WORDS[dailyIndex()] : "";
   stormSalt = String(dayNumber());
@@ -437,7 +439,11 @@ function render(){
       (over?"":"  (Hidden — press the button if you want the puzzle solved for you.)");
   else cd.innerHTML = cands.length<=60 ? cands.map(w=>"<b>"+w+"</b>").join(" ")
                                        : `${cands.length} words — too many to list.`;
-  document.getElementById("poolN").textContent = N;
+  // This used to print the full 1552 in both modes. In Storm the answers come from the DAY'S
+  // pool, which is smaller, and saying otherwise was simply false — an audit caught it.
+  document.getElementById("poolN").textContent = (mode==="storm")
+    ? `${cands.length===0?0:POOL_TODAY} words today, drawn from ${N}`
+    : `${N} common five-letter words`;
 }
 
 function press(k){
