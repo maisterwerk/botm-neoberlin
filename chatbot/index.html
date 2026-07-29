@@ -280,7 +280,7 @@ async function toolRun(placeholder,fn){
 }
 function toolPrice(coin){return toolRun("⛓️ calling my MCP tool `get_crypto_snapshot`…",async()=>{
   const d=await mcpCall("get_crypto_snapshot",{coin});const a=d.change24h>=0?"▲":"▼";
-  return `**${String(d.id).toUpperCase()}** · $${Number(d.usd).toLocaleString()} ${a} ${Number(d.change24h).toFixed(2)}% (24h)\n\n*Live from my own MCP server — not the language model.*`;});}
+  return `**${String(d.id).toUpperCase()}** · $${Number(d.usd).toLocaleString('en-US')} ${a} ${Number(d.change24h).toFixed(2)}% (24h)\n\n*Live from my own MCP server — not the language model.*`;});}
 function toolSettle(coin){return toolRun("🔬 calling `test_astro_claim` — settling against real price history…",async()=>{
   const d=await mcpCall("test_astro_claim",{coin});
   return `**Claim tested:** ${d.claim_tested} (${coin})\n**Verdict:** ${d.verdict}\n**p = ${d.p_value}**\n\n*A chatbot that can say **no**, with a real permutation test — receipts, not vibes.*`;});}
