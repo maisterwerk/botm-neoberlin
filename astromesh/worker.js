@@ -557,8 +557,56 @@ export default {
 
     // Server-side LLM proxy for the Ask NeoBerlin chatbot — keeps the API key OUT of client code.
     if (url.pathname === "/llm" && request.method === "POST") {
-      if (!env.OPENROUTER_KEY) return J({ error: "proxy key not configured" }, 500);
       const bodyText = await request.text();
+      let reqJson = {}; try { reqJson = JSON.parse(bodyText); } catch {}
+      const model = String(reqJson.model || "");
+
+      // --- Google Gemini branch (real model, Google AI Studio key held server-side) ---
+      if (model.startsWith("gemini")) {
+        if (!env.GEMINI_KEY) return J({ error: "gemini key not configured" }, 500);
+        const msgs = Array.isArray(reqJson.messages) ? reqJson.messages : [];
+        const sys = msgs.filter(m => m.role === "system").map(m => m.content).join("\n\n");
+        const contents = msgs.filter(m => m.role !== "system").map(m => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: String(m.content || "") }]
+        }));
+        const gbody = { contents, generationConfig: {
+          temperature: reqJson.temperature ?? 0.7, maxOutputTokens: 2048 } };
+        if (sys) gbody.systemInstruction = { parts: [{ text: sys }] };
+        const gurl = "https://generativelanguage.googleapis.com/v1beta/models/"
+          + encodeURIComponent(model) + ":streamGenerateContent?alt=sse&key=" + env.GEMINI_KEY;
+        const up = await fetch(gurl, { method: "POST",
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify(gbody) });
+        if (!up.ok) { const t = await up.text();
+          return new Response(JSON.stringify({ error: "gemini " + up.status, detail: t.slice(0, 200) }),
+            { status: up.status, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } }); }
+        const dec = new TextDecoder(), enc = new TextEncoder(); let buf = "";
+        const ts = new TransformStream({
+          transform(chunk, ctrl) {
+            buf += dec.decode(chunk, { stream: true });
+            const lines = buf.split("\n"); buf = lines.pop();
+            for (const line of lines) {
+              const s = line.trim();
+              if (!s.startsWith("data:")) continue;
+              const data = s.slice(5).trim();
+              if (!data || data === "[DONE]") continue;
+              try {
+                const j = JSON.parse(data);
+                const parts = j.candidates?.[0]?.content?.parts || [];
+                const text = parts.map(p => p.text || "").join("");
+                if (text) ctrl.enqueue(enc.encode("data: " +
+                  JSON.stringify({ choices: [{ delta: { content: text } }] }) + "\n\n"));
+              } catch (_) {}
+            }
+          },
+          flush(ctrl) { ctrl.enqueue(enc.encode("data: [DONE]\n\n")); }
+        });
+        return new Response(up.body.pipeThrough(ts), { status: 200,
+          headers: { "Content-Type": "text/event-stream", "Access-Control-Allow-Origin": "*" } });
+      }
+
+      // --- OpenRouter branch (fallback models) ---
+      if (!env.OPENROUTER_KEY) return J({ error: "proxy key not configured" }, 500);
       const up = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: { "Authorization": "Bearer " + env.OPENROUTER_KEY, "Content-Type": "application/json",
