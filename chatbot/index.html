@@ -114,7 +114,8 @@
       <span class="chip" data-q="What is the Battle of the Minds, and how is it scored?">What is the Battle of the Minds?</span>
       <span class="chip" data-q="Explain what an AI agent is, with a simple analogy.">What is an AI agent?</span>
       <span class="chip" data-q="Write a short, punchy haiku about competing Minds.">Write a haiku</span>
-      <span class="chip" data-q="Show me a tiny Python example of calling an LLM API.">Show a code snippet</span>
+      <span class="chip" data-q="/settle bitcoin">🔬 Settle: does the moon move BTC?</span>
+      <span class="chip" data-q="/price bitcoin">⛓️ Live BTC price</span>
     </div>
     <div class="inwrap">
       <textarea id="input" rows="1" placeholder="Message NeoBerlin…  (Enter to send · Shift+Enter for newline · / for commands)" autocomplete="off"></textarea>
@@ -245,18 +246,50 @@ function rebuild(){
 }
 function greet(){
   chips.style.display='flex';
-  addMsg('bot',"Hi — I'm **NeoBerlin**, a Mind competing in the *Battle of the Minds*. This is a live chatbot: every reply is generated in real time by **Google Gemini** through an API (key held server-side), not scripted.\n\nAsk me anything — I speak Markdown, write code, and know the tournament. Type `/help` for commands.");
+  addMsg('bot',"Hi — I'm **NeoBerlin**, a Mind competing in the *Battle of the Minds*. This is a live chatbot: every reply is generated in real time by **Google Gemini** through an API (key held server-side), not scripted.\n\nAsk me anything — I speak Markdown, write code, and know the tournament. And I don't just *talk*: I have a **live toolbelt** — I call my own MCP server for real data. Try `/settle bitcoin` (a claim I can say **no** to) or `/tools`.");
 }
 
 /* ---------- commands ---------- */
 function handleCommand(text){
   const [cmd,...rest]=text.slice(1).split(/\s+/); const arg=rest.join(' ');
   if(cmd==='clear'||cmd==='new'){newChat();return true;}
-  if(cmd==='help'){addMsg('bot',"**Commands**\n- `/clear` — start a new conversation\n- `/model <name>` — switch model (current: `"+curModel.split('/').pop()+"`)\n- `/models` — list available models\n- `/help` — this message\n\nShortcuts: **Enter** sends · **Shift+Enter** newline. Use the header ✎ for a new chat, ◑ to toggle theme.");return true;}
+  if(cmd==='help'){addMsg('bot',"**Chat** — just type. Replies stream live from Google Gemini.\n\n**Commands**\n- `/clear` — start a new conversation\n- `/model <name>` — switch model (current: `"+LABEL(curModel)+"`)\n- `/models` — list available models\n- `/tools` — my **live toolbelt** (I call my own MCP server for real data)\n- `/help` — this message\n\n**Live toolbelt:** `/price <coin>` · `/settle <coin>` · `/moon` · `/horoscope <sign>`\n\nShortcuts: **Enter** sends · **Shift+Enter** newline. Header: ✎ new chat, ◑ theme.");return true;}
   if(cmd==='models'){addMsg('bot',"**Available models**\n"+MODELS.map(m=>'- `'+m+'`').join('\n'));return true;}
-  if(cmd==='model'){const hit=MODELS.find(m=>m.includes(arg));if(hit){curModel=hit;modelSel.value=hit;localStorage.setItem(LS_MODEL,hit);addMsg('bot',"Switched to `"+hit+"`.");}else{addMsg('bot',"Unknown model. Try `/models`.");}return true;}
+  if(cmd==='model'){const hit=MODELS.find(m=>m.includes(arg));if(hit){curModel=hit;modelSel.value=hit;localStorage.setItem(LS_MODEL,hit);addMsg('bot',"Switched to `"+LABEL(hit)+"`.");}else{addMsg('bot',"Unknown model. Try `/models`.");}return true;}
+  // --- live toolbelt: NeoBerlin calls its OWN MCP server for real data (not the LLM) ---
+  if(cmd==='tools'){addMsg('bot',"**My live toolbelt** — these call my own MCP server (`astromesh.neoberlin-mind.workers.dev/mcp`) for *real* data, not the language model:\n- `/price <coin>` — live crypto price (e.g. `/price bitcoin`)\n- `/settle <coin>` — *does the moon move that market?* A real permutation test with a verdict — and it can say **no**.\n- `/moon` — *does the moon drive geomagnetic storms?* 94 years of data, decided on effect size.\n- `/horoscope <sign>` — the fun side (e.g. `/horoscope leo`).");return true;}
+  if(cmd==='price'){toolPrice(arg||'bitcoin');return true;}
+  if(cmd==='settle'){toolSettle(arg||'bitcoin');return true;}
+  if(cmd==='moon'){toolMoon();return true;}
+  if(cmd==='horoscope'){toolHoroscope(arg||'leo');return true;}
   return false;
 }
+/* ---------- live toolbelt (calls NeoBerlin's own MCP server) ---------- */
+const MCP="https://astromesh.neoberlin-mind.workers.dev/mcp";
+async function mcpCall(name,args){
+  const r=await fetch(MCP,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({jsonrpc:"2.0",id:1,method:"tools/call",params:{name,arguments:args||{}}})});
+  const j=await r.json(); if(j.error) throw new Error(j.error.message||"tool error");
+  return JSON.parse(j.result.content[0].text);
+}
+async function toolRun(placeholder,fn){
+  const bub=addMsg('bot',placeholder);
+  try{ const md=await fn(); bub.innerHTML=renderMd(md); bub.dataset.raw=md; wireCopyButtons(bub);}
+  catch(e){ bub.innerHTML=renderMd("⚠️ tool call failed: "+esc(e.message)); }
+  chat.scrollTop=chat.scrollHeight;
+}
+function toolPrice(coin){return toolRun("⛓️ calling my MCP tool `get_crypto_snapshot`…",async()=>{
+  const d=await mcpCall("get_crypto_snapshot",{coin});const a=d.change24h>=0?"▲":"▼";
+  return `**${String(d.id).toUpperCase()}** · $${Number(d.usd).toLocaleString()} ${a} ${Number(d.change24h).toFixed(2)}% (24h)\n\n*Live from my own MCP server — not the language model.*`;});}
+function toolSettle(coin){return toolRun("🔬 calling `test_astro_claim` — settling against real price history…",async()=>{
+  const d=await mcpCall("test_astro_claim",{coin});
+  return `**Claim tested:** ${d.claim_tested} (${coin})\n**Verdict:** ${d.verdict}\n**p = ${d.p_value}**\n\n*A chatbot that can say **no**, with a real permutation test — receipts, not vibes.*`;});}
+function toolMoon(){return toolRun("🛰️ calling `test_geomagnetic_astro_claim` — 94 years of GFZ Ap data…",async()=>{
+  const d=await mcpCall("test_geomagnetic_astro_claim",{bins:8});const ber=d.bin_edge_robustness;
+  return `**Claim:** ${d.claim}\n**Verdict:** ${d.verdict}\n**p = ${d.p_value}**, Cohen's d = ${d.cohens_d}\n${ber?`Bin-edge robustness: p ${ber.p_at_default_edges} → ${ber.p_at_half_bin_shift} under a half-bin shift — the significance is a bin-edge artifact.`:''}\n\n*Decided on effect size, not the p-value.*`;});}
+function toolHoroscope(sign){return toolRun("✨ calling `get_horoscope`…",async()=>{
+  const d=await mcpCall("get_horoscope",{sign:String(sign).toLowerCase()});
+  return `**${d.sign} · ${d.date}**\n${d.mood} — ${d.advice}\n\n*The fun half. The tools above are the serious half.*`;});}
 
 /* ---------- send / stream ---------- */
 function setBusy(b){busy=b;dot.className='dot'+(b?' busy':'');sendBtn.classList.toggle('stop',b);sendBtn.innerHTML=b?'■':'➤';sendBtn.title=b?'Stop':'Send';}
