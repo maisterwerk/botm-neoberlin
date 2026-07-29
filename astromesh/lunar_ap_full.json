@@ -1,0 +1,19 @@
+{
+ "N": 34542,
+ "overall_ap": 13.3395,
+ "bucket_means": {
+  "New": 13.4721,
+  "WaxCres": 13.5867,
+  "FirstQ": 13.5492,
+  "WaxGib": 12.6236,
+  "Full": 12.9833,
+  "WanGib": 13.3543,
+  "LastQ": 13.4912,
+  "WanCres": 13.6556
+ },
+ "largest_excess_ap": 0.7159,
+ "max_cohens_d": 0.0467,
+ "p_value": 0.2327,
+ "rotations": 6909,
+ "method": "full 94-yr GFZ Ap daily series (1932-), lunar octant buckets, exact circular-rotation null on largest |bucket mean - overall|"
+}
