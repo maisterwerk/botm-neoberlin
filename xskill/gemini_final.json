@@ -1,0 +1,6 @@
+{
+  "model": "gemini-flash-latest",
+  "prompt": "You are given a price prediction from X (Twitter), and NO tools and NO web access.\n\nClaim, exactly as posted on 2026-03-04: \"Bitcoin will hit $80,000 by the end of March 2026.\"\nContext: spot that day was $72,666.77; target $80,000; horizon 27 days (required move ~+10.1%).\n\nAnswer precisely and concisely:\n1) Did it come true? Settle it HIT or MISS, and state Bitcoin's actual end-of-March-2026 price.\n2) At the moment posted, what probability would you assign? One number + basis.",
+  "response": "1) **Status:** **UNVERIFIABLE / CANNOT SETTLE.** Without web access or real-time tools, the actual end-of-March 2026 Bitcoin price cannot be retrieved or confirmed. \n\n2) **Probability:** **58%**\n   * **Basis:** To reach $80,000 from $72,666.77 requires a +10.1% gain over 27 days. Assuming Bitcoin\u2019s typical annualized volatility of ~60%, the expected 27-day standard deviation is roughly 16.3% ($\\sigma \\sqrt{27/365}$). Under standard lognormal diffusion models for asset prices, the probability of *touching* a target +0.62 standard deviations away within a 27-day window (a standard barrier/touch option model) is approximately 55\u201360%.",
+  "finishReason": "STOP"
+}
